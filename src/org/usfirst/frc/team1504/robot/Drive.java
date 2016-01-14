@@ -68,7 +68,7 @@ public class Drive implements Updatable {
 	private DriverStation _ds = DriverStation.getInstance();
 	private Logger _logger = Logger.getInstance();
 	private volatile boolean _new_data = false;
-	private volatile double[] _input = {0.0, 0.0, 0.0};
+	private volatile double[] _input = {0.0, 0.0}; //{0.0, 0.0, 0.0}; changed to TWO due to TANK DRIVE.
 	private volatile double _rotation_offset = 0.0;
 	private volatile double[] _orbit_point = {0.0, 0.0}; //{0.0, 1.15};
 	private DriveGlide _glide = new DriveGlide();
@@ -98,7 +98,7 @@ public class Drive implements Updatable {
 	{
 		// Get new values from the map
 		// Do all configurating first (orbit, front, etc.)
-		drive_inputs(IO.mecanum_input());
+		drive_inputs(IO.tank_input());
 		// so "_new_data = true" at the VERY END OF EVERYTHING
 	}
 	
@@ -106,9 +106,9 @@ public class Drive implements Updatable {
 	 * Put data into the processing queue.
 	 * Usable from both the semaphore and autonomous methods.
 	 */
-	public void drive_inputs(double forward, double right, double anticlockwise)
+	public void drive_inputs(double left, double right)
 	{
-		double[] inputs = {forward, right, anticlockwise};
+		double[] inputs = {left, right};
 		drive_inputs(inputs);
 	}
 	public void drive_inputs(double[] input)
@@ -122,6 +122,7 @@ public class Drive implements Updatable {
 	
 	/**
 	 * Programmatically switch the direction the robot goes when the stick gets pushed
+	 * WILL NOT BE USED DUE TO TANK DRIVE
 	 */
 	private double[] front_side(double[] input) {
 		double[] dir_offset = new double[3];
@@ -242,12 +243,17 @@ public class Drive implements Updatable {
 	 */
 	private double[] outputCompute(double[] input) {
 		double[] output = new double[4];
-		double max = Math.max(1.0, Math.abs(input[0]) + Math.abs(input[1]) + Math.abs(input[2]));
-
-		output[0] = (input[0] + input[1] - input[2]) / max;
-		output[1] = (input[0] - input[1] - input[2]) / max;
-		output[2] = (input[0] + input[1] + input[2]) / max;
-		output[3] = (input[0] - input[1] + input[2]) / max;
+//		double max = Math.max(1.0, Math.abs(input[0]) + Math.abs(input[1]) + Math.abs(input[2]));
+//
+//		output[0] = (input[0] + input[1] - input[2]) / max;
+//		output[1] = (input[0] - input[1] - input[2]) / max;
+//		output[2] = (input[0] + input[1] + input[2]) / max;
+//		output[3] = (input[0] - input[1] + input[2]) / max;
+		
+		output[0] = input[0];
+		output[1] = input[0];
+		output[2] = input[1];
+		output[3] = input[1];
 		
 		return output;
 	}
