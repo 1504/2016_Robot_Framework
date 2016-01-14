@@ -5,8 +5,8 @@ public class IO
 //	private static Latch_Joystick _drive_forwardright = new Latch_Joystick(Map.DRIVE_FORWARDRIGHT_JOYSTICK);
 //	private static Latch_Joystick _drive_rotation = new Latch_Joystick(Map.DRIVE_ROTATION_JOYSTICK);
 	
-	private static Latch_Joystick _drive_leftside = new Latch_Joystick(Map.DRIVE_LEFTSIDE_JOYSTICK);
-	private static Latch_Joystick _drive_rightside = new Latch_Joystick(Map.DRIVE_RIGHSTIDE_JOYSTICK);
+	private static Latch_Joystick _drive_y = new Latch_Joystick(Map.DRIVE_ARCADE_Y);
+	private static Latch_Joystick _drive_w = new Latch_Joystick(Map.DRIVE_ARCADE_TURN);
 	
 	public static final long ROBOT_START_TIME = System.currentTimeMillis();
 	
@@ -25,29 +25,28 @@ public class IO
 //TODO: Make sure the RIGHT SIDE is the one multiplied by -1.
 		
 		
-		inputs[0] = Map.DRIVE_INPUT_MAGIC_NUMBERS[0] * Math.pow(Utils.deadzone(_drive_leftside.getRawAxis(Map.JOYSTICK_Y_AXIS)), 2) * Math.signum(_drive_leftside.getRawAxis(Map.JOYSTICK_Y_AXIS));//left side of bot
-		inputs[1] = Map.DRIVE_INPUT_MAGIC_NUMBERS[1] * Math.pow(Utils.deadzone(_drive_rightside.getRawAxis(Map.JOYSTICK_Y_AXIS)), 2) * Math.signum(_drive_rightside.getRawAxis(Map.JOYSTICK_Y_AXIS));//left side of bot
+		inputs[0] = Map.DRIVE_INPUT_MAGIC_NUMBERS[0] * Math.pow(Utils.deadzone(_drive_y.getRawAxis(Map.JOYSTICK_Y_AXIS)), 2) * Math.signum(_drive_y.getRawAxis(Map.JOYSTICK_Y_AXIS));//forward/backward motion
+		inputs[1] = Map.DRIVE_INPUT_MAGIC_NUMBERS[1] * Math.pow(Utils.deadzone(_drive_w.getRawAxis(Map.JOYSTICK_X_AXIS)), 2) * Math.signum(_drive_w.getRawAxis(Map.JOYSTICK_x_AXIS)) * -1;//turning left/right;
 		
 		return inputs;
 	}
 	
 	
+	public static double[] mecanum_input() {
+		double[] inputs = new double[3];
+
+		inputs[0] = Map.DRIVE_INPUT_MAGIC_NUMBERS[0] * Math.pow(Utils.deadzone(_drive_forwardright.getRawAxis(Map.JOYSTICK_Y_AXIS)), 2) * Math.signum(_drive_forwardright.getRawAxis(Map.JOYSTICK_Y_AXIS));// y
+		inputs[1] = Map.DRIVE_INPUT_MAGIC_NUMBERS[1] * Math.pow(Utils.deadzone(_drive_forwardright.getRawAxis(Map.JOYSTICK_X_AXIS)), 2) * Math.signum(_drive_forwardright.getRawAxis(Map.JOYSTICK_X_AXIS));// x
+		inputs[2] = Map.DRIVE_INPUT_MAGIC_NUMBERS[2] * Math.pow(Utils.deadzone(_drive_rotation.getRawAxis(Map.JOYSTICK_X_AXIS)), 2) * Math.signum(_drive_rotation.getRawAxis(Map.JOYSTICK_X_AXIS));// w
+		
+		//inputs[0] = _drive_forwardright.getRawAxis(Map.JOYSTICK_Y_AXIS);
+		//inputs[1] = _drive_forwardright.getRawAxis(Map.JOYSTICK_X_AXIS);
+		//inputs[2] = _drive_rotation.getRawAxis(Map.JOYSTICK_X_AXIS);
+		
+		return inputs;
+	}
 	
 	
-	
-//	public static double[] mecanum_input() {
-//		double[] inputs = new double[3];
-//
-//		inputs[0] = Map.DRIVE_INPUT_MAGIC_NUMBERS[0] * Math.pow(Utils.deadzone(_drive_forwardright.getRawAxis(Map.JOYSTICK_Y_AXIS)), 2) * Math.signum(_drive_forwardright.getRawAxis(Map.JOYSTICK_Y_AXIS));// y
-//		inputs[1] = Map.DRIVE_INPUT_MAGIC_NUMBERS[1] * Math.pow(Utils.deadzone(_drive_forwardright.getRawAxis(Map.JOYSTICK_X_AXIS)), 2) * Math.signum(_drive_forwardright.getRawAxis(Map.JOYSTICK_X_AXIS));// x
-//		inputs[2] = Map.DRIVE_INPUT_MAGIC_NUMBERS[2] * Math.pow(Utils.deadzone(_drive_rotation.getRawAxis(Map.JOYSTICK_X_AXIS)), 2) * Math.signum(_drive_rotation.getRawAxis(Map.JOYSTICK_X_AXIS));// w
-//		
-//		//inputs[0] = _drive_forwardright.getRawAxis(Map.JOYSTICK_Y_AXIS);
-//		//inputs[1] = _drive_forwardright.getRawAxis(Map.JOYSTICK_X_AXIS);
-//		//inputs[2] = _drive_rotation.getRawAxis(Map.JOYSTICK_X_AXIS);
-//		
-//		return inputs;
-//	}
 	public static double front_side() {
 		if (_drive_rotation.getRawButtonLatch(Map.DRIVE_FRONTSIDE_BACK)) {
 			return 180.0;

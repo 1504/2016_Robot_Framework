@@ -14,8 +14,8 @@ public class Map {
 	public static final int DRIVE_FORWARDRIGHT_JOYSTICK = 0;
 	public static final int DRIVE_ROTATION_JOYSTICK = 1;
 	
-	public static final int DRIVE_LEFTSIDE_JOYSTICK = 0;
-	public static final int DRIVE_RIGHSTIDE_JOYSTICK = 1;
+	public static final int DRIVE_ARCADE_Y = 0;
+	public static final int DRIVE_ARCADE_TURN = 1;
 	
 	// Drive Motor enumeration
 	public static enum DRIVE_MOTOR { FRONT_LEFT, BACK_LEFT, BACK_RIGHT, FRONT_RIGHT }

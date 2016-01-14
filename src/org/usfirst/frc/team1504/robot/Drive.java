@@ -68,9 +68,7 @@ public class Drive implements Updatable {
 	private DriverStation _ds = DriverStation.getInstance();
 	private Logger _logger = Logger.getInstance();
 	private volatile boolean _new_data = false;
-	private volatile double[] _input = {0.0, 0.0}; //{0.0, 0.0, 0.0}; changed to TWO due to TANK DRIVE.
-	private volatile double _rotation_offset = 0.0;
-	private volatile double[] _orbit_point = {0.0, 0.0}; //{0.0, 1.15};
+	private volatile double[] _input = {0.0, 0.0};// TWO due to ARCADE DRIVE.
 	private DriveGlide _glide = new DriveGlide();
 	private Groundtruth _groundtruth = Groundtruth.getInstance();
 	
@@ -97,7 +95,7 @@ public class Drive implements Updatable {
 	public void semaphore_update()
 	{
 		// Get new values from the map
-		// Do all configurating first (orbit, front, etc.)
+		// Do all configurating first (front, etc.)
 		drive_inputs(IO.tank_input());
 		// so "_new_data = true" at the VERY END OF EVERYTHING
 	}
@@ -106,9 +104,9 @@ public class Drive implements Updatable {
 	 * Put data into the processing queue.
 	 * Usable from both the semaphore and autonomous methods.
 	 */
-	public void drive_inputs(double left, double right)
+	public void drive_inputs(double forward, double turn)
 	{
-		double[] inputs = {left, right};
+		double[] inputs = {forward, turn};
 		drive_inputs(inputs);
 	}
 	public void drive_inputs(double[] input)
@@ -121,45 +119,11 @@ public class Drive implements Updatable {
 	}
 	
 	/**
-	 * Programmatically switch the direction the robot goes when the stick gets pushed
-	 * WILL NOT BE USED DUE TO TANK DRIVE
+	 * Programmatically switch the direction the robot goes when the stick gets pushed; due to tank, can only switch between forward and backwards.
 	 */
 	private double[] front_side(double[] input) {
-		double[] dir_offset = new double[3];
-		dir_offset[0] = input[0] * Math.cos(_rotation_offset) + input[1] * Math.sin(_rotation_offset);
-		dir_offset[1] = input[1] * Math.cos(_rotation_offset) - input[0] * Math.sin(_rotation_offset);
-		dir_offset[2] = input[2];
-		return dir_offset;
-	}
-	
-	public void setFrontAngle(double rotation_offset)
-	{
-		_rotation_offset = rotation_offset;
-	}
-	
-	/**
-	 * Orbit point
-	 */
-	private double[] orbit_point(double[] input) {
-		double x = _orbit_point[0];
-		double y = _orbit_point[1];
-
-		double[] k = { y - 1, y + 1, 1 - x, -1 - x };
-
-		double p = Math.sqrt((k[0] * k[0] + k[2] * k[2]) / 2) * Math.cos((Math.PI / 4) + Math.atan2(k[0], k[2]));
-		double r = Math.sqrt((k[1] * k[1] + k[2] * k[2]) / 2) * Math.cos(-(Math.PI / 4) + Math.atan2(k[1], k[2]));
-		double q = -Math.sqrt((k[1] * k[1] + k[3] * k[3]) / 2) * Math.cos((Math.PI / 4) + Math.atan2(k[1], k[3]));
-
-		double[] corrected = new double[3];
-		corrected[0] = (input[2] * r + (input[0] - input[2]) * q + input[0] * p) / (q + p);
-		corrected[1] = (-input[2] * r + input[1] * q - (-input[1] - input[2]) * p) / (q + p);
-		corrected[2] = (2 * input[2]) / (q + p);
-		return corrected;
-	}
-	
-	public void setOrbitPoint(double[] orbit_point)
-	{
-		_orbit_point = orbit_point;
+		input[0] = input[0]*-1;
+		return input;
 	}
 	
 	/**
@@ -237,23 +201,21 @@ public class Drive implements Updatable {
 	}
 	
 	/**
-	 * Convert the Forward, Right and Antoclockwise values into 4 motor outputs
-	 * @param input - Double array containing Forward, Right and Antoclockwise values
+	 * Convert the Forward/Backward and Turn values into 4 motor outputs
+	 * @param input - Double array containing Forward and Turn values
 	 * @param output - Double array containing motor output values
 	 */
 	private double[] outputCompute(double[] input) {
 		double[] output = new double[4];
-//		double max = Math.max(1.0, Math.abs(input[0]) + Math.abs(input[1]) + Math.abs(input[2]));
-//
-//		output[0] = (input[0] + input[1] - input[2]) / max;
-//		output[1] = (input[0] - input[1] - input[2]) / max;
-//		output[2] = (input[0] + input[1] + input[2]) / max;
-//		output[3] = (input[0] - input[1] + input[2]) / max;
+		double max = Math.max(1.0, Math.abs(input[0]) + Math.abs(input[1]));
+
 		
-		output[0] = input[0];
-		output[1] = input[0];
-		output[2] = input[1];
-		output[3] = input[1];
+		output[0] = (input[1] - input[0]);
+		output[1] = (input[1] - input[0]);
+		output[2] = (input[1] + input[0]);
+		output[3] = (input[1] + input[0]);
+		
+		
 		
 		return output;
 	}
