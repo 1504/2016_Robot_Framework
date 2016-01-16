@@ -207,14 +207,23 @@ public class Drive implements Updatable {
 	 */
 	private double[] outputCompute(double[] input) {
 		double[] output = new double[4];
-		double max = Math.max(1.0, Math.abs(input[0]) + Math.abs(input[1]));
-
+		double[] scaled_input = new double[2];
 		
-		output[0] = (input[1] - input[0]);
-		output[1] = (input[1] - input[0]);
-		output[2] = (input[1] + input[0]);
-		output[3] = (input[1] + input[0]);
+		double theta = Math.atan2(input[0], input[1]);
 		
+		if (theta > (Math.PI/4)) {theta = (Math.PI/2) - theta;}
+		
+		double alpha = theta + (Math.PI/4);
+		double hyp = Math.sqrt((input[0] * input[0]) + (input[1] * input[1]));
+		
+		double hyp_new = Math.cos(theta)*hyp/Math.cos(alpha);
+		scaled_input[0] = Math.sin(alpha)*hyp_new;
+		scaled_input[1] = Math.cos(alpha)*hyp_new;
+		
+		output[0] = (scaled_input[1] - scaled_input[0]);
+		output[1] = (scaled_input[1] - scaled_input[0]);
+		output[2] = (scaled_input[1] + scaled_input[0]);
+		output[3] = (scaled_input[1] + scaled_input[0]);
 		
 		
 		return output;
