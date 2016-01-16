@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry exported="true" kind="lib" path="/Users/Lexie/wpilib/java/current/lib/NetworkTables.jar"/>
-	<classpathentry exported="true" kind="lib" path="/Users/Lexie/wpilib/java/current/lib/WPILib.jar"/>
+	<classpathentry exported="true" kind="lib" path="/Users/eashw/wpilib/java/current/lib/NetworkTables.jar"/>
+	<classpathentry exported="true" kind="lib" path="/Users/eashw/wpilib/java/current/lib/WPILib.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
