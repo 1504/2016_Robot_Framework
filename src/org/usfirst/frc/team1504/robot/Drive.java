@@ -69,11 +69,13 @@ public class Drive implements Updatable
 	private DriverStation _ds = DriverStation.getInstance();
 	private Logger _logger = Logger.getInstance();
 	private volatile boolean _new_data = false;
-	private volatile double[] _input =
-	{ 0.0, 0.0 };// TWO due to ARCADE DRIVE.
+	private volatile double[] _input =	{ 0.0, 0.0 };// TWO due to ARCADE DRIVE.
+	private volatile double _frontside_scalar = 1.0;
 	private DriveGlide _glide = new DriveGlide();
 	private Groundtruth _groundtruth = Groundtruth.getInstance();
 
+
+	
 	private CANTalon[] _motors = new CANTalon[Map.DRIVE_MOTOR_PORTS.length];
 
 	private volatile int _loops_since_last_dump = 0;
@@ -129,8 +131,13 @@ public class Drive implements Updatable
 	 */
 	private double[] front_side(double[] input)
 	{
-		input[0] = input[0] * -1;
+		input[0] *= _frontside_scalar;
 		return input;
+	}
+	
+	private void frontsideAngle(double d)
+	{
+		_frontside_scalar = d;
 	}
 
 	/**
@@ -188,7 +195,7 @@ public class Drive implements Updatable
 
 		// Apply P(ID) correction factor to the joystick values
 		// TODO: Determine gain constant and add to the Map
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i < 2; i++)
 			output[i] += (normal_input[i] - speeds[i]) * -0.01;
 
 		return output;
@@ -230,26 +237,13 @@ public class Drive implements Updatable
 	private double[] outputCompute(double[] input)
 	{
 		double[] output = new double[4];
-		double[] scaled_input = new double[2];
 
 		double theta = Math.atan2(input[0], input[1]);
+		double offset = (theta % (Math.PI/4.0)) - Math.floor((theta/(Math.PI/4)%2)*(Math.PI/4));
+		double scalar = Math.cos(offset)/Math.cos(offset - 45 + 90 * (offset < 0 ? 1.0 : 0.0));
 
-		if (theta > (Math.PI / 4))
-		{
-			theta = (Math.PI / 2) - theta;
-		}
-
-		double alpha = theta + (Math.PI / 4);
-		double hyp = Math.sqrt((input[0] * input[0]) + (input[1] * input[1]));
-
-		double hyp_new = Math.cos(theta) * hyp / Math.cos(alpha);
-		scaled_input[0] = Math.sin(alpha) * hyp_new;
-		scaled_input[1] = Math.cos(alpha) * hyp_new;
-
-		output[0] = (scaled_input[1] - scaled_input[0]);
-		output[1] = (scaled_input[1] - scaled_input[0]);
-		output[2] = (scaled_input[1] + scaled_input[0]);
-		output[3] = (scaled_input[1] + scaled_input[0]);
+		output[0] = output[1] = (scalar/Math.sqrt(2.0)) * (input[0] + input[1]);
+		output[2] = output[3] = (scalar/Math.sqrt(2.0)) * (input[0] - input[1]);
 
 		return output;
 	}
@@ -318,15 +312,19 @@ public class Drive implements Updatable
 				{	
 					if(_ds.isOperatorControl())
 					{
-						// Switch front side if we need to
-						boolean is_frontside = IO.front_side();
+						// Switch front side, if needed
+						double frontside_scalar = IO.front_side();
+						if (frontside_scalar != 0.0)
+						{
+						frontsideAngle(frontside_scalar);							
+						}
+						
 						// Detents
 						input = detents(input);
+						
 						// Frontside
-						if (is_frontside)
-						{
-							input = front_side(input);
-						}
+						input = front_side(input);
+						
 						// Orbit point
 						//input = orbit_point(input);
 						// Glide

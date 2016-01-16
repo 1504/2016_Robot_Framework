@@ -15,6 +15,10 @@ public class Map {
 	public static final int DRIVE_ARCADE_Y = 0;
 	public static final int DRIVE_ARCADE_TURN = 1;
 	
+	//Cheesy Drive Button to toggle turning
+	public static final int DRIVE_TURN_TOGGLE = 1;
+	
+	
 	// Drive Motor enumeration
 	public static enum DRIVE_MOTOR { FRONT_LEFT, BACK_LEFT, BACK_RIGHT, FRONT_RIGHT }
 	
@@ -34,10 +38,8 @@ public class Map {
 	public static final double[] DRIVE_INPUT_MAGIC_NUMBERS = { 1.0, -1.0, 0.7 };
 	
 	// Drive Front Side changing
-	public static final int DRIVE_FRONTSIDE_FRONT = 3;
 	public static final int DRIVE_FRONTSIDE_BACK = 2;
-	public static final int DRIVE_FRONTSIDE_RIGHT = 5;
-	public static final int DRIVE_FRONTSIDE_LEFT = 4;
+	public static final int DRIVE_FRONTSIDE_FRONT = 3;
 	
 	// Glide gain
 	public static final double[][] DRIVE_GLIDE_GAIN = {{0.0015, 0.0025, 0.003}, {0.008, 0.008, 0.008}};
