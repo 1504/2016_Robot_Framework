@@ -1,13 +1,16 @@
 package org.usfirst.frc.team1504.robot;
 
+import edu.wpi.first.wpilibj.Joystick;
+
 public class IO
 {
-//	private static Latch_Joystick _drive_forwardright = new Latch_Joystick(Map.DRIVE_FORWARDRIGHT_JOYSTICK);
-//	private static Latch_Joystick _drive_rotation = new Latch_Joystick(Map.DRIVE_ROTATION_JOYSTICK);
+	private static Latch_Joystick _drive_forwardright = new Latch_Joystick(Map.DRIVE_FORWARDRIGHT_JOYSTICK);
+	private static Latch_Joystick _drive_rotation = new Latch_Joystick(Map.DRIVE_ROTATION_JOYSTICK);
 	
 	private static Latch_Joystick _drive_y = new Latch_Joystick(Map.DRIVE_ARCADE_Y);
 	private static Latch_Joystick _drive_w = new Latch_Joystick(Map.DRIVE_ARCADE_TURN);
 	
+	public static Joystick joystickSecondary = new Joystick(0); //index later
 	public static final long ROBOT_START_TIME = System.currentTimeMillis();
 	
 	/**
@@ -26,7 +29,7 @@ public class IO
 		
 		
 		inputs[0] = Map.DRIVE_INPUT_MAGIC_NUMBERS[0] * Math.pow(Utils.deadzone(_drive_y.getRawAxis(Map.JOYSTICK_Y_AXIS)), 2) * Math.signum(_drive_y.getRawAxis(Map.JOYSTICK_Y_AXIS));//forward/backward motion
-		inputs[1] = Map.DRIVE_INPUT_MAGIC_NUMBERS[1] * Math.pow(Utils.deadzone(_drive_w.getRawAxis(Map.JOYSTICK_X_AXIS)), 2) * Math.signum(_drive_w.getRawAxis(Map.JOYSTICK_x_AXIS)) * -1;//turning left/right;
+		inputs[1] = Map.DRIVE_INPUT_MAGIC_NUMBERS[1] * Math.pow(Utils.deadzone(_drive_w.getRawAxis(Map.JOYSTICK_X_AXIS)), 2) * Math.signum(_drive_w.getRawAxis(Map.JOYSTICK_X_AXIS)) * -1;//turning left/right;
 		
 		return inputs;
 	}
