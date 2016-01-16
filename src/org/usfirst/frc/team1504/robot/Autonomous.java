@@ -65,7 +65,7 @@ public class Autonomous {
 	
 	public void stop()
 	{
-		_drive.drive_inputs(0.0, 0.0, 0.0);
+		_drive.drive_inputs(0.0, 0.0);
 
 		if(!_thread_alive)
 			return;

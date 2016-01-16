@@ -282,15 +282,15 @@ public class Drive implements Updatable {
 					{
 						// Switch front side if we need to
 						double rotation_offset = IO.front_side();
-						if(!Double.isNaN(rotation_offset))
-							setFrontAngle(rotation_offset);
+						if(!Double.isNaN(rotation_offset)){}
+							//setFrontAngle(rotation_offset);
 					
 						// Detents
 						input = detents(input);
 						// Frontside
 						input = front_side(input);
 						// Orbit point
-						input = orbit_point(input);
+						//input = orbit_point(input);
 						// Glide
 						input = _glide.gain_adjust(input);
 						// Osc
