@@ -11,9 +11,7 @@ public class Map {
  */
 	
 	// Joystick inputs
-	public static final int DRIVE_FORWARDRIGHT_JOYSTICK = 0;
-	public static final int DRIVE_ROTATION_JOYSTICK = 1;
-	
+
 	public static final int DRIVE_ARCADE_Y = 0;
 	public static final int DRIVE_ARCADE_TURN = 1;
 	
