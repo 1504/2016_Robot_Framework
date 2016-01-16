@@ -71,6 +71,6 @@ public class Map {
 /**
  * Logger stuff
  */
-	public static enum LOGGED_CLASSES { SEMAPHORE, DRIVE, GROUNDTRUTH }
+	public static enum LOGGED_CLASSES { SEMAPHORE, DRIVE, GROUNDTRUTH, ENDGAME }
 
 }

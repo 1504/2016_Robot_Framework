@@ -1,5 +1,6 @@
 package org.usfirst.frc.team1504.robot;
 
+import java.nio.ByteBuffer;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DriverStation;
 import org.usfirst.frc.team1504.robot.Update_Semaphore.Updatable;
@@ -11,7 +12,9 @@ public class endGame implements Updatable{
 	DoubleSolenoid hook;
 	DriverStation ds;
 	endGame EndGame;
-	boolean override = false;
+	boolean override;
+	int overrideButtonState, liftButtonState;
+	long time;
 	
 	public endGame()
 	{
@@ -25,6 +28,7 @@ public class endGame implements Updatable{
 	{
 		if(ds.getMatchTime() <= 20 || override)
 		{
+			time = System.currentTimeMillis();
 			try {
 				Thread.sleep(1000);
 			}
@@ -41,17 +45,21 @@ public class endGame implements Updatable{
 	{
 		if(IO.joystickSecondary.getRawButton(0))
 		{
+			liftButtonState = 1; //1 = true, 0 = false
 			lift();
 		}
+		liftButtonState = 0; //false (0) whether or not condition executed
 		
 		while(IO.joystickSecondary.getRawButton(1))
 		{
 			if(IO.joystickSecondary.getRawButton(0)) //override
 			{
+				overrideButtonState = 1;
 				override = true;
 				lift();
 			}
 		}
+		overrideButtonState = 0; //should be false (0) whether or not while loop executed
 		override = false;
 		
 	}
@@ -59,6 +67,15 @@ public class endGame implements Updatable{
 	public void dump()
 	{
 		//time
+		byte[] data = new byte[8];
+		ByteBuffer.wrap(data).putLong(System.currentTimeMillis() - time);
+		ByteBuffer.wrap(data).putInt(liftButtonState);
+		ByteBuffer.wrap(data).putInt(overrideButtonState);
+		ByteBuffer.wrap(data).putInt(mast.get().ordinal());
+		
+
+		//data[0] = System.currentTimeMillis() - time;
+		Logger.getInstance().log(Map.LOGGED_CLASSES.ENDGAME, data);
 	}
 	
 }
