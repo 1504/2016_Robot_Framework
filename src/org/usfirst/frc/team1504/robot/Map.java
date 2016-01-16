@@ -1,5 +1,7 @@
 package org.usfirst.frc.team1504.robot;
 
+import javax.crypto.spec.PSource.PSpecified;
+
 public class Map {
 /**
  * Utilities
@@ -15,7 +17,9 @@ public class Map {
 	public static final int DRIVE_ARCADE_Y = 0;
 	public static final int DRIVE_ARCADE_TURN = 1;
 	
-	//Cheesy Drive Button to toggle turning
+	public static final int SECONDARY = 2;
+	
+	//Cheesy Drive Button to toggle whether turning is enabled
 	public static final int DRIVE_TURN_TOGGLE = 1;
 	
 	
@@ -40,6 +44,19 @@ public class Map {
 	// Drive Front Side changing
 	public static final int DRIVE_FRONTSIDE_BACK = 2;
 	public static final int DRIVE_FRONTSIDE_FRONT = 3;
+	
+	//Secondary Motor Ports
+	//The direction right means on the right if you're looking from the backside of the robot. Ditto with left.
+	public static final int INTAKE_TALON_PORT = 20;
+	public static final int SHOOTER_LEFT_TALON_PORT = 21;
+	public static final int SHOOTER_RIGHT_TALON_PORT = 22;
+	
+	//Buttons for shooting
+	public static final int SHOOTER_INTAKE = 2;
+	public static final int SHOOTER_PREP = 3;
+	public static final int SHOOTER_LAUNCH = 1;
+	
+
 	
 	// Glide gain
 	public static final double[][] DRIVE_GLIDE_GAIN = {{0.0015, 0.0025, 0.003}, {0.008, 0.008, 0.008}};

@@ -74,7 +74,6 @@ public class Drive implements Updatable
 	private DriveGlide _glide = new DriveGlide();
 	private Groundtruth _groundtruth = Groundtruth.getInstance();
 
-
 	
 	private CANTalon[] _motors = new CANTalon[Map.DRIVE_MOTOR_PORTS.length];
 
