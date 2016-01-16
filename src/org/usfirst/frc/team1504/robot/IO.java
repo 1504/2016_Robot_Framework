@@ -1,12 +1,18 @@
 package org.usfirst.frc.team1504.robot;
 
-public class IO
-{
+import edu.wpi.first.wpilibj.Joystick;
+
+public class IO {
 
 	private static Latch_Joystick _drive_y = new Latch_Joystick(Map.DRIVE_ARCADE_Y);
 	private static Latch_Joystick _drive_w = new Latch_Joystick(Map.DRIVE_ARCADE_TURN);
 
 	public static final long ROBOT_START_TIME = System.currentTimeMillis();
+<<<<<<< Updated upstream
+=======
+	
+	public static Joystick joystickSecondary = new Joystick(2); //secondary joystick - port tbd
+>>>>>>> Stashed changes
 
 	/**
 	 * Drive stuff
@@ -17,9 +23,18 @@ public class IO
 	 * 
 	 * @return
 	 */
+<<<<<<< Updated upstream
 
 	public static double[] tank_input()
 	{
+=======
+	public void endGameInputs()
+	{
+		
+	}
+
+	public static double[] tank_input() {
+>>>>>>> Stashed changes
 		double[] inputs = new double[2];
 		// TODO: Make sure the RIGHT SIDE is the one multiplied by -1.
 
@@ -27,6 +42,7 @@ public class IO
 				* Math.pow(Utils.deadzone(_drive_y.getRawAxis(Map.JOYSTICK_Y_AXIS)), 2)
 				* Math.signum(_drive_y.getRawAxis(Map.JOYSTICK_Y_AXIS));// forward/backward
 																		// motion
+<<<<<<< Updated upstream
 
 		if (_drive_w.getRawButton(Map.DRIVE_TURN_TOGGLE))
 		{
@@ -38,6 +54,13 @@ public class IO
 		{
 			inputs[1] = 0.0;
 		}
+=======
+		inputs[1] = Map.DRIVE_INPUT_MAGIC_NUMBERS[1]
+				* Math.pow(Utils.deadzone(_drive_w.getRawAxis(Map.JOYSTICK_X_AXIS)), 2)
+				* Math.signum(_drive_w.getRawAxis(Map.JOYSTICK_X_AXIS)) * -1;// turning
+																				// left/right;
+
+>>>>>>> Stashed changes
 		return inputs;
 	}
 
@@ -63,6 +86,7 @@ public class IO
 	// return inputs;
 	// }
 
+<<<<<<< Updated upstream
 	public static double front_side()
 	{
 		if (_drive_w.getRawButtonLatch(Map.DRIVE_FRONTSIDE_BACK))
@@ -75,5 +99,12 @@ public class IO
 		{
 			return 0.0;
 		}
+=======
+	public static boolean front_side() {
+		if (_drive_w.getRawButtonLatch(Map.DRIVE_FRONTSIDE_BACK)) {
+			return true;
+		}
+		return false;
+>>>>>>> Stashed changes
 	}
 }
