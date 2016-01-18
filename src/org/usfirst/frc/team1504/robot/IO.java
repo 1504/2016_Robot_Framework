@@ -5,6 +5,8 @@ public class IO
 
 	private static Latch_Joystick _drive_y = new Latch_Joystick(Map.DRIVE_ARCADE_Y);
 	private static Latch_Joystick _drive_w = new Latch_Joystick(Map.DRIVE_ARCADE_TURN);
+	
+	private static Latch_Joystick _secondary = new Latch_Joystick(Map.SECONDARY);
 
 	public static final long ROBOT_START_TIME = System.currentTimeMillis();
 
@@ -75,5 +77,29 @@ public class IO
 		{
 			return 0.0;
 		}
+	}
+
+	/**
+	 * Shooter stuff
+	 */
+	
+	public static boolean intake_on()
+	{
+		return _secondary.getRawButtonLatch(Map.SHOOTER_INTAKE_ON);
+	}
+	
+	public static boolean intake_off()
+	{
+		return _secondary.getRawButtonLatch(Map.SHOOTER_INTAKE_OFF);
+	}
+	
+	public static boolean prep()
+	{
+		return _secondary.getRawButtonLatch(Map.SHOOTER_PREP);
+	}
+	
+	public static boolean launch() //gonna do the thing
+	{
+		return _secondary.getRawButtonLatch(Map.SHOOTER_LAUNCH);
 	}
 }

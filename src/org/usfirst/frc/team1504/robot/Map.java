@@ -52,10 +52,12 @@ public class Map {
 	public static final int SHOOTER_RIGHT_TALON_PORT = 22;
 	
 	//Buttons for shooting
-	public static final int SHOOTER_INTAKE = 2;
-	public static final int SHOOTER_PREP = 3;
+	public static final int SHOOTER_INTAKE_ON = 3;
+	public static final int SHOOTER_INTAKE_OFF = 5;
+	public static final int SHOOTER_PREP = 2;
 	public static final int SHOOTER_LAUNCH = 1;
 	
+	public static final int[] SHOOTER_INPUTS = {SHOOTER_INTAKE_ON, SHOOTER_INTAKE_OFF, SHOOTER_PREP, SHOOTER_LAUNCH};
 
 	
 	// Glide gain

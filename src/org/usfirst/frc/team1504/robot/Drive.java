@@ -147,8 +147,8 @@ public class Drive implements Updatable
 
 		double theta = Math.atan2(input[0], input[1]);
 
-		double dx = correct_x(theta) * distance(input[1], input[0]) * 0.25;
-		double dy = correct_y(theta) * distance(input[1], input[0]) * 0.25;
+		double dx = correct_x(theta) * Utils.distance(input[1], input[0]) * 0.25;
+		double dy = correct_y(theta) * Utils.distance(input[1], input[0]) * 0.25;
 
 		double[] detented = new double[3];
 
@@ -169,10 +169,6 @@ public class Drive implements Updatable
 		return Math.cos(theta) * (-Math.sin(8 * theta) - 0.25 * Math.sin(4 * theta));
 	}
 
-	private double distance(double x, double y)
-	{
-		return Math.sqrt(x * x + y * y);
-	}
 
 	/**
 	 * Ground truth sensor corrections

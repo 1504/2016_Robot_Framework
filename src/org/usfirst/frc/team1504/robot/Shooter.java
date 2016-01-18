@@ -53,18 +53,64 @@ public class Shooter implements Updatable
 	
 	private DriverStation _ds = DriverStation.getInstance();
 	private Logger _logger = Logger.getInstance();
-	private CANTalon _intake_motor = new CANTalon(Map.INTAKE_TALON_PORT);
-	private CANTalon _shooter_left_motor = new CANTalon(Map.SHOOTER_RIGHT_TALON_PORT);
-	private CANTalon _shooter_right_motor = new CANTalon(Map.SHOOTER_LEFT_TALON_PORT);
+	private CANTalon _intake_motor;
+	private CANTalon _shooter_left_motor;
+	private CANTalon _shooter_right_motor;
+	private boolean[] _shooter_input;// 0: Intake On, 1: Intake Off, 2: Prep, 3: Launch
+	private boolean _prep_on;
 	
 	private void ShootInit()
 	{
-		
+		_intake_motor = new CANTalon(Map.INTAKE_TALON_PORT);
+		_shooter_left_motor = new CANTalon(Map.SHOOTER_LEFT_TALON_PORT);
+		_shooter_right_motor = new CANTalon(Map.SHOOTER_RIGHT_TALON_PORT);
+		_shooter_input = new boolean[Map.SHOOTER_INPUTS.length];
 	}
 	
 	public void semaphore_update()
 	{
+		_shooter_input[0] = IO.intake_on();
+		_shooter_input[1] = IO.intake_off();
+		_shooter_input[2] = IO.prep();
+		_shooter_input[3] = IO.launch();
+	}
+	
+	//TODO: TEST AND FIND OUT REAL VALUES FOR MOTORS
+	
+	public void intake()
+	{
+		boolean intake_on = false;
 		
+		if (_shooter_input[0] || intake_on)
+		{
+			intake_on = true;
+			_intake_motor.set(0.7);
+		}
+		if (_shooter_input[1] || !intake_on)
+		{
+			intake_on = false;
+			_intake_motor.set(0.0);
+		}
+	}
+	
+	public void prep()
+	{
+		
+		if (_shooter_input[2] || _prep_on)
+		{
+			_prep_on = true;
+			_intake_motor.set(-0.3);
+			
+			try {
+			    Thread.sleep(250); //A quarter of a second.
+			} catch(InterruptedException ex) {
+			    Thread.currentThread().interrupt();
+			}
+			
+			_intake_motor.set(0.0);
+			_shooter_left_motor.set(1.0);
+			_shooter_right_motor.set(1.0);
+		}
 	}
 	
 	private void shootTask()
