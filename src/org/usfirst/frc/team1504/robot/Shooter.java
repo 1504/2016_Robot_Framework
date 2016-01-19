@@ -77,7 +77,7 @@ public class Shooter implements Updatable
 	
 	//TODO: TEST AND FIND OUT REAL VALUES FOR MOTORS
 	
-	public void intake()
+	private void intake()
 	{
 		boolean intake_on = false;
 		
@@ -93,7 +93,7 @@ public class Shooter implements Updatable
 		}
 	}
 	
-	public void prep()
+	private void prep()
 	{
 		
 		if (_shooter_input[2] || _prep_on)
@@ -110,6 +110,24 @@ public class Shooter implements Updatable
 			_intake_motor.set(0.0);
 			_shooter_left_motor.set(1.0);
 			_shooter_right_motor.set(1.0);
+		}
+	}
+	
+	private void launch()
+	{
+		
+		if (_shooter_input[3])
+		{
+			_intake_motor.set(1.0);
+			try {
+			    Thread.sleep(333); //Almost a third of a second
+			} catch(InterruptedException ex) {
+			    Thread.currentThread().interrupt();
+			}
+			_prep_on = false;
+			_shooter_left_motor.set(0);
+			_shooter_right_motor.set(0);
+			_intake_motor.set(0);
 		}
 	}
 	
