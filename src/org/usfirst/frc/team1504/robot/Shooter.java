@@ -136,7 +136,12 @@ public class Shooter implements Updatable
 		//stuff will happen
 		while(_thread_alive)
 		{
-			//BEEP BOOP I AM ROBORT
+			if (_ds.isEnabled() && _ds.isOperatorControl())
+			{
+				intake();
+				prep();
+				launch();
+			}
 		}
 	}
 }
