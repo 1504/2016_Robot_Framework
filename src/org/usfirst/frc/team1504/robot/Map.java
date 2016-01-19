@@ -50,6 +50,7 @@ public class Map {
 	public static final int INTAKE_TALON_PORT = 20;
 	public static final int SHOOTER_LEFT_TALON_PORT = 21;
 	public static final int SHOOTER_RIGHT_TALON_PORT = 22;
+	public static final int[] SHOOTER_MOTOR_PORTS = {INTAKE_TALON_PORT, SHOOTER_LEFT_TALON_PORT, SHOOTER_RIGHT_TALON_PORT};
 	
 	//Buttons for shooting
 	public static final int SHOOTER_INTAKE_ON = 3;

@@ -53,9 +53,7 @@ public class Shooter implements Updatable
 	
 	private DriverStation _ds = DriverStation.getInstance();
 	private Logger _logger = Logger.getInstance();
-	private CANTalon _intake_motor;
-	private CANTalon _shooter_left_motor;
-	private CANTalon _shooter_right_motor;
+	private CANTalon[] motors = new CANTalon[Map.SHOOTER_MOTOR_PORTS.length];
 	private boolean[] _shooter_input;// 0: Intake On, 1: Intake Off, 2: Prep, 3: Launch
 	private boolean _prep_on;
 	
@@ -63,9 +61,9 @@ public class Shooter implements Updatable
 	
 	private void ShootInit()
 	{
-		_intake_motor = new CANTalon(Map.INTAKE_TALON_PORT);
-		_shooter_left_motor = new CANTalon(Map.SHOOTER_LEFT_TALON_PORT);
-		_shooter_right_motor = new CANTalon(Map.SHOOTER_RIGHT_TALON_PORT);
+		motors[0] = new CANTalon(Map.INTAKE_TALON_PORT);
+		motors[1] = new CANTalon(Map.SHOOTER_LEFT_TALON_PORT);
+		motors[2] = new CANTalon(Map.SHOOTER_RIGHT_TALON_PORT);
 		
 		_shooter_input = new boolean[Map.SHOOTER_INPUTS.length];
 	}
@@ -87,12 +85,12 @@ public class Shooter implements Updatable
 		if (_shooter_input[0] || intake_on)
 		{
 			intake_on = true;
-			_intake_motor.set(0.7);
+			motors[0].set(0.7);
 		}
 		if (_shooter_input[1] || !intake_on)
 		{
 			intake_on = false;
-			_intake_motor.set(0.0);
+			motors[0].set(0.0);
 		}
 	}
 	
@@ -102,7 +100,7 @@ public class Shooter implements Updatable
 		if (_shooter_input[2] || _prep_on)
 		{
 			_prep_on = true;
-			_intake_motor.set(-0.3);
+			motors[0].set(-0.3);
 			
 			try {
 			    Thread.sleep(250); //A quarter of a second.
@@ -110,9 +108,9 @@ public class Shooter implements Updatable
 			    Thread.currentThread().interrupt();
 			}
 			
-			_intake_motor.set(0.0);
-			_shooter_left_motor.set(1.0);
-			_shooter_right_motor.set(1.0);
+			motors[0].set(0.0);
+			motors[1].set(1.0);
+			motors[2].set(1.0);
 		}
 	}
 	
@@ -121,16 +119,16 @@ public class Shooter implements Updatable
 		
 		if (_shooter_input[3])
 		{
-			_intake_motor.set(1.0);
+			motors[0].set(1.0);
 			try {
 			    Thread.sleep(333); //Almost a third of a second
 			} catch(InterruptedException ex) {
 			    Thread.currentThread().interrupt();
 			}
 			_prep_on = false;
-			_shooter_left_motor.set(0);
-			_shooter_right_motor.set(0);
-			_intake_motor.set(0);
+			motors[1].set(0);
+			motors[2].set(0);
+			motors[0].set(0);
 		}
 	}
 	
@@ -140,28 +138,23 @@ public class Shooter implements Updatable
 		byte[] output = new byte[12 + 1];
 		
 		int loops_since_last_dump = _loops_since_last_dump;
-		//intake motor
-		output[0] = Utils.double_to_byte(_intake_motor.get());
-		output[1] = Utils.double_to_byte(_intake_motor.getSetpoint());
-		output[2] = Utils.double_to_byte(_intake_motor.getBusVoltage());
-		output[3] = Utils.double_to_byte(_intake_motor.getOutputCurrent());
-		//left shooter motor
-		output[4] = Utils.double_to_byte(_shooter_left_motor.get());
-		output[5] = Utils.double_to_byte(_shooter_left_motor.getSetpoint());
-		output[6] = Utils.double_to_byte(_shooter_left_motor.getBusVoltage());
-		output[7] = Utils.double_to_byte(_shooter_left_motor.getOutputCurrent());
-		//right shooter motor
-		output[8] = Utils.double_to_byte(_shooter_right_motor.get());
-		output[9] = Utils.double_to_byte(_shooter_right_motor.getSetpoint());
-		output[10] = Utils.double_to_byte(_shooter_right_motor.getBusVoltage());
-		output[11] = Utils.double_to_byte(_shooter_right_motor.getOutputCurrent());
 		
+		for (int i = 0; i < motors.length; i++)
+		{
+			int j = i * 4;//in order to not have nested loops, array indices get calculated based on i
+			output[j] = Utils.double_to_byte(motors[i].get());
+			output[j+1] = Utils.double_to_byte(motors[i].getSetpoint());
+			output[j+2] = Utils.double_to_byte(motors[i].getBusVoltage());
+			output[j+3] = Utils.double_to_byte(motors[i].getOutputCurrent());
+		}
 		//current state of buttons, crushed into one byte Again, with the button array: 0: Intake On, 1: Intake Off, 2: Prep, 3: Launch
 		byte buttons = 0;
-		if (_shooter_input[0]) {buttons += 8;}
-		if (_shooter_input[1]) {buttons += 4;}
-		if (_shooter_input[2]) {buttons += 2;}
-		if (_shooter_input[3]) {buttons += 1;}
+			if (_shooter_input[0]) {buttons += 8;}
+			if (_shooter_input[1]) {buttons += 4;}
+			if (_shooter_input[2]) {buttons += 2;}
+			if (_shooter_input[3]) {buttons += 1;}
+		
+		output[12] = buttons;
 		
 	}
 	
