@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DriverStation;
 import org.usfirst.frc.team1504.robot.Update_Semaphore.Updatable;
+//import org.usfirst.frc.team1504.robot.Utils.Doubletobyte;
 
 public class endGame implements Updatable{
 	
@@ -13,7 +14,7 @@ public class endGame implements Updatable{
 	DriverStation ds;
 	endGame EndGame;
 	boolean override;
-	int overrideButtonState, liftButtonState;
+	int overrideButtonState, liftButtonState; //values of 0 or 1 to record button states
 	long time;
 	
 	public endGame()
@@ -68,10 +69,19 @@ public class endGame implements Updatable{
 	{
 		//time
 		byte[] data = new byte[8];
-		ByteBuffer.wrap(data).putLong(System.currentTimeMillis() - time);
+		byte mastByte = 0;
+		/*ByteBuffer.wrap(data).putLong(System.currentTimeMillis() - time);
 		ByteBuffer.wrap(data).putInt(liftButtonState);
 		ByteBuffer.wrap(data).putInt(overrideButtonState);
 		ByteBuffer.wrap(data).putInt(mast.get().ordinal());
+		ByteBuffer.wrap(data).putInt(lift.get().ordinal());
+		ByteBuffer.wrap(data).putInt(hook.get().ordinal());*/
+		
+		if(mast.get() == DoubleSolenoid.Value.kOff)
+		{
+			mastByte += 4;
+		} //TODO finish this using the method in utils
+		
 		
 
 		//data[0] = System.currentTimeMillis() - time;

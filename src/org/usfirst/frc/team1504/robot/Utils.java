@@ -17,4 +17,6 @@ public class Utils
 			return 0.0;
 		return (input - Map.UTIL_JOYSTICK_DEADZONE * Math.signum(input)) / (1.0 - Map.UTIL_JOYSTICK_DEADZONE);
 	}
+	
+	//TODO log byte method for endGame class
 }
