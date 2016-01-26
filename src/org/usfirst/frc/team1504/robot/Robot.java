@@ -3,6 +3,7 @@ package org.usfirst.frc.team1504.robot;
 //import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.communication.FRCNetworkCommunicationsLibrary;
 import edu.wpi.first.wpilibj.communication.UsageReporting;
 import edu.wpi.first.wpilibj.communication.FRCNetworkCommunicationsLibrary.tInstances;
 import edu.wpi.first.wpilibj.communication.FRCNetworkCommunicationsLibrary.tResourceType;
@@ -94,9 +95,11 @@ public class Robot extends RobotBase {
      * to be enabled again.
      */
     public void startCompetition() {
-        UsageReporting.report(tResourceType.kResourceType_Framework, tInstances.kFramework_Simple);
+    	
+        UsageReporting.report(tResourceType.kResourceType_Framework, tInstances.kFramework_Sample);
+        FRCNetworkCommunicationsLibrary.FRCNetworkCommunicationObserveUserProgramStarting();
 
-        // first and one-time initialization
+    	// first and one-time initialization
         LiveWindow.setEnabled(false);
         robotInit();
 
