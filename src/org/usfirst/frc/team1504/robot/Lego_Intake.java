@@ -94,7 +94,6 @@ public class Lego_Intake implements Updatable{
 				rightArm.set(false);
 				 //reverse the shooter for reloading
 				//hinge.set(DoubleSolenoid.Value.kReverse); - is motion - //kOff will be clear position
-				_astate = astate;
 			}
 		}
 		}
