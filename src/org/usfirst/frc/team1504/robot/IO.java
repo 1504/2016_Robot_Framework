@@ -21,7 +21,59 @@ public class IO
 	 * Handle getting joystick values
 	 * @return
 	 */
+	public static Lego_Intake.ACTION_STATES setJoystickActionState()
+	{
+		Lego_Intake.ACTION_STATES state;
+		if(joystickSecondary.getRawButton(Map.ACTION_STATE_PICKUP_IN_BUTTON))
+		{
+			state = Lego_Intake.ACTION_STATES.PICKUP_IN;
+		}
+		
+		else if(joystickSecondary.getRawButton(Map.ACTION_STATE_PICKUP_OUT_BUTTON))
+		{
+			state = Lego_Intake.ACTION_STATES.PICKUP_OUT;
+		}
+		
+		else if(joystickSecondary.getRawButton(Map.ACTION_STATE_RELOAD_BUTTON))
+		{
+			state = Lego_Intake.ACTION_STATES.RELOAD;
+		}
+		
+		else if(joystickSecondary.getRawButton(Map.ACTION_STATE_READY_BUTTON))
+		{
+			state = Lego_Intake.ACTION_STATES.READY;
+		}
+		
+		else if(joystickSecondary.getRawButton(Map.ACTION_STATE_FIRE_BUTTON))
+		{
+			state = Lego_Intake.ACTION_STATES.FIRE;
+		}
+		else
+			state = null;
+		return state;
+	}
 	
+	public static Lego_Intake.MOTION_STATES setJoystickMotionState()
+	{
+		Lego_Intake.MOTION_STATES state;
+		if(joystickSecondary.getRawButton(Map.MOTION_STATE_PICKUP_BUTTON))
+		{
+			state = Lego_Intake.MOTION_STATES.PICKUP;
+		}
+		
+		else if(joystickSecondary.getRawButton(Map.MOTION_STATE_FIRE_BUTTON))
+		{
+			state = Lego_Intake.MOTION_STATES.FIRE;
+		}
+	
+		else if(joystickSecondary.getRawButton(Map.MOTION_STATE_CLEAR_BUTTON))
+		{
+			state = Lego_Intake.MOTION_STATES.CLEAR;
+		}
+		else
+			state = null;
+		return state;
+	}
 	
 	public static double[] tank_input() {
 		double[] inputs = new double[2];

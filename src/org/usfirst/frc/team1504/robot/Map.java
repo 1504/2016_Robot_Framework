@@ -47,6 +47,16 @@ public class Map {
 	// Drive Output magic numbers - for getting everything spinning the correct direction
 	public static final double[] DRIVE_OUTPUT_MAGIC_NUMBERS = { -1.0, -1.0, 1.0, 1.0 };	
 	
+	//Buttons
+	public static final int ACTION_STATE_READY_BUTTON = 1;
+	public static final int ACTION_STATE_PICKUP_IN_BUTTON = 2;
+	public static final int ACTION_STATE_PICKUP_OUT_BUTTON = 3;
+	public static final int ACTION_STATE_RELOAD_BUTTON = 4;
+	public static final int ACTION_STATE_FIRE_BUTTON = 5;
+	
+	public static final int MOTION_STATE_FIRE_BUTTON = 6;
+	public static final int MOTION_STATE_CLEAR_BUTTON = 7;
+	public static final int MOTION_STATE_PICKUP_BUTTON = 8;
 	
 /**
  * Ground truth sensor

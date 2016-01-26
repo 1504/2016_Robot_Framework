@@ -19,4 +19,5 @@ public class Utils
 	}
 	
 	//TODO log byte method for endGame class
+	
 }
