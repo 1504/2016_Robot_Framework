@@ -98,7 +98,7 @@ public class Robot extends RobotBase {
     	
         UsageReporting.report(tResourceType.kResourceType_Framework, tInstances.kFramework_Sample);
         FRCNetworkCommunicationsLibrary.FRCNetworkCommunicationObserveUserProgramStarting();
-
+        
     	// first and one-time initialization
         LiveWindow.setEnabled(false);
         robotInit();

@@ -31,6 +31,10 @@ public class Shooter implements Updatable
 	private Thread _dump_thread;
 	private volatile boolean _thread_alive = true;
 
+	/**
+	 * Returns an instance of the shooter; for use in other classes.
+	 * 
+	 */
 	public static Shooter getInstance()
 	{
 		return Shooter.instance;
@@ -63,6 +67,9 @@ public class Shooter implements Updatable
 
 	private volatile int _loops_since_last_dump = 0;
 
+	/**
+	 * Initializes motors and buttons for usage. Called ONCE.
+	 */
 	private void ShootInit()
 	{
 		motors[0] = new CANTalon(Map.INTAKE_TALON_PORT);
@@ -72,6 +79,9 @@ public class Shooter implements Updatable
 		_shooter_input = new boolean[Map.SHOOTER_INPUTS.length];
 	}
 
+	/**
+	 * Updates the array values to the current values of the buttons.
+	 */
 	public void semaphore_update()
 	{
 		_shooter_input[0] = IO.intake_on();
@@ -81,7 +91,9 @@ public class Shooter implements Updatable
 	}
 
 	// TODO: TEST AND FIND OUT REAL VALUES FOR MOTORS
-
+	/**
+	 * Turns on the motor so that the robot can capture a BOULDER.
+	 */
 	private void intake()
 	{
 		boolean intake_on = false;
@@ -98,6 +110,12 @@ public class Shooter implements Updatable
 		}
 	}
 
+	/**
+	 * Prepares the BOULDER for launch into the high goal of the CASTLE TOWER.
+	 * It first partially jams the BOULDER between the ramp and the intake motor
+	 * such that there is no contact with the two launch motors, and then
+	 * proceeds to turn those motors on.
+	 */
 	private void prep()
 	{
 
@@ -120,6 +138,9 @@ public class Shooter implements Updatable
 		}
 	}
 
+	/**
+	 * Launches the BOULDER.
+	 */
 	private void launch()
 	{
 
@@ -141,6 +162,9 @@ public class Shooter implements Updatable
 	}
 
 	// All motors should have: Bus Voltage, Output Current, and Set Point
+	/**
+	 * Creates an array of data to log.
+	 */
 	private void dump()
 	{
 		byte[] output = new byte[12 + 1 + 4 + 4];
@@ -156,7 +180,7 @@ public class Shooter implements Updatable
 			output[j + 2] = Utils.double_to_byte(motors[i].getBusVoltage());
 			output[j + 3] = Utils.double_to_byte(motors[i].getOutputCurrent());
 		}
-		// current state of buttons, crushed into one byte Again, with the
+		// current state of buttons, crushed into one byte , with the
 		// button array: 0: Intake On, 1: Intake Off, 2: Prep, 3: Launch
 		byte buttons = 0;
 		if (_shooter_input[0])
@@ -188,6 +212,9 @@ public class Shooter implements Updatable
 		}
 	}
 
+	/**
+	 * Controls the above methods.
+	 */
 	private void shootTask()
 	{
 		boolean logpls = false;
@@ -202,10 +229,16 @@ public class Shooter implements Updatable
 			}
 			if (logpls)
 			{
-				// Dump in a separate thread, so we can loop as fast as possible
+				// Dump is done in its own thread, for speed.
 				if (_dump_thread == null || !_dump_thread.isAlive())
 				{
-					_dump_thread = new Thread(new Runnable(){public void run(){dump();}});
+					_dump_thread = new Thread(new Runnable()
+					{
+						public void run()
+						{
+							dump();
+						}
+					});
 					_dump_thread.start();
 				}
 				logpls = false;
