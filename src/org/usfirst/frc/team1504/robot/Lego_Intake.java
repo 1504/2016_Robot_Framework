@@ -11,15 +11,12 @@ public class Lego_Intake implements Updatable{
 	Solenoid leftArm, rightArm, shooter;
 	CANTalon leftRoller, rightRoller;
 	
-	public enum ACTION_STATES {PICKUP_IN, PICKUP_OUT, FIRE, RELOAD, READY};
-	public enum MOTION_STATES {FIRE, PICKUP, CLEAR};
+	public enum ACTION_STATES {READY, PICKUP_IN, PICKUP_OUT, FIRE, RELOAD};
+	byte [] actionState = new byte[5];
+	public enum MOTION_STATES {FIRING, PICKUP, CLEAR};
 	
 	ACTION_STATES _astate = ACTION_STATES.READY;
 	MOTION_STATES _mstate = MOTION_STATES.PICKUP;
-	
-	boolean hingestartingPos = true; //startingPos true if arm starts lower to pickup
-	boolean shootButtonState, pickupButtonState;
-	//leftarmState, rightarmState, plungerState, 
 	
 	private class intakeTask implements Runnable
 	{
@@ -66,7 +63,7 @@ public class Lego_Intake implements Updatable{
 	{
 		switch(astate) {
 		case FIRE:
-			if(_astate == ACTION_STATES.READY && _mstate == MOTION_STATES.FIRE) 
+			if(_astate == ACTION_STATES.READY && _mstate == MOTION_STATES.FIRING) 
 			{
 				leftArm.set(true);
 				rightArm.set(true); //open arms
@@ -82,6 +79,7 @@ public class Lego_Intake implements Updatable{
 					Thread.sleep(300);
 				}
 				catch(InterruptedException e){}
+				
 				//reload
 				shooter.set(false);
 			
@@ -93,7 +91,7 @@ public class Lego_Intake implements Updatable{
 				leftArm.set(false); //close arms back up for normal pickup position
 				rightArm.set(false);
 				 //reverse the shooter for reloading
-				//hinge.set(DoubleSolenoid.Value.kReverse); - is motion - //kOff will be clear position
+				//hinge.set(DoubleSolenoid.Value.kReverse); - this is a motion - //kOff will be clear position
 			}
 		}
 		}
@@ -126,6 +124,7 @@ public class Lego_Intake implements Updatable{
 	
 	public void setMotionState(MOTION_STATES mstate)
 	{
+		//todo - possibly add variable to keep motion from changing during actions
 		switch(mstate)
 		{
 		case PICKUP:
@@ -134,7 +133,7 @@ public class Lego_Intake implements Updatable{
 		case CLEAR:
 			hinge.set(DoubleSolenoid.Value.kOff); 
 			_mstate = mstate; 
-		case FIRE:
+		case FIRING:
 			hinge.set(DoubleSolenoid.Value.kForward); 
 			_mstate = mstate;
 		}
@@ -145,15 +144,22 @@ public class Lego_Intake implements Updatable{
 		//_mstate = IO.setJoystickMotionState();
 		setActionState(IO.setJoystickActionState());
 		//setMotionState(_mstate);
-		setMotionState(IO.setJoystickMotionState());
-		
+		setMotionState(IO.setJoystickMotionState());	
 	}
 	
 	public void dump()
 	{
 		//solenoids.get (use the ordinal too)
 		byte[] data = new byte[8];
+		data[0] = Utils.byteLog(hinge);
+		data[1] = Utils.byteLogSingle(leftArm);
+		data[2] = Utils.byteLogSingle(rightArm);
+		data[3] = Utils.double_to_byte(rightRoller.get());
+		data[4] = Utils.double_to_byte(leftRoller.get());
+		data[5] = Utils.actionStates(_astate);
+		data[6] = Utils.motionStates(_mstate);
 		
+		Logger.getInstance().log(Map.LOGGED_CLASSES.LEGO_INTAKE, data);		
 	}
 }
 

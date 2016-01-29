@@ -63,7 +63,7 @@ public class IO
 		
 		else if(joystickSecondary.getRawButton(Map.MOTION_STATE_FIRE_BUTTON))
 		{
-			state = Lego_Intake.MOTION_STATES.FIRE;
+			state = Lego_Intake.MOTION_STATES.FIRING;
 		}
 	
 		else if(joystickSecondary.getRawButton(Map.MOTION_STATE_CLEAR_BUTTON))
@@ -72,6 +72,26 @@ public class IO
 		}
 		else
 			state = null;
+		return state;
+	}
+	
+	public static int endGameInputs()
+	{
+		int state = 0;
+		if(joystickSecondary.getRawButton(Map.ENDGAME_LIFT_BUTTON))
+		{
+			state = 1;
+			//endGame.lift();
+		}
+		
+		while(joystickSecondary.getRawButton(Map.OVERRIDE_LIFT_BUTTON))
+		{
+			if(joystickSecondary.getRawButton(Map.ENDGAME_LIFT_BUTTON)) //while override held down and lift pressed down
+			{
+				state = 2;
+			}
+		}
+		
 		return state;
 	}
 	

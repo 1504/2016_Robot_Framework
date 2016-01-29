@@ -44,7 +44,7 @@ public class endGame implements Updatable{
 	
 	public void semaphore_update()
 	{
-		if(IO.joystickSecondary.getRawButton(0))
+		/*if(IO.joystickSecondary.getRawButton(0))
 		{
 			liftButtonState = 1; //1 = true, 0 = false
 			lift();
@@ -59,9 +59,26 @@ public class endGame implements Updatable{
 				override = true;
 				lift();
 			}
+		}*/
+		
+		int state = IO.endGameInputs();
+		if(state == 1)
+		{
+			liftButtonState = 1; //1 = true, 0 = false
+			lift();
+			liftButtonState = 0;
 		}
-		overrideButtonState = 0; //should be false (0) whether or not while loop executed
-		override = false;
+		
+		if(state == 2)
+		{
+			overrideButtonState = 1;
+			override = true;
+			lift();
+			overrideButtonState = 0;
+			override = false;
+		}
+		
+		
 		
 	}
 	
@@ -69,20 +86,18 @@ public class endGame implements Updatable{
 	{
 		//time
 		byte[] data = new byte[8];
-		byte mastByte = 0;
-		/*ByteBuffer.wrap(data).putLong(System.currentTimeMillis() - time);
-		ByteBuffer.wrap(data).putInt(liftButtonState);
-		ByteBuffer.wrap(data).putInt(overrideButtonState);
-		ByteBuffer.wrap(data).putInt(mast.get().ordinal());
-		ByteBuffer.wrap(data).putInt(lift.get().ordinal());
-		ByteBuffer.wrap(data).putInt(hook.get().ordinal());*/
+		//byte mastByte = 0; = data[0]
 		
-		if(mast.get() == DoubleSolenoid.Value.kOff)
+		/*if(mast.get() == DoubleSolenoid.Value.kOff)
 		{
 			mastByte += 4;
-		} //TODO finish this using the method in utils
+		} //TODO finish this using the method in utils*/
 		
-		
+		data[0] = Utils.byteLog(mast);
+		data[1] = Utils.byteLog(lift); 
+		data[2] = Utils.byteLog(hook);
+		data[3] = (byte)overrideButtonState;
+		data[4] = (byte)liftButtonState;
 
 		//data[0] = System.currentTimeMillis() - time;
 		Logger.getInstance().log(Map.LOGGED_CLASSES.ENDGAME, data);

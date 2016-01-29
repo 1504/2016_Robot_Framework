@@ -58,6 +58,9 @@ public class Map {
 	public static final int MOTION_STATE_CLEAR_BUTTON = 7;
 	public static final int MOTION_STATE_PICKUP_BUTTON = 8;
 	
+	public static final int ENDGAME_LIFT_BUTTON = 9;
+	public static final int OVERRIDE_LIFT_BUTTON = 10;
+	
 /**
  * Ground truth sensor
  */
@@ -81,6 +84,6 @@ public class Map {
 /**
  * Logger stuff
  */
-	public static enum LOGGED_CLASSES { SEMAPHORE, DRIVE, GROUNDTRUTH, ENDGAME }
+	public static enum LOGGED_CLASSES { SEMAPHORE, DRIVE, GROUNDTRUTH, ENDGAME, LEGO_INTAKE }
 
 }
