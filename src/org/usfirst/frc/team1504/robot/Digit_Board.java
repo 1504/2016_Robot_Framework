@@ -58,15 +58,17 @@ public class Digit_Board
 		Voltage, Position, Obstacle, Wait
 	}
 	
-	private static String[] _obstacles = {"LBAR", "PORT", "DRAW", "MOAT", "FRIS", "RAMP", "SALP", "ROCK", "TERR"};
 	private static String[] _positions = {"P  1", "P  2", "P  3", "P  4", "P  5"};
+	private static String[] _obstacles = {"LBAR", "PORT", "DRAW", "MOAT", "FRIS", "RAMP", "SALP", "ROCK", "TERR"};
 
+	int pos = 0;
+	int obs = 0;
+	
 	private void DisplayInit()
 	{
 		_display_board = new I2C(I2C.Port.kMXP, 0x70);
 
 		_output_array = new byte[10];
-		_output_array[0] = (byte) (0b0000111100001111);
 
 		_a = new DigitalInput(19);
 		_b = new DigitalInput(20);
@@ -82,49 +84,76 @@ public class Digit_Board
 		_buttons[1] = _b.get();
 	}
 
-	private void output_voltage()
+	private byte[] output_voltage()
 	{
 		String voltage = Integer.toString((int) _ds.getBatteryVoltage());
 		if (voltage.length() != 2)
 		{
 			voltage = voltage.substring(0, 2);
 		}
-
-		_output_array[2] = CHARS[31][0];// V
-		_output_array[3] = CHARS[31][1];// V
-		_output_array[4] = (byte) 0b00000000;// blank
-		_output_array[5] = (byte) 0b00000000;// blank
-		_output_array[6] = CHARS[voltage.charAt(1)][0];// second digit of
-														// voltage
-		_output_array[7] = CHARS[voltage.charAt(1)][1];// second digit of
-														// voltage
-		_output_array[8] = CHARS[voltage.charAt(0)][0];// first digit of voltage
-		_output_array[9] = CHARS[voltage.charAt(0)][1];// first digit of voltage
-
-	}
-
-	private void output_position(String position)
-	{
-
-	}
-
-	private void output_obstacle(String obstacle)
-	{
 		
+		byte[] output = new byte[10];
+
+		output[0] = (byte) (0b0000111100001111);
+		
+		output[2] = CHARS[31][0];// V
+		output[3] = CHARS[31][1];// V
+		output[4] = (byte) 0b00000000;// blank
+		output[5] = (byte) 0b00000000;// blank
+		output[6] = CHARS[voltage.charAt(1)][0];// second digit of
+														// voltage
+		output[7] = CHARS[voltage.charAt(1)][1];// second digit of
+														// voltage
+		output[8] = CHARS[voltage.charAt(0)][0];// first digit of voltage
+		output[9] = CHARS[voltage.charAt(0)][1];// first digit of voltage
+		
+		return output;
+
 	}
+
+	private byte[] output_pos(String input)
+	{
+		byte[] output = new byte[10];
+		
+		output[0] = (byte) (0b0000111100001111);
+		
+		output[2] = CHARS[input.charAt(3)][0];
+		output[3] = CHARS[input.charAt(3)][1];
+		
+		output[4] = output[5] = output[6] = output[7] = (byte) 0b00000000;
+		
+		output[8] = CHARS[input.charAt(0) - 55][0];
+		output[9] = CHARS[input.charAt(0) - 55][1];
+		
+		return output;
+	}
+	
+	private byte[] output_obs(String input)
+	{
+		byte[] output = new byte[10];
+		
+		output[0] = (byte) (0b0000111100001111);
+		
+		for (int i = 0; i < 4; i+= 2)
+		{
+			output[i+2] = CHARS[input.charAt(3-i) - 55][0];
+			output[i+3] = CHARS[input.charAt(3-i) - 55][1];
+		}
+		
+		
+		return output;
+	}
+
 	private void board_task()
 	{
 		STATE mode = STATE.Voltage;
 
 		update_button_values();
 		
-		int pos = 0;
-		int obs = 0;
 		
 		if (mode != STATE.Position && _buttons[0])
 		{
-			mode = STATE.Position;
-			pos = 0;
+			mode = STATE.Position; //just display current position on first press
 		}
 		if (mode == STATE.Position && _buttons[0])
 		{
@@ -132,8 +161,7 @@ public class Digit_Board
 		}
 		if (mode != STATE.Obstacle && _buttons[1])
 		{
-			mode = STATE.Obstacle;
-			obs = 0;
+			mode = STATE.Obstacle; // display current obstacle on first press
 		}
 		if (mode == STATE.Obstacle && _buttons[1])
 		{
@@ -143,12 +171,17 @@ public class Digit_Board
 		
 		if (mode == STATE.Voltage)
 		{
-			output_voltage();
+			_output_array = output_voltage();
 		}
 		
-		if (mode == STATE.Position)
+		else if (mode == STATE.Position)
 		{
-			output_position(_positions[pos]);
+			_output_array = output_pos(_positions[pos]);
+		}
+		
+		if (mode == STATE.Obstacle)
+		{
+			_output_array = output_obs(_obstacles[obs]);
 		}
 
 		_display_board.writeBulk(_output_array);
