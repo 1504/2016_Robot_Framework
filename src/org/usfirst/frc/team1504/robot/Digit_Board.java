@@ -26,6 +26,7 @@ public class Digit_Board
 	private static Digit_Board instance = new Digit_Board();
 
 	private Thread _task_thread;
+	private boolean _do_things = false;
 
 	public static Digit_Board getInstance()
 	{
@@ -36,10 +37,26 @@ public class Digit_Board
 	{
 		_task_thread = new Thread(new Board_Task(this), "1504_Display_Board");
 		_task_thread.setPriority((Thread.NORM_PRIORITY + Thread.MAX_PRIORITY) / 2);
-		_task_thread.start();
 
 		DisplayInit();
+		
+		start();
 
+		System.out.println("Digit Board Initialized.");
+	}
+
+	public void start()
+	{
+		if(_do_things)
+			return;
+		_do_things = true;
+		_task_thread = new Thread(new Board_Task(this));
+		_task_thread.start();
+	}
+
+	public void stop()
+	{
+		_do_things = false;
 	}
 
 	private DriverStation _ds = DriverStation.getInstance();
@@ -49,7 +66,13 @@ public class Digit_Board
 
 	private DigitalInput _a;
 	private DigitalInput _b;
-	private boolean[] _buttons;
+	//taken from mike
+	private static final int A_MASK = 0b0000000000000001;
+	private static final int B_MASK = 0b0000000000000010;
+	private volatile int _input_mask, _input_mask_rising, _input_mask_rising_last;
+
+
+	private static long _timeout = 2500;
 
 	private AnalogInput _pot;
 
@@ -57,13 +80,15 @@ public class Digit_Board
 	{
 		Voltage, Position, Obstacle, Wait
 	}
-	
-	private static String[] _positions = {"P  1", "P  2", "P  3", "P  4", "P  5"};
-	private static String[] _obstacles = {"LBAR", "PORT", "DRAW", "MOAT", "FRIS", "RAMP", "SALP", "ROCK", "TERR"};
+
+	private static String[] _positions =
+	{ "P  1", "P  2", "P  3", "P  4", "P  5" };
+	private static String[] _obstacles =
+	{ "LBAR", "PORT", "DRAW", "MOAT", "FRIS", "RAMP", "SALP", "ROCK", "TERR" };
 
 	int pos = 0;
 	int obs = 0;
-	
+
 	private void DisplayInit()
 	{
 		_display_board = new I2C(I2C.Port.kMXP, 0x70);
@@ -72,18 +97,81 @@ public class Digit_Board
 
 		_a = new DigitalInput(19);
 		_b = new DigitalInput(20);
-		_buttons = new boolean[2];
-
 		_pot = new AnalogInput(3);
 
 	}
-
-	private void update_button_values()
+	
+	public void update()
 	{
-		_buttons[0] = _a.get();
-		_buttons[1] = _b.get();
-	}
+		int current_mask = get_input_mask();
 
+		_input_mask |= current_mask;
+
+		_input_mask_rising |= (~_input_mask_rising_last & current_mask);
+		_input_mask_rising_last = current_mask;
+	}
+	
+	private int get_input_mask()
+	{
+		int mask = 0;
+		mask |= (getA() ? 1 : 0) << A_MASK;
+		mask |= (getB() ? 1 : 0) << B_MASK;
+		return mask;
+	}
+	
+	private boolean getRawButtonOnRisingEdge(int button_mask)
+	{
+		button_mask = button_mask << 1;
+		// Compute a clearing mask for the button.
+		int clear_mask = 0b1111111111111111 - button_mask;
+		// Get the value of the button - 1 or 0
+		boolean value = (_input_mask_rising & button_mask) != 0;
+		// Mask this and only this button back to 0
+		_input_mask_rising &= clear_mask;
+		return value;
+	}	
+	
+	private boolean getRawButtonLatch(int button_mask)
+	{
+		// Compute a clearing mask for the button.
+		int clear_mask = 0b1111111111111111 - button_mask;
+		// Get the value of the button - 1 or 0
+		boolean value = (_input_mask & button_mask) != 0;
+		// Mask this and only this button back to 0
+		_input_mask &= clear_mask;
+		return value;
+	}
+	
+	public boolean getA()
+	{
+		return(!_a.get());
+	}
+	
+	public boolean getALatch()
+	{
+		return getRawButtonLatch(A_MASK);
+	}
+	
+	public boolean getAOnRisingEdge()
+	{
+		return getRawButtonOnRisingEdge(A_MASK);
+	}
+	
+	public boolean getB()
+	{
+		return(!_b.get());
+	}
+	
+	public boolean getBLatch()
+	{
+		return getRawButtonLatch(B_MASK);
+	}
+	
+	public boolean getBOnRisingEdge()
+	{
+		return getRawButtonOnRisingEdge(B_MASK);
+	}
+	
 	private byte[] output_voltage()
 	{
 		String voltage = Integer.toString((int) _ds.getBatteryVoltage());
@@ -91,22 +179,20 @@ public class Digit_Board
 		{
 			voltage = voltage.substring(0, 2);
 		}
-		
+
 		byte[] output = new byte[10];
 
 		output[0] = (byte) (0b0000111100001111);
-		
+
 		output[2] = CHARS[31][0];// V
 		output[3] = CHARS[31][1];// V
 		output[4] = (byte) 0b00000000;// blank
 		output[5] = (byte) 0b00000000;// blank
-		output[6] = CHARS[voltage.charAt(1)][0];// second digit of
-														// voltage
-		output[7] = CHARS[voltage.charAt(1)][1];// second digit of
-														// voltage
-		output[8] = CHARS[voltage.charAt(0)][0];// first digit of voltage
-		output[9] = CHARS[voltage.charAt(0)][1];// first digit of voltage
-		
+		output[6] = CHARS[voltage.charAt(1) - 48][0];// second digit of voltage
+		output[7] = CHARS[voltage.charAt(1) - 48][1];// second digit of voltage
+		output[8] = CHARS[voltage.charAt(0) - 48][0];// first digit of voltage
+		output[9] = CHARS[voltage.charAt(0) - 48][1];// first digit of voltage
+
 		return output;
 
 	}
@@ -114,96 +200,145 @@ public class Digit_Board
 	private byte[] output_pos(String input)
 	{
 		byte[] output = new byte[10];
-		
+
 		output[0] = (byte) (0b0000111100001111);
-		
-		output[2] = CHARS[input.charAt(3)][0];
-		output[3] = CHARS[input.charAt(3)][1];
-		
+
+		output[2] = CHARS[input.charAt(3) - 48][0];
+		output[3] = CHARS[input.charAt(3) - 48][1];
+
 		output[4] = output[5] = output[6] = output[7] = (byte) 0b00000000;
-		
+
 		output[8] = CHARS[input.charAt(0) - 55][0];
 		output[9] = CHARS[input.charAt(0) - 55][1];
-		
+
 		return output;
 	}
-	
+
 	private byte[] output_obs(String input)
 	{
 		byte[] output = new byte[10];
-		
+
 		output[0] = (byte) (0b0000111100001111);
+
 		
-		for (int i = 0; i < 4; i+= 2)
-		{
-			output[i+2] = CHARS[input.charAt(3-i) - 55][0];
-			output[i+3] = CHARS[input.charAt(3-i) - 55][1];
-		}
-		
-		
+			output[2] = CHARS[input.charAt(3) - 55][0];
+			output[3] = CHARS[input.charAt(3) - 55][1];
+			output[4] = CHARS[input.charAt(2) - 55][0];
+			output[5] = CHARS[input.charAt(2) - 55][1];
+			output[6] = CHARS[input.charAt(1) - 55][0];
+			output[7] = CHARS[input.charAt(1) - 55][1];
+			output[8] = CHARS[input.charAt(0) - 55][0];
+			output[9] = CHARS[input.charAt(0) - 55][1];
+
+
 		return output;
 	}
 
 	private void board_task()
 	{
+		System.out.println("RED LEADER STANDING BY");
+		
+    	byte[] osc = new byte[1];
+    	byte[] blink = new byte[1];
+    	byte[] bright = new byte[1];
+    	osc[0] = (byte)0x21;
+    	blink[0] = (byte)0x81;
+    	bright[0] = (byte)0xEF;
+	
+		_display_board.writeBulk(osc);
+		_display_board.writeBulk(bright);
+		_display_board.writeBulk(blink);
+		
 		STATE mode = STATE.Voltage;
 
-		update_button_values();
-		
-		
-		if(!_buttons[0] && !_buttons[1])
-		{
-			mode = STATE.Voltage;
-		}
-		
-		
-		if (mode != STATE.Position && _buttons[0])
-		{
-			mode = STATE.Position; //just display current position on first press
-		}
-		if (mode == STATE.Position && _buttons[0])
-		{
-			pos++;
-		}
-		
-		
-		if (mode != STATE.Obstacle && _buttons[1])
-		{
-			mode = STATE.Obstacle; // display current obstacle on first press
-		}
-		if (mode == STATE.Obstacle && _buttons[1])
-		{
-			obs++;
-		}
-		
-		
-		
-		if (mode == STATE.Voltage)
-		{
-			_output_array = output_voltage();
-		}
-		
-		else if (mode == STATE.Position)
-		{
-			_output_array = output_pos(_positions[pos]);
-		}
-		
-		else if (mode == STATE.Obstacle)
-		{
-			_output_array = output_obs(_obstacles[obs]);
-		}
+		long refresh = 0;
 
-		_display_board.writeBulk(_output_array);
-		
-		
-		try
+		while (_do_things)
 		{
-			Thread.sleep(300); //wait a while because people can't read that fast
-		} catch (InterruptedException e)
-		{
-			e.printStackTrace();
+
+			update();
+
+			if ((System.currentTimeMillis() - refresh) > _timeout)
+			{
+				mode = STATE.Voltage;
+			}
+			
+			boolean update_refresh = true;
+			
+			if (getAOnRisingEdge())
+			{
+				if (mode == STATE.Position)
+				{
+					pos = (pos + 1)%_positions.length; // just display current position on first press
+				}
+				mode = STATE.Position;
+				
+				System.out.println("pos");
+			}
+			else if (getBOnRisingEdge())
+			{
+				if (mode == STATE.Obstacle)
+				{
+					obs = (obs + 1)%_obstacles.length;
+				}
+				mode = STATE.Obstacle; // display current obstacle on first press	
+			
+				System.out.println("obs");
+			}
+			else
+			{
+				update_refresh = false;
+			}
+			
+			if (pos == 0)
+			{
+				obs = 0;
+			}
+			
+			if (update_refresh)
+			{
+				refresh = System.currentTimeMillis();
+			}
+
+
+			if (mode == STATE.Position)
+			{
+				//_output_array = output_pos(_positions[pos]);
+				_display_board.writeBulk(output_pos(_positions[pos]));
+			}
+
+			else if (mode == STATE.Obstacle)
+			{
+				//_output_array = output_obs(_obstacles[obs]);
+				_display_board.writeBulk(output_obs(_obstacles[obs]));
+			}
+			else
+			{
+				//_output_array = output_voltage();
+				_display_board.writeBulk(output_voltage());
+			}
+
+			
+			//_display_board.writeBulk(_output_array);
+
+//			System.out.println(_obstacles[obs]);
+//			System.out.println(_positions[pos]);
+//			System.out.println(mode.toString());
+//			System.out.println(update_refresh);
+//			System.out.println(refresh);
+			
+			try
+			{
+				Thread.sleep(40); // wait a while because people can't read that
+									// fast
+			} catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
+	
+	
 
 	// Thanks @Team 1493
 	private static final byte[][] CHARS =
