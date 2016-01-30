@@ -151,6 +151,12 @@ public class Digit_Board
 		update_button_values();
 		
 		
+		if(!_buttons[0] && !_buttons[1])
+		{
+			mode = STATE.Voltage;
+		}
+		
+		
 		if (mode != STATE.Position && _buttons[0])
 		{
 			mode = STATE.Position; //just display current position on first press
@@ -159,6 +165,8 @@ public class Digit_Board
 		{
 			pos++;
 		}
+		
+		
 		if (mode != STATE.Obstacle && _buttons[1])
 		{
 			mode = STATE.Obstacle; // display current obstacle on first press
@@ -167,6 +175,7 @@ public class Digit_Board
 		{
 			obs++;
 		}
+		
 		
 		
 		if (mode == STATE.Voltage)
@@ -179,7 +188,7 @@ public class Digit_Board
 			_output_array = output_pos(_positions[pos]);
 		}
 		
-		if (mode == STATE.Obstacle)
+		else if (mode == STATE.Obstacle)
 		{
 			_output_array = output_obs(_obstacles[obs]);
 		}
@@ -189,14 +198,14 @@ public class Digit_Board
 		
 		try
 		{
-			Thread.sleep(100); //wait a while because people can't read that fast
+			Thread.sleep(300); //wait a while because people can't read that fast
 		} catch (InterruptedException e)
 		{
 			e.printStackTrace();
 		}
 	}
 
-	// Done by Team 1493.
+	// Thanks @Team 1493
 	private static final byte[][] CHARS =
 	{
 			{ (byte) 0b00111111, (byte) 0b00000000 }, // 0; 0
