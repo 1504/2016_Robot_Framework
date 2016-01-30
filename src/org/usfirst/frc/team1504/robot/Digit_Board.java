@@ -172,24 +172,31 @@ public class Digit_Board
 		return getRawButtonOnRisingEdge(B_MASK);
 	}
 	
+	public int getPot()
+	{
+		return _pot.getAverageValue();//integer between 210 and 227???
+	}
+	
 	private byte[] output_voltage()
 	{
-		String voltage = Integer.toString((int) _ds.getBatteryVoltage());
-		if (voltage.length() != 2)
+		String voltage = Double.toString(_ds.getBatteryVoltage());
+		if (voltage.length() != 4)
 		{
-			voltage = voltage.substring(0, 2);
+			voltage = voltage.substring(0, 4);
 		}
 
 		byte[] output = new byte[10];
 
+		byte second_digit_two = CHARS[voltage.charAt(1) - 48][1];		
+		second_digit_two |= (byte)0b01000000;	
+				
 		output[0] = (byte) (0b0000111100001111);
-
 		output[2] = CHARS[31][0];// V
 		output[3] = CHARS[31][1];// V
-		output[4] = (byte) 0b00000000;// blank
-		output[5] = (byte) 0b00000000;// blank
+		output[4] = CHARS[voltage.charAt(3) - 48][0];;// third digit
+		output[5] = CHARS[voltage.charAt(3) - 48][1];;// third digit
 		output[6] = CHARS[voltage.charAt(1) - 48][0];// second digit of voltage
-		output[7] = CHARS[voltage.charAt(1) - 48][1];// second digit of voltage
+		output[7] = second_digit_two;// second digit of voltage
 		output[8] = CHARS[voltage.charAt(0) - 48][0];// first digit of voltage
 		output[9] = CHARS[voltage.charAt(0) - 48][1];// first digit of voltage
 
@@ -236,7 +243,6 @@ public class Digit_Board
 
 	private void board_task()
 	{
-		System.out.println("RED LEADER STANDING BY");
 		
     	byte[] osc = new byte[1];
     	byte[] blink = new byte[1];
@@ -273,7 +279,7 @@ public class Digit_Board
 				}
 				mode = STATE.Position;
 				
-				System.out.println("pos");
+//				System.out.println("pos");
 			}
 			else if (getBOnRisingEdge())
 			{
@@ -283,7 +289,7 @@ public class Digit_Board
 				}
 				mode = STATE.Obstacle; // display current obstacle on first press	
 			
-				System.out.println("obs");
+//				System.out.println("obs");
 			}
 			else
 			{
@@ -293,6 +299,10 @@ public class Digit_Board
 			if (pos == 0)
 			{
 				obs = 0;
+			}
+			if (pos > 0 && obs == 0)
+			{
+				obs++;
 			}
 			
 			if (update_refresh)
