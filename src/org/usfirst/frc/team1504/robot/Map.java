@@ -60,6 +60,8 @@ public class Map {
 	
 	public static final int ENDGAME_LIFT_BUTTON = 9;
 	public static final int OVERRIDE_LIFT_BUTTON = 10;
+	public static final int VISION_BUTTON = 11;
+
 	
 /**
  * Ground truth sensor

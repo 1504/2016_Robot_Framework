@@ -95,6 +95,15 @@ public class IO
 		return state;
 	}
 	
+	public static boolean visionInputs()
+	{
+		boolean vision = false;
+		if(joystickSecondary.getRawButton(Map.VISION_BUTTON))
+		{
+			vision = true;
+		}
+		return vision;
+	}
 	public static double[] tank_input() {
 		double[] inputs = new double[2];
 //TODO: Make sure the RIGHT SIDE is the one multiplied by -1.

@@ -96,6 +96,9 @@ public class Drive implements Updatable {
 	{
 		// Get new values from the map
 		// Do all configurating first (front, etc.)
+		if(Vision.visionUpdate()) 
+			drive_inputs(Vision.offset()); //center first
+		
 		drive_inputs(IO.tank_input());
 		// so "_new_data = true" at the VERY END OF EVERYTHING
 	}
