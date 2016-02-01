@@ -310,7 +310,6 @@ public class Digit_Board
 				refresh = System.currentTimeMillis();
 			}
 
-
 			if (mode == STATE.Position)
 			{
 				_display_board.writeBulk(output_pos(_positions[pos]));
@@ -345,8 +344,6 @@ public class Digit_Board
 		}
 	}
 	
-	
-
 	// Thanks @Team 1493
 	private static final byte[][] CHARS =
 	{
