@@ -62,8 +62,6 @@ public class Digit_Board
 	private DriverStation _ds = DriverStation.getInstance();
 
 	private I2C _display_board;
-	private byte[] _output_array;
-
 	private DigitalInput _a;
 	private DigitalInput _b;
 	//taken from mike
@@ -92,8 +90,6 @@ public class Digit_Board
 	private void DisplayInit()
 	{
 		_display_board = new I2C(I2C.Port.kMXP, 0x70);
-
-		_output_array = new byte[10];
 
 		_a = new DigitalInput(19);
 		_b = new DigitalInput(20);
@@ -196,7 +192,7 @@ public class Digit_Board
 		output[4] = CHARS[voltage.charAt(3) - 48][0];;// third digit
 		output[5] = CHARS[voltage.charAt(3) - 48][1];;// third digit
 		output[6] = CHARS[voltage.charAt(1) - 48][0];// second digit of voltage
-		output[7] = second_digit_two;// second digit of voltage
+		output[7] = second_digit_two;// second digit of voltage, with decimal point.
 		output[8] = CHARS[voltage.charAt(0) - 48][0];// first digit of voltage
 		output[9] = CHARS[voltage.charAt(0) - 48][1];// first digit of voltage
 
@@ -227,15 +223,19 @@ public class Digit_Board
 
 		output[0] = (byte) (0b0000111100001111);
 
-		
-			output[2] = CHARS[input.charAt(3) - 55][0];
-			output[3] = CHARS[input.charAt(3) - 55][1];
-			output[4] = CHARS[input.charAt(2) - 55][0];
-			output[5] = CHARS[input.charAt(2) - 55][1];
-			output[6] = CHARS[input.charAt(1) - 55][0];
-			output[7] = CHARS[input.charAt(1) - 55][1];
-			output[8] = CHARS[input.charAt(0) - 55][0];
-			output[9] = CHARS[input.charAt(0) - 55][1];
+			for (int i = 0; i < input.length(); i++)
+			{
+				output[(2*i)+2] = CHARS[input.charAt(3-i) - 55][0];
+				output[(2*i)+3] = CHARS[input.charAt(3-i) - 55][0];
+			}
+//			output[2] = CHARS[input.charAt(3) - 55][0];
+//			output[3] = CHARS[input.charAt(3) - 55][1];
+//			output[4] = CHARS[input.charAt(2) - 55][0];
+//			output[5] = CHARS[input.charAt(2) - 55][1];
+//			output[6] = CHARS[input.charAt(1) - 55][0];
+//			output[7] = CHARS[input.charAt(1) - 55][1];
+//			output[8] = CHARS[input.charAt(0) - 55][0];
+//			output[9] = CHARS[input.charAt(0) - 55][1];
 
 
 		return output;
@@ -313,18 +313,15 @@ public class Digit_Board
 
 			if (mode == STATE.Position)
 			{
-				//_output_array = output_pos(_positions[pos]);
 				_display_board.writeBulk(output_pos(_positions[pos]));
 			}
 
 			else if (mode == STATE.Obstacle)
 			{
-				//_output_array = output_obs(_obstacles[obs]);
 				_display_board.writeBulk(output_obs(_obstacles[obs]));
 			}
 			else
 			{
-				//_output_array = output_voltage();
 				_display_board.writeBulk(output_voltage());
 			}
 
