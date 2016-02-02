@@ -36,7 +36,7 @@ public class Groundtruth implements Updatable {
 		
 		Update_Semaphore.getInstance().register(this);
 		
-		System.out.println("Groundtruth Initialized");
+		System.out.println("Groundtruth Leader, standing by.");
 	}
 	
 	public static Groundtruth getInstance()

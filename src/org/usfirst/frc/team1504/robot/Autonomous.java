@@ -24,7 +24,10 @@ public class Autonomous
 
 	private Groundtruth _groundtruth = Groundtruth.getInstance();
 	private Drive _drive = Drive.getInstance();
+	private Digit_Board _db = Digit_Board.getInstance();
 
+	private double _start_delay;
+	
 	private Thread _task_thread;
 	private volatile boolean _thread_alive = true;
 	private long _start_time;
@@ -34,7 +37,7 @@ public class Autonomous
 	protected Autonomous()
 	{
 		//
-		System.out.println("Autonomous Initialized");
+		System.out.println("Auton Leader, standing by.");
 	}
 
 	public static Autonomous getInstance()
@@ -73,6 +76,12 @@ public class Autonomous
 
 		_thread_alive = false;
 		System.out.println("Autonomous loop stopped");
+	}
+	
+	public double getDelay()
+	{
+		double delay = (_db.getPot() - 207)/2;
+		return delay;
 	}
 
 	protected void auto_task()

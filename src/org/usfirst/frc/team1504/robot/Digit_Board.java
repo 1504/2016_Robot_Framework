@@ -42,7 +42,7 @@ public class Digit_Board
 		
 		start();
 
-		System.out.println("Digit Board Initialized.");
+		System.out.println("MXP Leader, standing by.");
 	}
 
 	public void start()
@@ -82,7 +82,7 @@ public class Digit_Board
 	private static String[] _positions =
 	{ "P  1", "P  2", "P  3", "P  4", "P  5" };
 	private static String[] _obstacles =
-	{ "LBAR", "PORT", "DRAW", "MOAT", "FRIS", "RAMP", "SALP", "ROCK", "TERR" };
+	{ "LBAR", "PORT", "DRAW", "MOAT", "FRIS", "RAMP", "SALP", "ROCK", "TERR", "EASH" };
 
 	int pos = 0;
 	int obs = 0;
@@ -93,8 +93,9 @@ public class Digit_Board
 
 		_a = new DigitalInput(19);
 		_b = new DigitalInput(20);
-		_pot = new AnalogInput(3);
+		_pot = new AnalogInput(7);
 
+		
 	}
 	
 	public void update()
@@ -168,9 +169,11 @@ public class Digit_Board
 		return getRawButtonOnRisingEdge(B_MASK);
 	}
 	
-	public int getPot()
+	public double getPot()
 	{
-		return _pot.getAverageValue();//integer between 210 and 227???
+		double val = (double) _pot.getAverageValue();//integer between 3 - 400
+		double delay = Math.min((val/400), 10.0); //number between 0 and 10
+		return delay;
 	}
 	
 	private byte[] output_voltage()
@@ -187,6 +190,7 @@ public class Digit_Board
 		second_digit_two |= (byte)0b01000000;	
 				
 		output[0] = (byte) (0b0000111100001111);
+		
 		output[2] = CHARS[31][0];// V
 		output[3] = CHARS[31][1];// V
 		output[4] = CHARS[voltage.charAt(3) - 48][0];;// third digit
@@ -226,7 +230,7 @@ public class Digit_Board
 			for (int i = 0; i < input.length(); i++)
 			{
 				output[(2*i)+2] = CHARS[input.charAt(3-i) - 55][0];
-				output[(2*i)+3] = CHARS[input.charAt(3-i) - 55][0];
+				output[(2*i)+3] = CHARS[input.charAt(3-i) - 55][1];
 			}
 //			output[2] = CHARS[input.charAt(3) - 55][0];
 //			output[3] = CHARS[input.charAt(3) - 55][1];
@@ -242,8 +246,7 @@ public class Digit_Board
 	}
 
 	private void board_task()
-	{
-		
+	{	
     	byte[] osc = new byte[1];
     	byte[] blink = new byte[1];
     	byte[] bright = new byte[1];
@@ -260,8 +263,7 @@ public class Digit_Board
 		long refresh = 0;
 
 		while (_do_things)
-		{
-
+		{	
 			update();
 
 			if ((System.currentTimeMillis() - refresh) > _timeout)
@@ -324,14 +326,7 @@ public class Digit_Board
 				_display_board.writeBulk(output_voltage());
 			}
 
-			
-			//_display_board.writeBulk(_output_array);
 
-//			System.out.println(_obstacles[obs]);
-//			System.out.println(_positions[pos]);
-//			System.out.println(mode.toString());
-//			System.out.println(update_refresh);
-//			System.out.println(refresh);
 			
 			try
 			{

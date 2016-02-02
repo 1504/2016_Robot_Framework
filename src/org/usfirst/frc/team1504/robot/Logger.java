@@ -24,7 +24,7 @@ public class Logger {
 	
 	protected Logger()
 	{
-		System.out.println("Logger Initialized");
+		System.out.println("Log Leader, standing by.");
 	}
 	
 	public static Logger getInstance()

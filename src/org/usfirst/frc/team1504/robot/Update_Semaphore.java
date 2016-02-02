@@ -19,7 +19,7 @@ public class Update_Semaphore
 	
 	protected Update_Semaphore()
 	{
-		System.out.println("Semaphore Initialized");
+		System.out.println("Semaphore Leader, standing by.");
 	}
 	
 	public static Update_Semaphore getInstance()

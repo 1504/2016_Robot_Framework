@@ -52,7 +52,7 @@ public class Drive implements Updatable
 
 		DriveInit();
 
-		System.out.println("Drive Initialized");
+		System.out.println("Drive Leader, standing by.");
 	}
 
 	public void release()

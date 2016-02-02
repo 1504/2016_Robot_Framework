@@ -99,7 +99,7 @@ public class Robot extends RobotBase
         robotInit();
         while (true)
         {
-            if (isDisabled())
+        	if (isDisabled())
             {
                 m_ds.InDisabled(true);
                 disabled();
