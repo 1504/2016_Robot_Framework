@@ -1,8 +1,10 @@
 package org.usfirst.frc.team1504.robot;
 
+import java.nio.ByteBuffer;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DriverStation;
 import org.usfirst.frc.team1504.robot.Update_Semaphore.Updatable;
+//import org.usfirst.frc.team1504.robot.Utils.Doubletobyte;
 
 public class endGame implements Updatable{
 	
@@ -11,7 +13,9 @@ public class endGame implements Updatable{
 	DoubleSolenoid hook;
 	DriverStation ds;
 	endGame EndGame;
-	boolean override = false;
+	boolean override;
+	int overrideButtonState, liftButtonState; //values of 0 or 1 to record button states
+	long time;
 	
 	public endGame()
 	{
@@ -25,6 +29,7 @@ public class endGame implements Updatable{
 	{
 		if(ds.getMatchTime() <= 20 || override)
 		{
+			time = System.currentTimeMillis();
 			try {
 				Thread.sleep(1000);
 			}
@@ -39,26 +44,63 @@ public class endGame implements Updatable{
 	
 	public void semaphore_update()
 	{
-		if(IO.joystickSecondary.getRawButton(0))
+		/*if(IO.joystickSecondary.getRawButton(0))
 		{
+			liftButtonState = 1; //1 = true, 0 = false
 			lift();
 		}
+		liftButtonState = 0; //false (0) whether or not condition executed
 		
 		while(IO.joystickSecondary.getRawButton(1))
 		{
 			if(IO.joystickSecondary.getRawButton(0)) //override
 			{
+				overrideButtonState = 1;
 				override = true;
 				lift();
 			}
+		}*/
+		
+		int state = IO.endGameInputs();
+		if(state == 1)
+		{
+			liftButtonState = 1; //1 = true, 0 = false
+			lift();
+			liftButtonState = 0;
 		}
-		override = false;
+		
+		if(state == 2)
+		{
+			overrideButtonState = 1;
+			override = true;
+			lift();
+			overrideButtonState = 0;
+			override = false;
+		}
+		
+		
 		
 	}
 	
 	public void dump()
 	{
 		//time
+		byte[] data = new byte[8];
+		//byte mastByte = 0; = data[0]
+		
+		/*if(mast.get() == DoubleSolenoid.Value.kOff)
+		{
+			mastByte += 4;
+		} //TODO finish this using the method in utils*/
+		
+		data[0] = Utils.byteLog(mast);
+		data[1] = Utils.byteLog(lift); 
+		data[2] = Utils.byteLog(hook);
+		data[3] = (byte)overrideButtonState;
+		data[4] = (byte)liftButtonState;
+
+		//data[0] = System.currentTimeMillis() - time;
+		Logger.getInstance().log(Map.LOGGED_CLASSES.ENDGAME, data);
 	}
 	
 }

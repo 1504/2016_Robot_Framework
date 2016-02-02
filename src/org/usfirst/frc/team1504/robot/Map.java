@@ -1,4 +1,5 @@
 package org.usfirst.frc.team1504.robot;
+
 public class Map
 {
     /**
@@ -11,6 +12,8 @@ public class Map
     // Joystick inputs
     public static final int DRIVE_ARCADE_Y = 0;
     public static final int DRIVE_ARCADE_TURN = 1;
+	public static final int DRIVE_FORWARDRIGHT_JOYSTICK = 0;
+	public static final int DRIVE_ROTATION_JOYSTICK = 1;
     public static final int SECONDARY = 2;
     //Cheesy Drive Button to toggle whether turning is enabled
     public static final int DRIVE_TURN_TOGGLE = 1;
@@ -78,4 +81,29 @@ public class Map
     */
     public static enum LOGGED_CLASSES
     { SEMAPHORE, DRIVE, GROUNDTRUTH, SHOOTER }
+	
+		//Buttons
+	public static final int ACTION_STATE_READY_BUTTON = 1;
+	public static final int ACTION_STATE_PICKUP_IN_BUTTON = 2;
+	public static final int ACTION_STATE_PICKUP_OUT_BUTTON = 3;
+	public static final int ACTION_STATE_RELOAD_BUTTON = 4;
+	public static final int ACTION_STATE_FIRE_BUTTON = 5;
+	
+	public static final int MOTION_STATE_FIRE_BUTTON = 6;
+	public static final int MOTION_STATE_CLEAR_BUTTON = 7;
+	public static final int MOTION_STATE_PICKUP_BUTTON = 8;
+	
+	public static final int ENDGAME_LIFT_BUTTON = 9;
+	public static final int OVERRIDE_LIFT_BUTTON = 10;
+	public static final int VISION_BUTTON = 11;
+
+	public static final int VISION_WIDTH = 800;
+	public static final int VISION_HEIGHT = 600;
+
+	public static final double VISION_DEADZONE = .2;
+	public static final double VISION_GAIN_ADJUST_X = .25;
+	public static final double VISION_GAIN_ADJUST_Y = .25;
+
+	public static final int DRIVE_INPUT_TURN_FACTOR_OVERRIDE_BUTTON = 1;
+	public static final double DRIVE_INPUT_TURN_FACTOR = 0.2;
 }

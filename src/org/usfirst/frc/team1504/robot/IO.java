@@ -1,42 +1,138 @@
 package org.usfirst.frc.team1504.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 
-public class IO {
-
+public class IO
+{
+	private static Latch_Joystick _drive_forward = new Latch_Joystick(Map.DRIVE_FORWARDRIGHT_JOYSTICK);
+	private static Latch_Joystick _drive_rotation = new Latch_Joystick(Map.DRIVE_ROTATION_JOYSTICK);
+	
 	private static Latch_Joystick _drive_y = new Latch_Joystick(Map.DRIVE_ARCADE_Y);
 	private static Latch_Joystick _drive_w = new Latch_Joystick(Map.DRIVE_ARCADE_TURN);
 	
-	private static Latch_Joystick _secondary = new Latch_Joystick(Map.SECONDARY);
-
+	public static Joystick joystickSecondary = new Joystick(0); //index later
 	public static final long ROBOT_START_TIME = System.currentTimeMillis();
-<<<<<<< Updated upstream
-=======
+
 	
 	public static Joystick joystickSecondary = new Joystick(2); //secondary joystick - port tbd
->>>>>>> Stashed changes
 
+	static DriverStation ds;
 	/**
 	 * Drive stuff
 	 */
 
-	/**
-	 * Handle getting joystick values
-	 * 
-	 * @return
-	 */
-<<<<<<< Updated upstream
 
-	public static double[] tank_input()
-	{
-=======
+
 	public void endGameInputs()
 	{
 		
 	}
 
+	public static Lego_Intake.ACTION_STATES setJoystickActionState()
+	{
+		Lego_Intake.ACTION_STATES state;
+		if(joystickSecondary.getRawButton(Map.ACTION_STATE_PICKUP_IN_BUTTON))
+		{
+			state = Lego_Intake.ACTION_STATES.PICKUP_IN;
+		}
+		
+		else if(joystickSecondary.getRawButton(Map.ACTION_STATE_PICKUP_OUT_BUTTON))
+		{
+			state = Lego_Intake.ACTION_STATES.PICKUP_OUT;
+		}
+		
+		else if(joystickSecondary.getRawButton(Map.ACTION_STATE_RELOAD_BUTTON))
+		{
+			state = Lego_Intake.ACTION_STATES.RELOAD;
+		}
+		
+		else if(joystickSecondary.getRawButton(Map.ACTION_STATE_READY_BUTTON))
+		{
+			state = Lego_Intake.ACTION_STATES.READY;
+		}
+		
+		else if(joystickSecondary.getRawButton(Map.ACTION_STATE_FIRE_BUTTON))
+		{
+			state = Lego_Intake.ACTION_STATES.FIRE;
+		}
+		else
+			state = null;
+		return state;
+	}
+	
+	public static Lego_Intake.MOTION_STATES setJoystickMotionState()
+	{
+		Lego_Intake.MOTION_STATES state;
+		if(joystickSecondary.getRawButton(Map.MOTION_STATE_PICKUP_BUTTON))
+		{
+			state = Lego_Intake.MOTION_STATES.PICKUP;
+		}
+		
+		else if(joystickSecondary.getRawButton(Map.MOTION_STATE_FIRE_BUTTON))
+		{
+			state = Lego_Intake.MOTION_STATES.FIRING;
+		}
+	
+		else if(joystickSecondary.getRawButton(Map.MOTION_STATE_CLEAR_BUTTON))
+		{
+			state = Lego_Intake.MOTION_STATES.CLEAR;
+		}
+		else
+			state = null;
+		return state;
+	}
+	
+	public static int endGameInputs()
+	{
+		int state = 0;
+		if(joystickSecondary.getRawButton(Map.ENDGAME_LIFT_BUTTON))
+		{
+			state = 1;
+			//endGame.lift();
+		}
+		
+		while(joystickSecondary.getRawButton(Map.OVERRIDE_LIFT_BUTTON))
+		{
+			if(joystickSecondary.getRawButton(Map.ENDGAME_LIFT_BUTTON)) //while override held down and lift pressed down
+			{
+				state = 2;
+			}
+		}
+		
+		return state;
+	}
+	
+	public static boolean visionUpdate()
+	{
+		boolean vision = false;
+		if(joystickSecondary.getRawButton(Map.VISION_BUTTON))
+		{
+			vision = true;
+		}
+		
+		if(vision || ds.isAutonomous())
+		{
+			return true;
+		}
+		else
+			return false;
+	}
+	
+
+	public static double[] drive_input() {
+		double[] inputs = new double[2];
+
+		inputs[0] = Map.DRIVE_INPUT_MAGIC_NUMBERS[0] * Math.pow(Utils.deadzone(_drive_forward.getRawAxis(Map.JOYSTICK_Y_AXIS)), 2) * Math.signum(_drive_forward.getRawAxis(Map.JOYSTICK_Y_AXIS));// y
+		inputs[1] = Map.DRIVE_INPUT_MAGIC_NUMBERS[1] * Math.pow(Utils.deadzone(_drive_rotation.getRawAxis(Map.JOYSTICK_X_AXIS)), 2) * Math.signum(_drive_rotation.getRawAxis(Map.JOYSTICK_X_AXIS));// w
+		
+		if(!_drive_rotation.getRawButton(Map.DRIVE_INPUT_TURN_FACTOR_OVERRIDE_BUTTON))
+			inputs[1] *= Math.abs(inputs[0]) <= 0.01 ? 0.85 : Math.min((Math.abs(inputs[0]) + .05) / Map.DRIVE_INPUT_TURN_FACTOR, 1);
+		
+		return inputs;
+	}
+	
 	public static double[] tank_input() {
->>>>>>> Stashed changes
 		double[] inputs = new double[2];
 		// TODO: Make sure the RIGHT SIDE is the one multiplied by -1.
 
@@ -44,7 +140,6 @@ public class IO {
 				* Math.pow(Utils.deadzone(_drive_y.getRawAxis(Map.JOYSTICK_Y_AXIS)), 2)
 				* Math.signum(_drive_y.getRawAxis(Map.JOYSTICK_Y_AXIS));// forward/backward
 																		// motion
-<<<<<<< Updated upstream
 
 		if (_drive_w.getRawButton(Map.DRIVE_TURN_TOGGLE))
 		{
@@ -56,13 +151,7 @@ public class IO {
 		{
 			inputs[1] = 0.0;
 		}
-=======
-		inputs[1] = Map.DRIVE_INPUT_MAGIC_NUMBERS[1]
-				* Math.pow(Utils.deadzone(_drive_w.getRawAxis(Map.JOYSTICK_X_AXIS)), 2)
-				* Math.signum(_drive_w.getRawAxis(Map.JOYSTICK_X_AXIS)) * -1;// turning
-																				// left/right;
-
->>>>>>> Stashed changes
+//TODO: Make sure the RIGHT SIDE is the one multiplied by -1.
 		return inputs;
 	}
 
@@ -88,7 +177,6 @@ public class IO {
 	// return inputs;
 	// }
 
-<<<<<<< Updated upstream
 	public static double front_side()
 	{
 		if (_drive_w.getRawButtonLatch(Map.DRIVE_FRONTSIDE_BACK))
@@ -101,13 +189,6 @@ public class IO {
 		{
 			return 0.0;
 		}
-=======
-	public static boolean front_side() {
-		if (_drive_w.getRawButtonLatch(Map.DRIVE_FRONTSIDE_BACK)) {
-			return true;
-		}
-		return false;
->>>>>>> Stashed changes
 	}
 
 	/**
