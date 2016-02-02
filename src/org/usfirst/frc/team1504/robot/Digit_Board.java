@@ -82,7 +82,7 @@ public class Digit_Board
 	private static String[] _positions =
 	{ "P  1", "P  2", "P  3", "P  4", "P  5" };
 	private static String[] _obstacles =
-	{ "LBAR", "PORT", "DRAW", "MOAT", "FRIS", "RAMP", "SALP", "ROCK", "TERR", "EASH" };
+	{ "LBAR", "PORT", "DRAW", "MOAT", "FRIS", "RAMP", "SALP", "ROCK", "TERR"};
 
 	int pos = 0;
 	int obs = 0;
