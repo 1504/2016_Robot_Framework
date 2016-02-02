@@ -62,7 +62,16 @@ public class Map {
 	public static final int OVERRIDE_LIFT_BUTTON = 10;
 	public static final int VISION_BUTTON = 11;
 
-	
+	public static final int VISION_WIDTH = 800;
+	public static final int VISION_HEIGHT = 600;
+
+	public static final double VISION_DEADZONE = .2;
+	public static final double VISION_GAIN_ADJUST_X = .25;
+	public static final double VISION_GAIN_ADJUST_Y = .25;
+
+	public static final int DRIVE_INPUT_TURN_FACTOR_OVERRIDE_BUTTON = 1;
+	public static final double DRIVE_INPUT_TURN_FACTOR = 0.2;
+
 /**
  * Ground truth sensor
  */

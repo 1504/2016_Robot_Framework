@@ -1,10 +1,11 @@
 package org.usfirst.frc.team1504.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 
 public class IO
 {
-	private static Latch_Joystick _drive_forwardright = new Latch_Joystick(Map.DRIVE_FORWARDRIGHT_JOYSTICK);
+	private static Latch_Joystick _drive_forward = new Latch_Joystick(Map.DRIVE_FORWARDRIGHT_JOYSTICK);
 	private static Latch_Joystick _drive_rotation = new Latch_Joystick(Map.DRIVE_ROTATION_JOYSTICK);
 	
 	private static Latch_Joystick _drive_y = new Latch_Joystick(Map.DRIVE_ARCADE_Y);
@@ -13,6 +14,7 @@ public class IO
 	public static Joystick joystickSecondary = new Joystick(0); //index later
 	public static final long ROBOT_START_TIME = System.currentTimeMillis();
 	
+	static DriverStation ds;
 	/**
 	 * Drive stuff
 	 */
@@ -95,15 +97,35 @@ public class IO
 		return state;
 	}
 	
-	public static boolean visionInputs()
+	public static boolean visionUpdate()
 	{
 		boolean vision = false;
 		if(joystickSecondary.getRawButton(Map.VISION_BUTTON))
 		{
 			vision = true;
 		}
-		return vision;
+		
+		if(vision || ds.isAutonomous())
+		{
+			return true;
+		}
+		else
+			return false;
 	}
+	
+
+	public static double[] drive_input() {
+		double[] inputs = new double[2];
+
+		inputs[0] = Map.DRIVE_INPUT_MAGIC_NUMBERS[0] * Math.pow(Utils.deadzone(_drive_forward.getRawAxis(Map.JOYSTICK_Y_AXIS)), 2) * Math.signum(_drive_forward.getRawAxis(Map.JOYSTICK_Y_AXIS));// y
+		inputs[1] = Map.DRIVE_INPUT_MAGIC_NUMBERS[1] * Math.pow(Utils.deadzone(_drive_rotation.getRawAxis(Map.JOYSTICK_X_AXIS)), 2) * Math.signum(_drive_rotation.getRawAxis(Map.JOYSTICK_X_AXIS));// w
+		
+		if(!_drive_rotation.getRawButton(Map.DRIVE_INPUT_TURN_FACTOR_OVERRIDE_BUTTON))
+			inputs[1] *= Math.abs(inputs[0]) <= 0.01 ? 0.85 : Math.min((Math.abs(inputs[0]) + .05) / Map.DRIVE_INPUT_TURN_FACTOR, 1);
+		
+		return inputs;
+	}
+	
 	public static double[] tank_input() {
 		double[] inputs = new double[2];
 //TODO: Make sure the RIGHT SIDE is the one multiplied by -1.
@@ -119,8 +141,8 @@ public class IO
 	public static double[] mecanum_input() {
 		double[] inputs = new double[3];
 
-		inputs[0] = Map.DRIVE_INPUT_MAGIC_NUMBERS[0] * Math.pow(Utils.deadzone(_drive_forwardright.getRawAxis(Map.JOYSTICK_Y_AXIS)), 2) * Math.signum(_drive_forwardright.getRawAxis(Map.JOYSTICK_Y_AXIS));// y
-		inputs[1] = Map.DRIVE_INPUT_MAGIC_NUMBERS[1] * Math.pow(Utils.deadzone(_drive_forwardright.getRawAxis(Map.JOYSTICK_X_AXIS)), 2) * Math.signum(_drive_forwardright.getRawAxis(Map.JOYSTICK_X_AXIS));// x
+		//inputs[0] = Map.DRIVE_INPUT_MAGIC_NUMBERS[0] * Math.pow(Utils.deadzone(_drive_forwardright.getRawAxis(Map.JOYSTICK_Y_AXIS)), 2) * Math.signum(_drive_forwardright.getRawAxis(Map.JOYSTICK_Y_AXIS));// y
+		//inputs[1] = Map.DRIVE_INPUT_MAGIC_NUMBERS[1] * Math.pow(Utils.deadzone(_drive_forwardright.getRawAxis(Map.JOYSTICK_X_AXIS)), 2) * Math.signum(_drive_forwardright.getRawAxis(Map.JOYSTICK_X_AXIS));// x
 		inputs[2] = Map.DRIVE_INPUT_MAGIC_NUMBERS[2] * Math.pow(Utils.deadzone(_drive_rotation.getRawAxis(Map.JOYSTICK_X_AXIS)), 2) * Math.signum(_drive_rotation.getRawAxis(Map.JOYSTICK_X_AXIS));// w
 		
 		//inputs[0] = _drive_forwardright.getRawAxis(Map.JOYSTICK_Y_AXIS);

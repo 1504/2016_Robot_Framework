@@ -68,7 +68,8 @@ public class Drive implements Updatable {
 	private DriverStation _ds = DriverStation.getInstance();
 	private Logger _logger = Logger.getInstance();
 	private volatile boolean _new_data = false;
-	private volatile double[] _input = {0.0, 0.0};// TWO due to ARCADE DRIVE.
+	private volatile double[] _input = {0.0, 0.0};
+	private volatile double _rotation_offset = 0.0;
 	private DriveGlide _glide = new DriveGlide();
 	private Groundtruth _groundtruth = Groundtruth.getInstance();
 	
@@ -95,10 +96,12 @@ public class Drive implements Updatable {
 	public void semaphore_update()
 	{
 		// Get new values from the map
-		// Do all configurating first (front, etc.)
-		if(Vision.visionUpdate()) 
+		// Do all configurating first (orbit, front, etc.)
+		if(!_ds.isAutonomous())
+			drive_inputs(IO.drive_input());
+
+		if(	IO.visionUpdate()) 
 			drive_inputs(Vision.offset()); //center first
-		
 		drive_inputs(IO.tank_input());
 		// so "_new_data = true" at the VERY END OF EVERYTHING
 	}
@@ -107,9 +110,9 @@ public class Drive implements Updatable {
 	 * Put data into the processing queue.
 	 * Usable from both the semaphore and autonomous methods.
 	 */
-	public void drive_inputs(double forward, double turn)
+	public void drive_inputs(double forward, double anticlockwise)
 	{
-		double[] inputs = {forward, turn};
+		double[] inputs = {forward, anticlockwise};
 		drive_inputs(inputs);
 	}
 	public void drive_inputs(double[] input)
@@ -122,11 +125,18 @@ public class Drive implements Updatable {
 	}
 	
 	/**
-	 * Programmatically switch the direction the robot goes when the stick gets pushed; due to tank, can only switch between forward and backwards.
+	 * Programmatically switch the direction the robot goes when the stick gets pushed
 	 */
 	private double[] front_side(double[] input) {
-		input[0] = input[0]*-1;
-		return input;
+		double[] dir_offset = input;
+		if(_rotation_offset == 180.0)
+			dir_offset[0] *= -1.0;
+		return dir_offset;
+	}
+	
+	public void setFrontAngle(double rotation_offset)
+	{
+		_rotation_offset = rotation_offset;
 	}
 	
 	/**
@@ -139,11 +149,10 @@ public class Drive implements Updatable {
 		double dx = correct_x(theta) * distance(input[1], input[0]) * 0.25;
 		double dy = correct_y(theta) * distance(input[1], input[0]) * 0.25;
 
-		double[] detented = new double[3];
+		double[] detented = new double[2];
 
 		detented[0] = input[0] + dy; // y
 		detented[1] = input[1] + dx; // x
-		detented[2] = input[2];// angular
 
 		return detented;
 	}
@@ -175,7 +184,7 @@ public class Drive implements Updatable {
 		
 		// Apply P(ID) correction factor to the joystick values
 		// TODO: Determine gain constant and add to the Map
-		for(int i = 0; i < 3; i++)
+		for(int i = 0; i < input.length; i++)
 			output[i] += (normal_input[i] - speeds[i]) * -0.01;
 		
 		return output;
@@ -204,21 +213,32 @@ public class Drive implements Updatable {
 	}
 	
 	/**
-	 * Convert the Forward/Backward and Turn values into 4 motor outputs
-	 * @param input - Double array containing Forward and Turn values
+	 * Convert the Forward, Right and Antoclockwise values into 4 motor outputs
+	 * @param input - Double array containing Forward, Right and Antoclockwise values
 	 * @param output - Double array containing motor output values
 	 */
 	private double[] outputCompute(double[] input) {
 		double[] output = new double[4];
-		double max = Math.max(1.0, Math.abs(input[0]) + Math.abs(input[1]));
-
+		/*double max = Math.max(1.0, Math.abs(input[0]) + Math.abs(input[1]) + Math.abs(input[2]));
+		output[0] = (input[0] + input[1] - input[2]) / max;
+		output[1] = (input[0] - input[1] - input[2]) / max;
+		output[2] = (input[0] + input[1] + input[2]) / max;
+		output[3] = (input[0] - input[1] + input[2]) / max;
 		
-		output[0] = (input[1] - input[0]);
-		output[1] = (input[1] - input[0]);
-		output[2] = (input[1] + input[0]);
-		output[3] = (input[1] + input[0]);
+		return output;*/
 		
+		double rotation_factor = 1.0 / Math.sqrt(2.0); // cos(45) = sin(45) = 1/sqrt(2)
+		double degrees_45 = Math.PI / 4;
+		double degrees_90 = Math.PI / 2;
 		
+		double y = input[0];
+		double x = input[1];
+		
+		double angle = Math.atan2(y, x) + 2*Math.PI; // Get angle of the joystick
+		double offset = angle % degrees_45 - (Math.floor(angle / degrees_45) % 2) * degrees_45; // Correction factors to account for the square
+		offset = Math.cos(offset) / Math.cos(offset - degrees_45 + degrees_90 * ((offset < 0) ? 1.0 : 0.0)); // Choose the correct equation based on current octant
+		output[2] = output[3] = offset * rotation_factor * (y + x); // Rotate X by -45 degrees and correct to the square
+		output[0] = output[1] = offset * rotation_factor * (y - x); // Rotate Y by -45 degrees and correct to the square
 		
 		return output;
 	}
@@ -285,18 +305,15 @@ public class Drive implements Updatable {
 					{
 						// Switch front side if we need to
 						double rotation_offset = IO.front_side();
-						if(!Double.isNaN(rotation_offset)){}
-							//setFrontAngle(rotation_offset);
+						if(!Double.isNaN(rotation_offset))
+							setFrontAngle(rotation_offset);
 					
 						// Detents
 						input = detents(input);
 						// Frontside
 						input = front_side(input);
-						// Orbit point
-						//input = orbit_point(input);
 						// Glide
 						input = _glide.gain_adjust(input);
-						// Osc
 						
 						// Save corrected input for fast loop
 						_input = input;
