@@ -80,7 +80,7 @@ public class Map
     * Logger stuff
     */
     public static enum LOGGED_CLASSES
-    { SEMAPHORE, DRIVE, GROUNDTRUTH, SHOOTER }
+    { SEMAPHORE, DRIVE, GROUNDTRUTH, SHOOTER, ENDGAME, LEGO_INTAKE }
 	
 		//Buttons
 	public static final int ACTION_STATE_READY_BUTTON = 1;

@@ -11,23 +11,15 @@ public class IO
 	private static Latch_Joystick _drive_y = new Latch_Joystick(Map.DRIVE_ARCADE_Y);
 	private static Latch_Joystick _drive_w = new Latch_Joystick(Map.DRIVE_ARCADE_TURN);
 	
-	public static Joystick joystickSecondary = new Joystick(0); //index later
 	public static final long ROBOT_START_TIME = System.currentTimeMillis();
 
 	
-	public static Joystick joystickSecondary = new Joystick(2); //secondary joystick - port tbd
+	public static Latch_Joystick joystickSecondary = new Latch_Joystick(2); //secondary joystick - port tbd
 
 	static DriverStation ds;
 	/**
 	 * Drive stuff
 	 */
-
-
-
-	public void endGameInputs()
-	{
-		
-	}
 
 	public static Lego_Intake.ACTION_STATES setJoystickActionState()
 	{
@@ -197,21 +189,21 @@ public class IO
 	
 	public static boolean intake_on()
 	{
-		return _secondary.getRawButtonLatch(Map.SHOOTER_INTAKE_ON);
+		return joystickSecondary.getRawButtonLatch(Map.SHOOTER_INTAKE_ON);
 	}
 	
 	public static boolean intake_off()
 	{
-		return _secondary.getRawButtonLatch(Map.SHOOTER_INTAKE_OFF);
+		return joystickSecondary.getRawButtonLatch(Map.SHOOTER_INTAKE_OFF);
 	}
 	
 	public static boolean prep()
 	{
-		return _secondary.getRawButtonLatch(Map.SHOOTER_PREP);
+		return joystickSecondary.getRawButtonLatch(Map.SHOOTER_PREP);
 	}
 	
 	public static boolean launch() //gonna do the thing
 	{
-		return _secondary.getRawButtonLatch(Map.SHOOTER_LAUNCH);
+		return joystickSecondary.getRawButtonLatch(Map.SHOOTER_LAUNCH);
 	}
 }

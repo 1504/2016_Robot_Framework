@@ -1,10 +1,11 @@
 package org.usfirst.frc.team1504.robot;
 
 import java.nio.ByteBuffer;
+
+import org.usfirst.frc.team1504.robot.Update_Semaphore.Updatable;
+
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DriverStation;
-import org.usfirst.frc.team1504.robot.Update_Semaphore.Updatable;
-//import org.usfirst.frc.team1504.robot.Utils.Doubletobyte;
 
 public class endGame implements Updatable{
 	

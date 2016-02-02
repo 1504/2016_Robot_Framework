@@ -1,9 +1,10 @@
 package org.usfirst.frc.team1504.robot;
 
+import org.usfirst.frc.team1504.robot.Update_Semaphore.Updatable;
+
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import org.usfirst.frc.team1504.robot.Update_Semaphore.Updatable;
 
 public class Lego_Intake implements Updatable{
 	

@@ -1,6 +1,7 @@
 package org.usfirst.frc.team1504.robot;
 
 import org.usfirst.frc.team1504.robot.Update_Semaphore.Updatable;
+
 import edu.wpi.first.wpilibj.Joystick;
 
 public class Latch_Joystick extends Joystick implements Updatable {

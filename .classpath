@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-<<<<<<< HEAD
-	<classpathentry kind="lib" path="/Users/Lexie/wpilib/java/current/lib/NetworkTables.jar"/>
-	<classpathentry kind="lib" path="/Users/Lexie/wpilib/java/current/lib/WPILib.jar"/>
-=======
-	<classpathentry exported="true" kind="lib" path="/Users/eashw/wpilib/java/current/lib/NetworkTables.jar"/>
 	<classpathentry kind="var" path="wpilib" sourcepath="wpilib.sources"/>
->>>>>>> Eash
+	<classpathentry kind="var" path="networktables" sourcepath="networktables.sources"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
