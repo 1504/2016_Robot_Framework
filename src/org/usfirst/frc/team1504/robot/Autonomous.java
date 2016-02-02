@@ -1,16 +1,20 @@
 package org.usfirst.frc.team1504.robot;
 
-public class Autonomous {
+public class Autonomous
+{
 
-	private static class Auto_Task implements Runnable {
+	private static class Auto_Task implements Runnable
+	{
 
 		private Autonomous _task;
 
-		Auto_Task(Autonomous d) {
+		Auto_Task(Autonomous d)
+		{
 			_task = d;
 		}
 
-		public void run() {
+		public void run()
+		{
 			_task.auto_task();
 			_task.stop();
 		}
@@ -20,27 +24,34 @@ public class Autonomous {
 
 	private Groundtruth _groundtruth = Groundtruth.getInstance();
 	private Drive _drive = Drive.getInstance();
+	private Digit_Board _db = Digit_Board.getInstance();
 
+	private double _start_delay;
+	
 	private Thread _task_thread;
 	private volatile boolean _thread_alive = true;
 	private long _start_time;
 	private double[][] _path;
 	private int _path_step;
 
-	protected Autonomous() {
+	protected Autonomous()
+	{
 		//
-		System.out.println("Autonomous Initialized");
+		System.out.println("Auton Leader, standing by.");
 	}
 
-	public static Autonomous getInstance() {
+	public static Autonomous getInstance()
+	{
 		return instance;
 	}
 
-	public void setup_path(double[][] path) {
+	public void setup_path(double[][] path)
+	{
 		_path = path;
 	}
 
-	public void start() {
+	public void start()
+	{
 		if (_path == null)
 			return;
 
@@ -56,7 +67,8 @@ public class Autonomous {
 		System.out.println("Autonomous loop started");
 	}
 
-	public void stop() {
+	public void stop()
+	{
 		_drive.drive_inputs(0.0, 0.0);
 
 		if (!_thread_alive)
@@ -65,10 +77,18 @@ public class Autonomous {
 		_thread_alive = false;
 		System.out.println("Autonomous loop stopped");
 	}
+	
+	public double getDelay()
+	{
+		double delay = (_db.getPot() - 207)/2;
+		return delay;
+	}
 
-	protected void auto_task() {
+	protected void auto_task()
+	{
 		double[] current_task;
-		while (_thread_alive) {
+		while (_thread_alive)
+		{
 			// Don't drive around if we're not getting good sensor data
 			// Otherwise we drive super fast and out of control
 			/*
@@ -82,7 +102,8 @@ public class Autonomous {
 				step++;
 
 			// Alert user on new step
-			if (step != _path_step) {
+			if (step != _path_step)
+			{
 				System.out.println("\tAutonomous step " + step + " @ " + (System.currentTimeMillis() - _start_time));
 				_path_step = step;
 			}

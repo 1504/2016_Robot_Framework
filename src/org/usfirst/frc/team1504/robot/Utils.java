@@ -14,4 +14,9 @@ public class Utils {
 			return 0.0;
 		return (input - Map.UTIL_JOYSTICK_DEADZONE * Math.signum(input)) / (1.0 - Map.UTIL_JOYSTICK_DEADZONE);
 	}
+	
+	public static double distance(double x, double y)
+	{
+		return Math.sqrt(x * x + y * y);
+	}
 }

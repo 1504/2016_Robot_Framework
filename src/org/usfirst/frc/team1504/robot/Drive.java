@@ -7,17 +7,21 @@ import org.usfirst.frc.team1504.robot.Update_Semaphore.Updatable;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.DriverStation;
 
-public class Drive implements Updatable {
+public class Drive implements Updatable
+{
 
-	private static class DriveTask implements Runnable {
+	private static class DriveTask implements Runnable
+	{
 
 		private Drive _d;
 
-		DriveTask(Drive d) {
+		DriveTask(Drive d)
+		{
 			_d = d;
 		}
 
-		public void run() {
+		public void run()
+		{
 			_d.fastTask();
 		}
 	}
@@ -33,11 +37,13 @@ public class Drive implements Updatable {
 	 *
 	 * @return The Drive.
 	 */
-	public static Drive getInstance() {
+	public static Drive getInstance()
+	{
 		return Drive.instance;
 	}
 
-	protected Drive() {
+	protected Drive()
+	{
 		_task_thread = new Thread(new DriveTask(this), "1504_Drive");
 		_task_thread.setPriority((Thread.NORM_PRIORITY + Thread.MAX_PRIORITY) / 2);
 		_task_thread.start();
@@ -46,10 +52,11 @@ public class Drive implements Updatable {
 
 		DriveInit();
 
-		System.out.println("Drive Initialized");
+		System.out.println("Drive Leader, standing by.");
 	}
 
-	public void release() {
+	public void release()
+	{
 		_thread_alive = false;
 	}
 
@@ -62,15 +69,10 @@ public class Drive implements Updatable {
 	private DriverStation _ds = DriverStation.getInstance();
 	private Logger _logger = Logger.getInstance();
 	private volatile boolean _new_data = false;
-<<<<<<< Updated upstream
 	private volatile double[] _input =	{ 0.0, 0.0 };// TWO due to ARCADE DRIVE.
 	private volatile double _frontside_scalar = 1.0;
-=======
-	private volatile double[] _input = { 0.0, 0.0 };// TWO due to ARCADE DRIVE.
->>>>>>> Stashed changes
 	private DriveGlide _glide = new DriveGlide();
 	private Groundtruth _groundtruth = Groundtruth.getInstance();
-
 
 	
 	private CANTalon[] _motors = new CANTalon[Map.DRIVE_MOTOR_PORTS.length];
@@ -80,9 +82,11 @@ public class Drive implements Updatable {
 	/**
 	 * Set up everything that will be needed for the drive class
 	 */
-	private void DriveInit() {
+	private void DriveInit()
+	{
 		// Set up the drive motors
-		for (int i = 0; i < Map.DRIVE_MOTOR_PORTS.length; i++) {
+		for (int i = 0; i < Map.DRIVE_MOTOR_PORTS.length; i++)
+		{
 			_motors[i] = new CANTalon(Map.DRIVE_MOTOR_PORTS[i]);
 		}
 	}
@@ -92,7 +96,8 @@ public class Drive implements Updatable {
 	 * 
 	 * @see org.usfirst.frc.team1504.robot.Update_Semaphore
 	 */
-	public void semaphore_update() {
+	public void semaphore_update()
+	{
 		// Get new values from the map
 		// Do all configurating first (front, etc.)
 		drive_inputs(IO.tank_input());
@@ -103,12 +108,15 @@ public class Drive implements Updatable {
 	 * Put data into the processing queue. Usable from both the semaphore and
 	 * autonomous methods.
 	 */
-	public void drive_inputs(double forward, double turn) {
-		double[] inputs = { forward, turn };
+	public void drive_inputs(double forward, double turn)
+	{
+		double[] inputs =
+		{ forward, turn };
 		drive_inputs(inputs);
 	}
 
-	public void drive_inputs(double[] input) {
+	public void drive_inputs(double[] input)
+	{
 		if (_new_data)
 			return;
 
@@ -120,14 +128,9 @@ public class Drive implements Updatable {
 	 * Programmatically switch the direction the robot goes when the stick gets
 	 * pushed; due to tank, can only switch between forward and backwards.
 	 */
-<<<<<<< Updated upstream
 	private double[] front_side(double[] input)
 	{
 		input[0] *= _frontside_scalar;
-=======
-	private double[] front_side(double[] input) {
-		input[0] = input[0] * -1;
->>>>>>> Stashed changes
 		return input;
 	}
 	
@@ -139,12 +142,13 @@ public class Drive implements Updatable {
 	/**
 	 * Detented controller correction methods (and helper methods)
 	 */
-	private double[] detents(double[] input) {
+	private double[] detents(double[] input)
+	{
 
 		double theta = Math.atan2(input[0], input[1]);
 
-		double dx = correct_x(theta) * distance(input[1], input[0]) * 0.25;
-		double dy = correct_y(theta) * distance(input[1], input[0]) * 0.25;
+		double dx = correct_x(theta) * Utils.distance(input[1], input[0]) * 0.25;
+		double dy = correct_y(theta) * Utils.distance(input[1], input[0]) * 0.25;
 
 		double[] detented = new double[3];
 
@@ -155,17 +159,16 @@ public class Drive implements Updatable {
 		return detented;
 	}
 
-	private double correct_x(double theta) {
+	private double correct_x(double theta)
+	{
 		return -Math.sin(theta) * (-Math.sin(8 * theta) - 0.25 * Math.sin(4 * theta));
 	}
 
-	private double correct_y(double theta) {
+	private double correct_y(double theta)
+	{
 		return Math.cos(theta) * (-Math.sin(8 * theta) - 0.25 * Math.sin(4 * theta));
 	}
 
-	private double distance(double x, double y) {
-		return Math.sqrt(x * x + y * y);
-	}
 
 	/**
 	 * Ground truth sensor corrections
@@ -174,7 +177,8 @@ public class Drive implements Updatable {
 	 *            - Joystick input to correct towards
 	 * @return
 	 */
-	private double[] groundtruth_correction(double[] input) {
+	private double[] groundtruth_correction(double[] input)
+	{
 		double[] normal_input = input;
 		double[] output = input;
 		double[] speeds = _groundtruth.getSpeed();
@@ -201,7 +205,8 @@ public class Drive implements Updatable {
 	 *            - The array to normalize
 	 * @return Maximum value in the array
 	 */
-	private double groundtruth_normalize(double[] input) {
+	private double groundtruth_normalize(double[] input)
+	{
 		double max = 0;
 		for (int i = 0; i < input.length; i++)
 			max = Math.max(Math.abs(input[1]), max);
@@ -224,33 +229,16 @@ public class Drive implements Updatable {
 	 * @param output
 	 *            - Double array containing motor output values
 	 */
-	private double[] outputCompute(double[] input) {
+	private double[] outputCompute(double[] input)
+	{
 		double[] output = new double[4];
 
 		double theta = Math.atan2(input[0], input[1]);
 		double offset = (theta % (Math.PI/4.0)) - Math.floor((theta/(Math.PI/4)%2)*(Math.PI/4));
 		double scalar = Math.cos(offset)/Math.cos(offset - 45 + 90 * (offset < 0 ? 1.0 : 0.0));
 
-<<<<<<< Updated upstream
 		output[0] = output[1] = (scalar/Math.sqrt(2.0)) * (input[0] + input[1]);
 		output[2] = output[3] = (scalar/Math.sqrt(2.0)) * (input[0] - input[1]);
-=======
-		if (theta > (Math.PI / 4)) {
-			theta = (Math.PI / 2) - theta;
-		}
-
-		double alpha = theta + (Math.PI / 4);
-		double hyp = Math.sqrt((input[0] * input[0]) + (input[1] * input[1]));
-
-		double hyp_new = Math.cos(theta) * hyp / Math.cos(alpha);
-		scaled_input[0] = Math.sin(alpha) * hyp_new;
-		scaled_input[1] = Math.cos(alpha) * hyp_new;
-
-		output[0] = (scaled_input[1] - scaled_input[0]);
-		output[1] = (scaled_input[1] - scaled_input[0]);
-		output[2] = (scaled_input[1] + scaled_input[0]);
-		output[3] = (scaled_input[1] + scaled_input[0]);
->>>>>>> Stashed changes
 
 		return output;
 	}
@@ -259,8 +247,10 @@ public class Drive implements Updatable {
 	 * Output values to motors. Input: array of motor values to output in
 	 * Map.DRIVE_MOTOR order.
 	 */
-	private void motorOutput(double[] values) {
-		for (int i = 0; i < _motors.length; i++) {
+	private void motorOutput(double[] values)
+	{
+		for (int i = 0; i < _motors.length; i++)
+		{
 			// There are no Sync Groups for CANTalons. Apparently.
 			_motors[i].set(values[i] * Map.DRIVE_OUTPUT_MAGIC_NUMBERS[i]);
 		}
@@ -269,14 +259,16 @@ public class Drive implements Updatable {
 	/**
 	 * Dump class for logging
 	 */
-	private void dump() {
+	private void dump()
+	{
 		byte[] output = new byte[12 + 4 + 4];
 
 		int loops_since_last_dump = _loops_since_last_dump;
 		// _loops_since_last_dump = 0;
 
 		// Dump motor set point, current, and voltage
-		for (int i = 0; i < Map.DRIVE_MOTOR.values().length; i++) {
+		for (int i = 0; i < Map.DRIVE_MOTOR.values().length; i++)
+		{
 			output[i] = Utils.double_to_byte(_motors[i].get()); // Returns as
 																// 11-bit,
 																// downconvert
@@ -288,27 +280,29 @@ public class Drive implements Updatable {
 		ByteBuffer.wrap(output, 12, 4).putInt(loops_since_last_dump);
 		ByteBuffer.wrap(output, 16, 4).putInt((int) (System.currentTimeMillis() - IO.ROBOT_START_TIME));
 
-		if (_logger != null) {
+		if (_logger != null)
+		{
 			if (_logger.log(Map.LOGGED_CLASSES.DRIVE, output))
 				_loops_since_last_dump -= loops_since_last_dump;
 		}
 	}
 
 	/**
-	 * Update motors as fast as possible, but only compute all the joystick
-	 * stuff when there's new data
+	 * Update motors as fast as possible, but only compute all the joystick stuff when there's new data
 	 */
-	private void fastTask() {
+	private void fastTask()
+	{
 		// Damn you, Java, and your lack of local static variables!
 		double[] input;
 		boolean dump = false;
-
-		while (_thread_alive) {
+		
+		while(_thread_alive)
+		{
 			input = _input;
-
-			if (_ds.isEnabled()) {
+			
+			if(_ds.isEnabled())
+			{
 				// Process new joystick data - only when new data happens
-<<<<<<< Updated upstream
 				if(_new_data)
 				{	
 					if(_ds.isOperatorControl())
@@ -320,50 +314,39 @@ public class Drive implements Updatable {
 						frontsideAngle(frontside_scalar);							
 						}
 						
-=======
-				if (_new_data) {
-					if (_ds.isOperatorControl()) {
-						// Switch front side if we need to
-						boolean is_frontside = IO.front_side();
->>>>>>> Stashed changes
 						// Detents
 						input = detents(input);
 						
 						// Frontside
-<<<<<<< Updated upstream
 						input = front_side(input);
 						
-=======
-						if (is_frontside) {
-							input = front_side(input);
-						}
->>>>>>> Stashed changes
 						// Orbit point
-						// input = orbit_point(input);
+						//input = orbit_point(input);
 						// Glide
 						input = _glide.gain_adjust(input);
 						// Osc
-
+						
 						// Save corrected input for fast loop
 						_input = input;
 					}
-
+					
 					_new_data = false;
 					dump = true;
 				}
-
+				
 				// Ground speed offset
 				input = groundtruth_correction(input);
 				// Output to motors - as fast as this loop will go
 				motorOutput(outputCompute(input));
-
+				
 				_loops_since_last_dump++;
-
+				
 				// Log on new data, after the first computation
-				if (dump) {
-					// Dump in a separate thread, so we can loop as fast as
-					// possible
-					if (_dump_thread == null || !_dump_thread.isAlive()) {
+				if(dump)
+				{
+					// Dump in a separate thread, so we can loop as fast as possible
+					if(_dump_thread == null || !_dump_thread.isAlive())
+					{
 						_dump_thread = new Thread(new Runnable() {
 							public void run() {
 								dump();
