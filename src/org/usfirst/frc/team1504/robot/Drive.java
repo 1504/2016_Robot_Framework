@@ -154,7 +154,6 @@ public class Drive implements Updatable
 
 		detented[0] = input[0] + dy; // y
 		detented[1] = input[1] + dx; // x
-		detented[2] = input[2];// angular
 
 		return detented;
 	}

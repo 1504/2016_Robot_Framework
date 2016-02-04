@@ -4,10 +4,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 
 public class IO
-{
-	private static Latch_Joystick _drive_forward = new Latch_Joystick(Map.DRIVE_FORWARDRIGHT_JOYSTICK);
-	private static Latch_Joystick _drive_rotation = new Latch_Joystick(Map.DRIVE_ROTATION_JOYSTICK);
-	
+{	
 	private static Latch_Joystick _drive_y = new Latch_Joystick(Map.DRIVE_ARCADE_Y);
 	private static Latch_Joystick _drive_w = new Latch_Joystick(Map.DRIVE_ARCADE_TURN);
 	
@@ -111,19 +108,6 @@ public class IO
 			return false;
 	}
 	
-
-	public static double[] drive_input() {
-		double[] inputs = new double[2];
-
-		inputs[0] = Map.DRIVE_INPUT_MAGIC_NUMBERS[0] * Math.pow(Utils.deadzone(_drive_forward.getRawAxis(Map.JOYSTICK_Y_AXIS)), 2) * Math.signum(_drive_forward.getRawAxis(Map.JOYSTICK_Y_AXIS));// y
-		inputs[1] = Map.DRIVE_INPUT_MAGIC_NUMBERS[1] * Math.pow(Utils.deadzone(_drive_rotation.getRawAxis(Map.JOYSTICK_X_AXIS)), 2) * Math.signum(_drive_rotation.getRawAxis(Map.JOYSTICK_X_AXIS));// w
-		
-		if(!_drive_rotation.getRawButton(Map.DRIVE_INPUT_TURN_FACTOR_OVERRIDE_BUTTON))
-			inputs[1] *= Math.abs(inputs[0]) <= 0.01 ? 0.85 : Math.min((Math.abs(inputs[0]) + .05) / Map.DRIVE_INPUT_TURN_FACTOR, 1);
-		
-		return inputs;
-	}
-	
 	public static double[] tank_input() {
 		double[] inputs = new double[2];
 		// TODO: Make sure the RIGHT SIDE is the one multiplied by -1.
@@ -137,7 +121,7 @@ public class IO
 		{
 			inputs[1] = Map.DRIVE_INPUT_MAGIC_NUMBERS[1]
 					* Math.pow(Utils.deadzone(_drive_w.getRawAxis(Map.JOYSTICK_X_AXIS)), 2)
-					* Math.signum(_drive_w.getRawAxis(Map.JOYSTICK_X_AXIS)) * -1;// turning
+					* Math.signum(_drive_w.getRawAxis(Map.JOYSTICK_X_AXIS)) * 0.6;// turning
 																					// left/right;
 		} else
 		{
@@ -171,10 +155,10 @@ public class IO
 
 	public static double front_side()
 	{
-		if (_drive_w.getRawButtonLatch(Map.DRIVE_FRONTSIDE_BACK))
+		if (_drive_y.getRawButtonLatch(Map.DRIVE_FRONTSIDE_BACK))
 		{
 			return -1.0;
-		} else if (_drive_w.getRawButton(Map.DRIVE_FRONTSIDE_FRONT))
+		} else if (_drive_y.getRawButton(Map.DRIVE_FRONTSIDE_FRONT))
 		{
 			return 1.0;
 		} else
