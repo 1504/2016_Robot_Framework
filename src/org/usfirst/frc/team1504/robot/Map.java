@@ -68,6 +68,12 @@ public class Map
     public static final double[] GROUNDTRUTH_MAX_SPEEDS =
     {12.0, 5.0, 7.0};
     /**
+     * Pneumatics stuff
+     */
+    public static final int HIGHSIDE = 0;
+    public static final int LOWSIDE = 1;
+    
+    /**
     * IO stuff
     */
     // Joystick raw axes
@@ -77,5 +83,5 @@ public class Map
     * Logger stuff
     */
     public static enum LOGGED_CLASSES
-    { SEMAPHORE, DRIVE, GROUNDTRUTH, SHOOTER }
+    { SEMAPHORE, DRIVE, GROUNDTRUTH, SHOOTER, PNEUMATICS }
 }
