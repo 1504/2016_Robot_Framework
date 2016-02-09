@@ -7,6 +7,10 @@ import org.usfirst.frc.team1504.robot.Update_Semaphore.Updatable;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.DriverStation;
 
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+
 public class Drive implements Updatable
 {
 
@@ -32,6 +36,8 @@ public class Drive implements Updatable
 	private Thread _dump_thread;
 	private volatile boolean _thread_alive = true;
 
+	private Compressor _c;
+	
 	/**
 	 * Gets an instance of the Drive
 	 *
@@ -68,6 +74,8 @@ public class Drive implements Updatable
 
 	private DriverStation _ds = DriverStation.getInstance();
 	private Logger _logger = Logger.getInstance();
+	private Pneumatics _p = Pneumatics.getInstance();
+	
 	private volatile boolean _new_data = false;
 	private volatile double[] _input =	{ 0.0, 0.0 };// TWO due to ARCADE DRIVE.
 	private volatile double _frontside_scalar = 1.0;
@@ -89,6 +97,8 @@ public class Drive implements Updatable
 		{
 			_motors[i] = new CANTalon(Map.DRIVE_MOTOR_PORTS[i]);
 		}
+		
+		_c = new Compressor();
 	}
 
 	/**
@@ -154,7 +164,7 @@ public class Drive implements Updatable
 
 		detented[0] = input[0] + dy; // y
 		detented[1] = input[1] + dx; // x
-		detented[2] = input[2];// angular
+//		detented[2] = input[2];// angular
 
 		return detented;
 	}
@@ -302,6 +312,7 @@ public class Drive implements Updatable
 			
 			if(_ds.isEnabled())
 			{
+				System.out.println((int)_p._pressure_high + "    " + (int)_p._pressure_low);
 				// Process new joystick data - only when new data happens
 				if(_new_data)
 				{	

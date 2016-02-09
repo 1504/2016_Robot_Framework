@@ -46,6 +46,7 @@ public class Logger {
 		} catch (FileNotFoundException e) {
 			System.out.println("Could not open logging file.\n" + _outfile);
 			//e.printStackTrace();
+			return;
 		}
 
 		_start_time = System.currentTimeMillis();
@@ -57,6 +58,8 @@ public class Logger {
 			_file_output.write(robot_start_time);
 		} catch (IOException e) {
 			e.printStackTrace();
+			return;
+			
 		}
 		
 		System.out.println("Logger started @ " + _start_time + " using \"~/log/" + prefix + "-" + filetime + ".log\"");

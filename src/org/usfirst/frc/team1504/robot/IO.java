@@ -34,7 +34,7 @@ public class IO
 		{
 			inputs[1] = Map.DRIVE_INPUT_MAGIC_NUMBERS[1]
 					* Math.pow(Utils.deadzone(_drive_w.getRawAxis(Map.JOYSTICK_X_AXIS)), 2)
-					* Math.signum(_drive_w.getRawAxis(Map.JOYSTICK_X_AXIS)) * -1;// turning
+					* Math.signum(_drive_w.getRawAxis(Map.JOYSTICK_X_AXIS)) * .6;// turning
 																					// left/right;
 		} else
 		{
