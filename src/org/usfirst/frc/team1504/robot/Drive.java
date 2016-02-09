@@ -7,9 +7,11 @@ import org.usfirst.frc.team1504.robot.Update_Semaphore.Updatable;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.DriverStation;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 public class Drive implements Updatable
 {
-
+	SmartDashboard dash = new SmartDashboard();
 	private static class DriveTask implements Runnable
 	{
 
@@ -100,7 +102,16 @@ public class Drive implements Updatable
 	{
 		// Get new values from the map
 		// Do all configurating first (front, etc.)
-		drive_inputs(IO.tank_input());
+		//drive_inputs(IO.tank_input());
+		
+		if(IO.visionUpdate()) {
+			drive_inputs(Vision.offset());
+			System.out.println("drive vision inputs");
+
+		}
+		else
+			drive_inputs(IO.tank_input());
+
 		// so "_new_data = true" at the VERY END OF EVERYTHING
 	}
 
@@ -284,6 +295,10 @@ public class Drive implements Updatable
 			if (_logger.log(Map.LOGGED_CLASSES.DRIVE, output))
 				_loops_since_last_dump -= loops_since_last_dump;
 		}
+		
+		SmartDashboard.putNumber("Right motor value", _motors[0].get()); //right if order is 0,1,2,3 ccw and upward
+		SmartDashboard.putNumber("Left motor value", _motors[3].get());
+
 	}
 
 	/**

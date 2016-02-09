@@ -20,6 +20,7 @@ public class Map
     // Drive Motor enumeration
     public static enum DRIVE_MOTOR
     { FRONT_LEFT, BACK_LEFT, BACK_RIGHT, FRONT_RIGHT }
+    
     // Drive Motor ports
     public static final int FRONT_LEFT_TALON_PORT = 10;
     public static final int BACK_LEFT_TALON_PORT = 11;
@@ -77,7 +78,7 @@ public class Map
     * Logger stuff
     */
     public static enum LOGGED_CLASSES
-    { SEMAPHORE, DRIVE, GROUNDTRUTH, SHOOTER, ENDGAME, LEGO_INTAKE }
+    { SEMAPHORE, DRIVE, GROUNDTRUTH, SHOOTER, ENDGAME, LEGO_INTAKE, VISION }
 	
 	//Buttons
     
@@ -115,6 +116,7 @@ public class Map
 	public static final double VISION_DEADZONE = .2;
 	public static final double VISION_GAIN_ADJUST_X = .25;
 	public static final double VISION_GAIN_ADJUST_Y = .25;
+	public static final double VISION_DELAY_TIME = .5;
 
 	public static final int DRIVE_INPUT_TURN_FACTOR_OVERRIDE_BUTTON = 1;
 	public static final double DRIVE_INPUT_TURN_FACTOR = 0.2;

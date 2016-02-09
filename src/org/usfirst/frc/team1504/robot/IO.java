@@ -41,14 +41,16 @@ public class IO
 		if(joystickSecondary.getRawButton(Map.VISION_BUTTON))
 		{
 			vision = true;
+			System.out.println("io vision update");
 		}
 		
-		if(vision || ds.isAutonomous())
+		/*if(vision || ds.isAutonomous())
 		{
-			return true;
-		}
-		else
-			return false;
+			vision = true;
+		}*/
+		//else
+			//vision = false;
+		return vision;
 	}
 	
 	/**

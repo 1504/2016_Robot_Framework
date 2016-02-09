@@ -14,6 +14,7 @@ public class Robot extends RobotBase
     Drive _drive = Drive.getInstance();
     Autonomous _autonomous = Autonomous.getInstance();
     Digit_Board _digit_board = Digit_Board.getInstance();
+    Vision _vision = Vision.getInstance();
     /**
     * Create a new Robot
     */
@@ -138,6 +139,7 @@ public class Robot extends RobotBase
             {
                 m_ds.InOperatorControl(true);
                 _logger.start("Tele");
+                //_vision.start();
                 operatorControl();
                 while (isOperatorControl() && !isDisabled())
                 {
