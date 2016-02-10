@@ -33,7 +33,9 @@ public class Drive implements Updatable
 	private Thread _task_thread;
 	private Thread _dump_thread;
 	private volatile boolean _thread_alive = true;
-
+	
+	private Vision _v = Vision.getInstance();
+	
 	/**
 	 * Gets an instance of the Drive
 	 *
@@ -51,6 +53,7 @@ public class Drive implements Updatable
 		_task_thread.start();
 
 		Update_Semaphore.getInstance().register(this);
+		
 
 		DriveInit();
 
@@ -105,7 +108,7 @@ public class Drive implements Updatable
 		//drive_inputs(IO.tank_input());
 		
 		if(IO.visionUpdate()) {
-			drive_inputs(Vision.offset());
+			drive_inputs(_v.offset());
 			System.out.println("drive vision inputs");
 
 		}

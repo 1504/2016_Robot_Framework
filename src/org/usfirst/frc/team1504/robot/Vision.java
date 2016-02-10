@@ -1,50 +1,28 @@
 package org.usfirst.frc.team1504.robot;
 
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
-import org.usfirst.frc.team1504.robot.Update_Semaphore.Updatable;
 
-public class Vision implements Updatable
+public class Vision
 {
-	static NetworkTable table;
+	 NetworkTable table;
+
 	
-	private static class VisionTask implements Runnable{
-		
-		private Vision _v;
-		
-		public VisionTask(Vision v)
-		{
-			_v = v;
-		}
-		
-		public void run()
-		{
-			_v.semaphore_update();
-		}
-	}
-	
-	private static Vision instance = new Vision();
-	
-	private Thread _vision_thread;
+	private static Vision _instance = new Vision();
 	
 	public static Vision getInstance()
 	{
-		return instance;
+		return _instance;
 	}
 	
 	protected Vision()
 	{
-		_vision_thread = new Thread(new VisionTask(this), "1504-Vision");
-		_vision_thread.setPriority(Thread.NORM_PRIORITY + Thread.MAX_PRIORITY / 2);
-		_vision_thread.start();
-		
-		Update_Semaphore.getInstance().register(this);//Vision.getInstance());
 		
 		System.out.println("Vision is watching");
 		
 		table = NetworkTable.getTable("GRIP/myContoursReport");
 	}
 	
-	public static boolean getAimed(double center)
+	public boolean getAimed(double center)
 	{
 		if(Math.abs(center) > Map.VISION_DEADZONE)
 			return true;
@@ -59,7 +37,7 @@ public class Vision implements Updatable
 		return pos;
 	}
 	
-	public static double[] offset()
+	public double[] offset()
 	{
 		double[] inputs = new double[2];
 
@@ -123,15 +101,5 @@ public class Vision implements Updatable
 				inputs[0] = 0;
 		}
 		return inputs;
-	}
-	
-	public void semaphore_update()
-	{
-		if(IO.visionUpdate())
-		{
-			offset();
-			System.out.println("semaphore in vision");
-
-		}
 	}
 }

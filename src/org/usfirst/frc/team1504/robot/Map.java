@@ -78,7 +78,7 @@ public class Map
     * Logger stuff
     */
     public static enum LOGGED_CLASSES
-    { SEMAPHORE, DRIVE, GROUNDTRUTH, SHOOTER, ENDGAME, LEGO_INTAKE, VISION }
+    { SEMAPHORE, DRIVE, GROUNDTRUTH, SHOOTER, ENDGAME, LEGO_INTAKE }
 	
 	//Buttons
     
