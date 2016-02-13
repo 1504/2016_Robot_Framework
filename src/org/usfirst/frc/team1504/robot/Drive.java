@@ -108,7 +108,7 @@ public class Drive implements Updatable
 		//drive_inputs(IO.tank_input());
 		
 		if(IO.visionUpdate()) { //TODO auton
-			drive_inputs(_v.offset());
+			drive_inputs(_v.update());
 			System.out.println("drive vision inputs");
 
 		}
@@ -122,6 +122,7 @@ public class Drive implements Updatable
 	 * Put data into the processing queue. Usable from both the semaphore and
 	 * autonomous methods.
 	 */
+
 	public void drive_inputs(double forward, double turn)
 	{
 		double[] inputs =
