@@ -73,16 +73,19 @@ public class Digit_Board
 	private static long _timeout = 2500;
 
 	private AnalogInput _pot;
+	private boolean _should_disp_pot = false;
+	private double _delay = 0.0;
+	private double _last_delay = 0.0;
 
 	private static enum STATE
 	{
-		Voltage, Position, Obstacle, Wait
+		Voltage, Position, Obstacle, Delay
 	}
 
 	private static String[] _positions =
 	{ "P  1", "P  2", "P  3", "P  4", "P  5" };
 	private static String[] _obstacles =
-	{ "LBAR", "PORT", "DRAW", "MOAT", "FRIS", "RAMP", "SALP", "ROCK", "TERR", "EASH"};
+	{ "LBAR", "PORT", "DRAW", "MOAT", "FRIS", "RAMP", "SALP", "ROCK", "TERR"};
 
 	int pos = 0;
 	int obs = 0;
@@ -172,8 +175,22 @@ public class Digit_Board
 	public double getPot()
 	{
 		double val = (double) _pot.getAverageValue();//integer between 3 - 400
-		double delay = Math.min((val/400), 10.0); //number between 0 and 10
-		return delay;
+		_delay = Math.min((val/400), 10.0); //number between 0 and 10
+		_delay = (Math.round(_delay * 2.0)) / 2.0;
+		_delay = 10.0 - _delay;
+		
+		if (_delay != _last_delay)
+		{
+			_should_disp_pot = true;
+		}
+		else
+		{
+			_should_disp_pot = false;
+		}
+		
+		_last_delay = _delay;
+		
+		return _delay;
 	}
 	
 	private byte[] output_voltage()
@@ -185,23 +202,25 @@ public class Digit_Board
 		}
 
 		byte[] output = new byte[10];
-
-		byte second_digit_two = CHARS[voltage.charAt(1) - 48][1];		
-		second_digit_two |= (byte)0b01000000;	
 				
 		output[0] = (byte) (0b0000111100001111);
 		
 		output[2] = CHARS[31][0];// V
 		output[3] = CHARS[31][1];// V
-		output[4] = CHARS[voltage.charAt(3) - 48][0];;// third digit
-		output[5] = CHARS[voltage.charAt(3) - 48][1];;// third digit
-		output[6] = CHARS[voltage.charAt(1) - 48][0];// second digit of voltage
+		
+		byte second_digit_two;
+
+		
+		second_digit_two = CHARS[voltage.charAt(1) - 48][1];		
+		second_digit_two |= (byte)0b01000000;
+		output[4] = CHARS[voltage.charAt(3) - 48][0];// third digit
+		output[5] = CHARS[voltage.charAt(3) - 48][1];// third digit
+		output[6] = CHARS[voltage.charAt(1) - 48][0];// second digit of voltage	
 		output[7] = second_digit_two;// second digit of voltage, with decimal point.
 		output[8] = CHARS[voltage.charAt(0) - 48][0];// first digit of voltage
 		output[9] = CHARS[voltage.charAt(0) - 48][1];// first digit of voltage
-
+		
 		return output;
-
 	}
 
 	private byte[] output_pos(String input)
@@ -245,6 +264,32 @@ public class Digit_Board
 		return output;
 	}
 
+	private byte[] output_delay(double d)
+	{
+		String delay = Double.toString(d);
+		
+		byte[] output = new byte[10];
+
+		byte decimal_digit = CHARS[delay.charAt(delay.length()-3) - 48][1];
+		decimal_digit |= (byte)0b01000000;
+		
+		output[0] = (byte) (0b0000111100001111);
+		
+		output[2] = CHARS[delay.charAt(delay.length() - 1) - 48][0];
+		output[3] = CHARS[delay.charAt(delay.length() - 1) - 48][1];
+		output[4] = CHARS[delay.charAt(delay.length() - 3) - 48][0];
+		output[5] = decimal_digit;
+		
+		if (delay.length() == 4)
+		{
+			output[6] = CHARS[delay.charAt(0) - 48][0];
+			output[7] = CHARS[delay.charAt(0) - 48][1];
+		}
+
+		
+		return output;
+	}
+	
 	private void board_task()
 	{	
     	byte[] osc = new byte[1];
@@ -265,6 +310,7 @@ public class Digit_Board
 		while (_do_things)
 		{	
 			update();
+			getPot();
 
 			if ((System.currentTimeMillis() - refresh) > _timeout)
 			{
@@ -293,6 +339,10 @@ public class Digit_Board
 			
 //				System.out.println("obs");
 			}
+			else if (_should_disp_pot)
+			{
+				mode = STATE.Delay;
+			}
 			else
 			{
 				update_refresh = false;
@@ -320,6 +370,10 @@ public class Digit_Board
 			else if (mode == STATE.Obstacle)
 			{
 				_display_board.writeBulk(output_obs(_obstacles[obs]));
+			}
+			else if (mode == STATE.Delay)
+			{
+				_display_board.writeBulk(output_delay(_delay));
 			}
 			else
 			{
