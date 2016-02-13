@@ -116,7 +116,12 @@ public class Map
 	public static final double VISION_DEADZONE = .2;
 	public static final double VISION_GAIN_ADJUST_X = .25;
 	public static final double VISION_GAIN_ADJUST_Y = .25;
-	public static final double VISION_DELAY_TIME = .5;
+	public static final double VISION_DELAY_TIME = .65;//.75;
+	public static final double VISION_CORRECTION_DELAY_TIME= .8;
+	public static final double VISION_DELAY_TIME_SLOW = .3;
+	public static final double VISION_DELAY_TIME_FAST = .8;
+
+
 
 	public static final int DRIVE_INPUT_TURN_FACTOR_OVERRIDE_BUTTON = 1;
 	public static final double DRIVE_INPUT_TURN_FACTOR = 0.2;
