@@ -8,7 +8,12 @@ public class Vision
 	private NetworkTable table;
 	AnalogGyro gyro = new AnalogGyro(1);
 	private static final Vision _instance = new Vision();
-	double[] inputs = new double[2];
+	double[] _cinputs = new double[2];
+	double[] _ginputs = new double[2];
+	
+	double _cangle = 0;
+	double _gangle = 0;
+
 	double pos = 0;
 	
 	boolean _updateState = true; //true = use camera
@@ -33,10 +38,22 @@ public class Vision
 		return true; //true means robot is aimed
 	}
 	
-	public double useCameraData()
+	public boolean checkCamera()
 	{
-		_updateState = true;
+		//double [] camera = useCameraData();
+		//double [] gyro = aim();
+		//if(Math.abs(gyro[1]-camera[1]) > Map.VISION_DEADZONE)
+		if(Math.abs(_gangle - _cangle) > Map.VISION_DEADZONE) //yes this is right. checking angles.
 
+			return false;
+		else
+			return true;
+	}
+	
+	public double[] useCameraData()
+	{	
+		_updateState = true;
+		_aimed = false;
 		double[] height;
 		double[] width;	
 		double[] xCenter;
@@ -49,9 +66,11 @@ public class Vision
 		
 		height = table.getNumberArray("height", defaultValue);
 		width = table.getNumberArray("width", defaultValue);	
-
+		xCenter = table.getNumberArray("centerX", defaultValue);
+		
 		if(height[0] > 0) //if there is something found
 		{	
+			System.out.println("loop");
 			int widest = 0;
 			for(int i = 0; i < height.length - 1; i++)
 			{
@@ -61,9 +80,8 @@ public class Vision
 			index = widest;
 		}
 		else
-			inputs[1] = .15; //turn until see something
+			_cinputs[1] = .15; //turn until see something
 		
-		xCenter = table.getNumberArray("centerX", defaultValue);
 		xCenter[index] = center;
 		
 		//scaledPosition_x = (2*(center/Map.VISION_WIDTH) - 1);
@@ -76,7 +94,9 @@ public class Vision
 			_updateState = false;
 			gyro.reset();
 		}
-		return scaledPosition_x;
+		
+		_cangle = scaledPosition_x;
+		return _cinputs;
 	}
 	
 	public double predictPosition(double speed)
@@ -88,7 +108,7 @@ public class Vision
 	public double[] aim() //using gyro
 	{	
 		_updateState = false;
-		double [] inputs = new double[2];		
+		//double [] inputs = new double[2];		
 		//double[] target = table.getNumberArray("centerX", defaultValue);
 		double angle;
 		double scaledAngle = 0;
@@ -112,28 +132,41 @@ public class Vision
 		if(getAimed(scaledAngle))
 			_aimed = true;
 		else
-			inputs[1] = -scaledAngle * Map.VISION_GAIN_ADJUST_X;
-
-		return inputs;
+			_gangle = -scaledAngle * Map.VISION_GAIN_ADJUST_X;
+		//_ginputs[0] = scaledAngle;
+		return _ginputs;
 	}
 	
 	public double[] update()
 	{
-		
+		double [] inputs = new double[2];
 		//double scaledPosition_x = 0; 
 		//double scaledPosition_y = 0; 
 
 		//if(height[0] > 0) //if there is something found and its viable
-		//{	
-			if(_aimed)
-				inputs[1] = 0;
-			
-			if(_updateState)
-				useCameraData();
-			aim();
-			
-			
+		//{
 		
+		if(_updateState)
+			useCameraData();
+		inputs = aim();
+		
+		if(_aimed) 
+		{
+			if(checkCamera()) 
+			{
+				//_aimed = true;
+				inputs[1] = 0;
+			}
+		}
+			//if(_aimed)
+				//inputs[1] = 0;
+			/*if(_updateState)
+				_aimed = cameraCheck();
+
+			*/
+			
+			
+			
 			//scaledPosition_x = (2*(xCenter[index]/Map.VISION_WIDTH)) - 1 + predictPosition(inputs[0]);
 			
 			//inputs = aim(index);
