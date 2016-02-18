@@ -31,6 +31,7 @@ public class Shooter implements Updatable
 
 	private Thread _task_thread;
 	private Thread _dump_thread;
+	private Thread _pid_thread;
 	private volatile boolean _thread_alive = true;
 
 	/**
@@ -65,12 +66,12 @@ public class Shooter implements Updatable
 	private CANTalon[] _motors;
 	private boolean[] _shooter_input;// 0: Intake On, 1: Intake Off, 2: Prep, 3:
 										// Launch
-	
+
 	private double[] _motor_values;
 	private boolean _prep_on;
 
 	private volatile int _loops_since_last_dump = 0;
-	
+
 	/**
 	 * Initializes motors and buttons for usage. Called ONCE.
 	 */
@@ -78,18 +79,18 @@ public class Shooter implements Updatable
 	{
 		_motors = new CANTalon[Map.SHOOTER_MOTOR_PORTS.length];
 		_motors[0] = new CANTalon(Map.INTAKE_TALON_PORT);
-		
+
 		_motors[1] = new CANTalon(Map.SHOOTER_LEFT_TALON_PORT);
-		_motors[1].setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative); //Magnetic Encoder
-		_motors[1].reverseSensor(false); //No sign flips
-		
-		
+		_motors[1].setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative); // Magnetic
+																				// Encoder
+		_motors[1].reverseSensor(false); // No sign flips
+
 		_motors[2] = new CANTalon(Map.SHOOTER_RIGHT_TALON_PORT);
 		_motors[2].setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative);
 		_motors[2].reverseSensor(false);
-		
+
 		_shooter_input = new boolean[Map.SHOOTER_INPUTS.length];
-		
+
 		_motor_values = new double[_motors.length];
 	}
 
@@ -104,8 +105,6 @@ public class Shooter implements Updatable
 		_shooter_input[3] = IO.launch();
 	}
 
-
-	
 	// TODO: TEST AND FIND OUT REAL VALUES FOR MOTORS
 	/**
 	 * Turns on the motor so that the robot can capture a BOULDER.
@@ -137,7 +136,7 @@ public class Shooter implements Updatable
 
 		if (_shooter_input[2] || _prep_on)
 		{
-			if(!_prep_on) // only does this on the first run through the loop
+			if (!_prep_on) // only does this on the first run through the loop
 			{
 				_motor_values[0] = -0.3;
 				try
@@ -164,7 +163,7 @@ public class Shooter implements Updatable
 		if (_shooter_input[3])
 		{
 			_motor_values[0] = 1.0;
-			
+
 			try
 			{
 				Thread.sleep(333); // Almost a third of a second
@@ -178,12 +177,13 @@ public class Shooter implements Updatable
 			_motor_values[2] = 0.0;
 		}
 	}
-	
+
 	private void setMotors()
 	{
-		_motors[0].set(_motor_values[0]); //No encoder for the intake motor, because it doesn't matter as much.
-		
-		
+		_motors[0].set(_motor_values[0]); // No encoder for the intake motor,
+											// because it doesn't matter as
+											// much.
+
 		_motors[1].set((_motor_values[1] - _motors[1].getSpeed()) * 0.005);
 		_motors[2].set((_motor_values[2] - _motors[2].getSpeed()) * 0.005);
 	}
@@ -252,7 +252,6 @@ public class Shooter implements Updatable
 				intake();
 				prep();
 				launch();
-				setMotors();
 				logtiem = true;
 			}
 			if (logtiem)
@@ -271,6 +270,17 @@ public class Shooter implements Updatable
 				}
 				logtiem = false;
 			}
+			if (_pid_thread == null || !_pid_thread.isAlive())
+			{
+				_pid_thread = new Thread(new Runnable()
+				{
+					public void run()
+					{
+						setMotors();
+					}
+				});
+			}
+			_pid_thread.start();
 		}
 	}
 }

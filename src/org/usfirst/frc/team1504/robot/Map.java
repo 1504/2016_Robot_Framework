@@ -5,15 +5,10 @@ public class Map
     * Utilities
     */
     public static final double UTIL_JOYSTICK_DEADZONE = 0.09;
+
     /**
     * Drive class things
     */
-    // Joystick inputs
-    public static final int DRIVE_ARCADE_Y = 0;
-    public static final int DRIVE_ARCADE_TURN = 1;
-    public static final int SECONDARY = 2;
-    //Cheesy Drive Button to toggle whether turning is enabled
-    public static final int DRIVE_TURN_TOGGLE = 1;
     // Drive Motor enumeration
     public static enum DRIVE_MOTOR
     { FRONT_LEFT, BACK_LEFT, BACK_RIGHT, FRONT_RIGHT }
@@ -32,9 +27,7 @@ public class Map
     // Drive Input magic numbers
     public static final double[] DRIVE_INPUT_MAGIC_NUMBERS =
     { 1.0, -1.0, 0.7 };
-    // Drive Front Side changing
-    public static final int DRIVE_FRONTSIDE_BACK = 2;
-    public static final int DRIVE_FRONTSIDE_FRONT = 3;
+
     //Secondary Motor Ports
     //The direction right means on the right if you're looking from the backside of the robot. Ditto with left.
     public static final int INTAKE_TALON_PORT = 20;
@@ -42,13 +35,6 @@ public class Map
     public static final int SHOOTER_RIGHT_TALON_PORT = 22;
     public static final int[] SHOOTER_MOTOR_PORTS =
     {INTAKE_TALON_PORT, SHOOTER_LEFT_TALON_PORT, SHOOTER_RIGHT_TALON_PORT};
-    //Buttons for shooting
-    public static final int SHOOTER_INTAKE_ON = 3;
-    public static final int SHOOTER_INTAKE_OFF = 5;
-    public static final int SHOOTER_PREP = 2;
-    public static final int SHOOTER_LAUNCH = 1;
-    public static final int[] SHOOTER_INPUTS =
-    {SHOOTER_INTAKE_ON, SHOOTER_INTAKE_OFF, SHOOTER_PREP, SHOOTER_LAUNCH};
     
     public static final double SHOOTER_MOTOR_SPEED = 7800.0;
     // Glide gain
@@ -59,6 +45,7 @@ public class Map
     // Drive Output magic numbers - for getting everything spinning the correct direction
     public static final double[] DRIVE_OUTPUT_MAGIC_NUMBERS =
     { -1.0, -1.0, 1.0, 1.0 };
+    
     /**
     * Ground truth sensor
     */
@@ -69,6 +56,7 @@ public class Map
     // Maximum (empirically determined) speed the robot can go in its three directions.
     public static final double[] GROUNDTRUTH_MAX_SPEEDS =
     {12.0, 5.0, 7.0};
+    
     /**
      * Pneumatics stuff
      */
@@ -81,9 +69,37 @@ public class Map
     // Joystick raw axes
     public static final int JOYSTICK_Y_AXIS = 1;
     public static final int JOYSTICK_X_AXIS = 0;
+    
+    // Joystick inputs
+    public static final int DRIVE_ARCADE_Y = 0;
+    public static final int DRIVE_ARCADE_TURN = 1;
+    public static final int SECONDARY = 2;
+  
+    
     /**
     * Logger stuff
     */
     public static enum LOGGED_CLASSES
     { SEMAPHORE, DRIVE, GROUNDTRUTH, SHOOTER, PNEUMATICS }
+    
+    //Buttons
+    
+    	//Primary
+    //Cheesy Drive Button to toggle whether turning is enabled
+    public static final int DRIVE_TURN_TOGGLE = 1;
+    
+    // Drive Front Side changing
+    public static final int DRIVE_FRONTSIDE_BACK = 2;
+    public static final int DRIVE_FRONTSIDE_FRONT = 3;
+    
+    	//Seconday
+    //Buttons for shooting
+    public static final int SHOOTER_INTAKE_ON = 3;
+    public static final int SHOOTER_INTAKE_OFF = 5;
+    public static final int SHOOTER_PREP = 2;
+    public static final int SHOOTER_LAUNCH = 1;
+    public static final int[] SHOOTER_INPUTS =
+    {SHOOTER_INTAKE_ON, SHOOTER_INTAKE_OFF, SHOOTER_PREP, SHOOTER_LAUNCH};
+
+
 }
