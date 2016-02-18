@@ -49,6 +49,8 @@ public class Map
     public static final int SHOOTER_LAUNCH = 1;
     public static final int[] SHOOTER_INPUTS =
     {SHOOTER_INTAKE_ON, SHOOTER_INTAKE_OFF, SHOOTER_PREP, SHOOTER_LAUNCH};
+    
+    public static final double SHOOTER_MOTOR_SPEED = 7800.0;
     // Glide gain
     public static final double[][] DRIVE_GLIDE_GAIN =
     {

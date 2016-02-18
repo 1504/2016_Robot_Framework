@@ -209,7 +209,6 @@ public class Digit_Board
 		output[3] = CHARS[31][1];// V
 		
 		byte second_digit_two;
-
 		
 		second_digit_two = CHARS[voltage.charAt(1) - 48][1];		
 		second_digit_two |= (byte)0b01000000;

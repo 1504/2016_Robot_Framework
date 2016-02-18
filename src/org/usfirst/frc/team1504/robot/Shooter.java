@@ -5,6 +5,8 @@ import java.nio.ByteBuffer;
 import org.usfirst.frc.team1504.robot.Update_Semaphore.Updatable;
 
 import edu.wpi.first.wpilibj.CANTalon;
+import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
+import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.DriverStation;
 
 public class Shooter implements Updatable
@@ -60,23 +62,35 @@ public class Shooter implements Updatable
 
 	private DriverStation _ds = DriverStation.getInstance();
 	private Logger _logger = Logger.getInstance();
-	private CANTalon[] motors = new CANTalon[Map.SHOOTER_MOTOR_PORTS.length];
+	private CANTalon[] _motors;
 	private boolean[] _shooter_input;// 0: Intake On, 1: Intake Off, 2: Prep, 3:
 										// Launch
+	
+	private double[] _motor_values;
 	private boolean _prep_on;
 
 	private volatile int _loops_since_last_dump = 0;
-
+	
 	/**
 	 * Initializes motors and buttons for usage. Called ONCE.
 	 */
 	private void ShootInit()
 	{
-		motors[0] = new CANTalon(Map.INTAKE_TALON_PORT);
-		motors[1] = new CANTalon(Map.SHOOTER_LEFT_TALON_PORT);
-		motors[2] = new CANTalon(Map.SHOOTER_RIGHT_TALON_PORT);
-
+		_motors = new CANTalon[Map.SHOOTER_MOTOR_PORTS.length];
+		_motors[0] = new CANTalon(Map.INTAKE_TALON_PORT);
+		
+		_motors[1] = new CANTalon(Map.SHOOTER_LEFT_TALON_PORT);
+		_motors[1].setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative); //Magnetic Encoder
+		_motors[1].reverseSensor(false); //No sign flips
+		
+		
+		_motors[2] = new CANTalon(Map.SHOOTER_RIGHT_TALON_PORT);
+		_motors[2].setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative);
+		_motors[2].reverseSensor(false);
+		
 		_shooter_input = new boolean[Map.SHOOTER_INPUTS.length];
+		
+		_motor_values = new double[_motors.length];
 	}
 
 	/**
@@ -90,6 +104,8 @@ public class Shooter implements Updatable
 		_shooter_input[3] = IO.launch();
 	}
 
+
+	
 	// TODO: TEST AND FIND OUT REAL VALUES FOR MOTORS
 	/**
 	 * Turns on the motor so that the robot can capture a BOULDER.
@@ -101,12 +117,12 @@ public class Shooter implements Updatable
 		if (_shooter_input[0] || intake_on)
 		{
 			intake_on = true;
-			motors[0].set(0.7);
+			_motor_values[0] = 0.7;
 		}
 		if (_shooter_input[1] || !intake_on)
 		{
 			intake_on = false;
-			motors[0].set(0.0);
+			_motor_values[0] = 0.0;
 		}
 	}
 
@@ -121,20 +137,21 @@ public class Shooter implements Updatable
 
 		if (_shooter_input[2] || _prep_on)
 		{
-			_prep_on = true;
-			motors[0].set(-0.3);
-
-			try
+			if(!_prep_on) // only does this on the first run through the loop
 			{
-				Thread.sleep(250); // A quarter of a second.
-			} catch (InterruptedException ex)
-			{
-				Thread.currentThread().interrupt();
+				_motor_values[0] = -0.3;
+				try
+				{
+					Thread.sleep(250); // A quarter of a second.
+				} catch (InterruptedException ex)
+				{
+					Thread.currentThread().interrupt();
+				}
 			}
-
-			motors[0].set(0.0);
-			motors[1].set(1.0);
-			motors[2].set(1.0);
+			_prep_on = true;
+			_motor_values[0] = 0.0;
+			_motor_values[1] = Map.SHOOTER_MOTOR_SPEED;
+			_motor_values[2] = Map.SHOOTER_MOTOR_SPEED;
 		}
 	}
 
@@ -146,7 +163,8 @@ public class Shooter implements Updatable
 
 		if (_shooter_input[3])
 		{
-			motors[0].set(1.0);
+			_motor_values[0] = 1.0;
+			
 			try
 			{
 				Thread.sleep(333); // Almost a third of a second
@@ -155,10 +173,19 @@ public class Shooter implements Updatable
 				Thread.currentThread().interrupt();
 			}
 			_prep_on = false;
-			motors[1].set(0);
-			motors[2].set(0);
-			motors[0].set(0);
+			_motor_values[0] = 0.0;
+			_motor_values[1] = 0.0;
+			_motor_values[2] = 0.0;
 		}
+	}
+	
+	private void setMotors()
+	{
+		_motors[0].set(_motor_values[0]); //No encoder for the intake motor, because it doesn't matter as much.
+		
+		
+		_motors[1].set((_motor_values[1] - _motors[1].getSpeed()) * 0.005);
+		_motors[2].set((_motor_values[2] - _motors[2].getSpeed()) * 0.005);
 	}
 
 	// All motors should have: Bus Voltage, Output Current, and Set Point
@@ -171,14 +198,14 @@ public class Shooter implements Updatable
 
 		int loops_since_last_dump = _loops_since_last_dump;
 
-		for (int i = 0; i < motors.length; i++)
+		for (int i = 0; i < _motors.length; i++)
 		{
 			int j = i * 4;// in order to not have nested loops, array indices
 							// get calculated based on i
-			output[j] = Utils.double_to_byte(motors[i].get());
-			output[j + 1] = Utils.double_to_byte(motors[i].getSetpoint());
-			output[j + 2] = Utils.double_to_byte(motors[i].getBusVoltage());
-			output[j + 3] = Utils.double_to_byte(motors[i].getOutputCurrent());
+			output[j] = Utils.double_to_byte(_motors[i].get());
+			output[j + 1] = Utils.double_to_byte(_motors[i].getSetpoint());
+			output[j + 2] = Utils.double_to_byte(_motors[i].getBusVoltage());
+			output[j + 3] = Utils.double_to_byte(_motors[i].getOutputCurrent());
 		}
 		// current state of buttons, crushed into one byte , with the
 		// button array: 0: Intake On, 1: Intake Off, 2: Prep, 3: Launch
@@ -217,7 +244,7 @@ public class Shooter implements Updatable
 	 */
 	private void shootTask()
 	{
-		boolean logpls = false;
+		boolean logtiem = false;
 		while (_thread_alive)
 		{
 			if (_ds.isEnabled() && _ds.isOperatorControl())
@@ -225,9 +252,10 @@ public class Shooter implements Updatable
 				intake();
 				prep();
 				launch();
-				logpls = true;
+				setMotors();
+				logtiem = true;
 			}
-			if (logpls)
+			if (logtiem)
 			{
 				// Dump is done in its own thread, for speed.
 				if (_dump_thread == null || !_dump_thread.isAlive())
@@ -241,7 +269,7 @@ public class Shooter implements Updatable
 					});
 					_dump_thread.start();
 				}
-				logpls = false;
+				logtiem = false;
 			}
 		}
 	}
