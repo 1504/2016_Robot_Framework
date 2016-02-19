@@ -107,6 +107,8 @@ public class Drive implements Updatable
 		// Do all configurating first (front, etc.)
 		//drive_inputs(IO.tank_input());
 		
+		_v.update();
+		
 		if(IO.visionUpdate()) { //TODO auton
 			drive_inputs(_v.update());
 			System.out.println("drive vision inputs");
