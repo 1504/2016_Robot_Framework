@@ -47,7 +47,6 @@ public class Drive implements Updatable
 	{
 		return Drive.instance;
 	}
-
 	protected Drive()
 	{
 		_task_thread = new Thread(new DriveTask(this), "1504_Drive");
@@ -60,7 +59,6 @@ public class Drive implements Updatable
 
 		System.out.println("Drive Leader, standing by.");
 	}
-
 	public void release()
 	{
 		_thread_alive = false;
@@ -100,7 +98,6 @@ public class Drive implements Updatable
 		
 		_c = new Compressor();
 	}
-
 	/**
 	 * Method called when there is new data from the Driver Station.
 	 * 
@@ -113,7 +110,6 @@ public class Drive implements Updatable
 		drive_inputs(IO.tank_input());
 		// so "_new_data = true" at the VERY END OF EVERYTHING
 	}
-
 	/**
 	 * Put data into the processing queue. Usable from both the semaphore and
 	 * autonomous methods.
@@ -124,7 +120,6 @@ public class Drive implements Updatable
 		{ forward, turn };
 		drive_inputs(inputs);
 	}
-
 	public void drive_inputs(double[] input)
 	{
 		if (_new_data)
@@ -133,7 +128,6 @@ public class Drive implements Updatable
 		_input = input;
 		_new_data = true;
 	}
-
 	/**
 	 * Programmatically switch the direction the robot goes when the stick gets
 	 * pushed; due to tank, can only switch between forward and backwards.
@@ -143,12 +137,10 @@ public class Drive implements Updatable
 		input[0] *= _frontside_scalar;
 		return input;
 	}
-	
 	private void frontsideAngle(double d)
 	{
 		_frontside_scalar = d;
 	}
-
 	/**
 	 * Detented controller correction methods (and helper methods)
 	 */
@@ -168,18 +160,14 @@ public class Drive implements Updatable
 
 		return detented;
 	}
-
 	private double correct_x(double theta)
 	{
 		return -Math.sin(theta) * (-Math.sin(8 * theta) - 0.25 * Math.sin(4 * theta));
 	}
-
 	private double correct_y(double theta)
 	{
 		return Math.cos(theta) * (-Math.sin(8 * theta) - 0.25 * Math.sin(4 * theta));
 	}
-
-
 	/**
 	 * Ground truth sensor corrections
 	 * 
@@ -205,7 +193,6 @@ public class Drive implements Updatable
 
 		return output;
 	}
-
 	/**
 	 * Normalization function for arrays to normalize full scale to +- 1 <br>
 	 * Note: THIS FUNCTION OPERATES ON THE REFERENCE INPUT ARRAY AND WILL CHANGE
@@ -230,7 +217,6 @@ public class Drive implements Updatable
 
 		return max;
 	}
-
 	/**
 	 * Convert the Forward/Backward and Turn values into 4 motor outputs
 	 * 
@@ -252,7 +238,6 @@ public class Drive implements Updatable
 
 		return output;
 	}
-
 	/**
 	 * Output values to motors. Input: array of motor values to output in
 	 * Map.DRIVE_MOTOR order.
@@ -265,7 +250,6 @@ public class Drive implements Updatable
 			_motors[i].set(values[i] * Map.DRIVE_OUTPUT_MAGIC_NUMBERS[i]);
 		}
 	}
-
 	/**
 	 * Dump class for logging
 	 */
@@ -296,7 +280,6 @@ public class Drive implements Updatable
 				_loops_since_last_dump -= loops_since_last_dump;
 		}
 	}
-
 	/**
 	 * Update motors as fast as possible, but only compute all the joystick stuff when there's new data
 	 */

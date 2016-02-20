@@ -32,7 +32,6 @@ public class Digit_Board
 	{
 		return Digit_Board.instance;
 	}
-
 	protected Digit_Board()
 	{
 		_task_thread = new Thread(new Board_Task(this), "1504_Display_Board");
@@ -44,7 +43,6 @@ public class Digit_Board
 
 		System.out.println("MXP Leader, standing by.");
 	}
-
 	public void start()
 	{
 		if(_do_things)
@@ -53,7 +51,6 @@ public class Digit_Board
 		_task_thread = new Thread(new Board_Task(this));
 		_task_thread.start();
 	}
-
 	public void stop()
 	{
 		_do_things = false;
@@ -110,7 +107,6 @@ public class Digit_Board
 		_input_mask_rising |= (~_input_mask_rising_last & current_mask);
 		_input_mask_rising_last = current_mask;
 	}
-	
 	private int get_input_mask()
 	{
 		int mask = 0;
@@ -118,7 +114,6 @@ public class Digit_Board
 		mask |= (getB() ? 1 : 0) << B_MASK;
 		return mask;
 	}
-	
 	private boolean getRawButtonOnRisingEdge(int button_mask)
 	{
 		button_mask = button_mask << 1;
@@ -130,7 +125,6 @@ public class Digit_Board
 		_input_mask_rising &= clear_mask;
 		return value;
 	}	
-	
 	private boolean getRawButtonLatch(int button_mask)
 	{
 		// Compute a clearing mask for the button.
@@ -141,37 +135,30 @@ public class Digit_Board
 		_input_mask &= clear_mask;
 		return value;
 	}
-	
 	public boolean getA()
 	{
 		return(!_a.get());
 	}
-	
 	public boolean getALatch()
 	{
 		return getRawButtonLatch(A_MASK);
 	}
-	
 	public boolean getAOnRisingEdge()
 	{
 		return getRawButtonOnRisingEdge(A_MASK);
 	}
-	
 	public boolean getB()
 	{
 		return(!_b.get());
 	}
-	
 	public boolean getBLatch()
 	{
 		return getRawButtonLatch(B_MASK);
 	}
-	
 	public boolean getBOnRisingEdge()
 	{
 		return getRawButtonOnRisingEdge(B_MASK);
 	}
-	
 	public double getPot()
 	{
 		double val = (double) _pot.getAverageValue();//integer between 3 - 400
@@ -192,7 +179,6 @@ public class Digit_Board
 		
 		return _delay;
 	}
-	
 	private byte[] output_voltage()
 	{
 		String voltage = Double.toString(_ds.getBatteryVoltage());
@@ -221,7 +207,6 @@ public class Digit_Board
 		
 		return output;
 	}
-
 	private byte[] output_pos(String input)
 	{
 		byte[] output = new byte[10];
@@ -238,7 +223,6 @@ public class Digit_Board
 
 		return output;
 	}
-
 	private byte[] output_obs(String input)
 	{
 		byte[] output = new byte[10];
@@ -262,7 +246,6 @@ public class Digit_Board
 
 		return output;
 	}
-
 	private byte[] output_delay(double d)
 	{
 		String delay = Double.toString(d);
@@ -288,7 +271,6 @@ public class Digit_Board
 		
 		return output;
 	}
-	
 	private void board_task()
 	{	
     	byte[] osc = new byte[1];
@@ -391,7 +373,6 @@ public class Digit_Board
 			}
 		}
 	}
-	
 	// Thanks @Team 1493
 	private static final byte[][] CHARS =
 	{

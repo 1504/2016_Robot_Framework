@@ -6,7 +6,6 @@ import org.usfirst.frc.team1504.robot.Update_Semaphore.Updatable;
 
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
-import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.DriverStation;
 
 public class Shooter implements Updatable
@@ -49,7 +48,6 @@ public class Shooter implements Updatable
 	{
 		return Shooter.instance;
 	}
-
 	protected Shooter()
 	{
 		_task_thread = new Thread(new Shooter_Task(this), "1504_Shooter");
@@ -66,7 +64,6 @@ public class Shooter implements Updatable
 
 		System.out.println("Red shooter, standing by.");
 	}
-
 	public void release()
 	{
 		_thread_alive = false;
@@ -82,7 +79,7 @@ public class Shooter implements Updatable
 	private int _prep_counter = 0;
 
 	private volatile int _loops_since_last_dump = 0;
-
+	
 	/**
 	 * Initializes motors and buttons for usage. Called ONCE.
 	 */
@@ -104,7 +101,6 @@ public class Shooter implements Updatable
 
 		_motor_values = new double[_motors.length];
 	}
-
 	/**
 	 * Updates the array values to the current values of the buttons.
 	 */
@@ -116,8 +112,7 @@ public class Shooter implements Updatable
 		_shooter_input[3] = IO.launch();
 		_shooter_input[4] = IO.disable_launch();
 	}
-
-	// TODO: TEST AND FIND OUT REAL VALUES FOR MOTORS
+	// TODO: TEST AND FIND OUT REAL VALUES 
 	/**
 	 * Turns on the motor so that the robot can capture a BOULDER.
 	 */
@@ -136,7 +131,6 @@ public class Shooter implements Updatable
 			_motor_values[0] = 0.0;
 		}
 	}
-
 	/**
 	 * Prepares the BOULDER for launch into the high goal of the CASTLE TOWER.
 	 * It first partially jams the BOULDER between the ramp and the intake motor
@@ -186,9 +180,8 @@ public class Shooter implements Updatable
 			}
 		}
 	}
-
 	/**
-	 * Launches the BOULDER.
+	 * Launches the BOULDER, but keeps the shooter motors running.
 	 */
 	private void launch()
 	{
@@ -209,7 +202,9 @@ public class Shooter implements Updatable
 			_motor_values[0] = 0.0;
 		}
 	}
-
+	/**
+	 * Turns off the shooter motors.
+	 */
 	private void disable_launch()
 	{
 		if (_shooter_input[4])
@@ -217,7 +212,6 @@ public class Shooter implements Updatable
 			_motor_values[1] = _motor_values[2] = 0.0;
 		}
 	}
-	
 	private void setMotors()
 	{
 		_motors[0].set(_motor_values[0]); // No encoder for the intake motor,
@@ -238,7 +232,6 @@ public class Shooter implements Updatable
 			_motors[2].set(_motor_values[1]);
 		}
 	}
-
 	// All motors should have: Bus Voltage, Output Current, and Set Point
 	/**
 	 * Creates an array of data to log.
@@ -289,7 +282,6 @@ public class Shooter implements Updatable
 				_loops_since_last_dump -= loops_since_last_dump;
 		}
 	}
-
 	/**
 	 * Controls the above methods.
 	 */

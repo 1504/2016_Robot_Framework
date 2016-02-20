@@ -17,9 +17,7 @@ public class IO
 	/**
 	 * Handle getting joystick values
 	 * 
-	 * @return
 	 */
-
 	public static double[] tank_input()
 	{
 		double[] inputs = new double[2];
@@ -42,7 +40,6 @@ public class IO
 		}
 		return inputs;
 	}
-
 	public static double front_side()
 	{
 		if (_drive_w.getRawButtonLatch(Map.DRIVE_FRONTSIDE_BACK))
@@ -65,22 +62,18 @@ public class IO
 	{
 		return _secondary.getRawButtonLatch(Map.SHOOTER_INTAKE_ON);
 	}
-	
 	public static boolean intake_off()
 	{
 		return _secondary.getRawButtonLatch(Map.SHOOTER_INTAKE_OFF);
 	}
-	
 	public static boolean prep()
 	{
 		return _secondary.getRawButtonLatch(Map.SHOOTER_PREP);
 	}
-	
 	public static boolean launch()
 	{
 		return _secondary.getRawButtonLatch(Map.SHOOTER_LAUNCH);
 	}
-	
 	public static boolean disable_launch()
 	{
 		return _secondary.getRawButtonLatch(Map.SHOOTER_DISABLE_LAUNCH);

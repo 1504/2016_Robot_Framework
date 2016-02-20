@@ -34,18 +34,14 @@ public class Pneumatics implements Updatable
 
 		System.out.println("Pressure leader, standing by.");
 	}
-
 	public static Pneumatics getInstance()
 	{
 		return instance;
 	}
-
-	//
 	private char volt_to_pressure(double v)
 	{
 		return (char)((250 * v/5) - 25);
 	}
-
 	private void updateVals()
 	{
 		_pressure_high = volt_to_pressure(_high_pressure_in.getAverageVoltage());
@@ -54,7 +50,6 @@ public class Pneumatics implements Updatable
 		_pressure_switch = _compressor.getPressureSwitchValue();
 
 	}
-
 	private void updateDash()
 	{
 		SmartDashboard.putNumber("highside pressure", _pressure_high);
@@ -62,7 +57,6 @@ public class Pneumatics implements Updatable
 		SmartDashboard.putNumber("compressor current", _current);
 
 	}
-
 	private void dump()
 	{
 		byte[] data =
@@ -73,7 +67,6 @@ public class Pneumatics implements Updatable
 
 //		_log.log(Map.LOGGED_CLASSES.PNEUMATICS, data);
 	}
-
 	public void semaphore_update()
 	{
 		updateVals();
