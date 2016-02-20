@@ -113,8 +113,8 @@ public class Map
 	public static final int VISION_WIDTH = 800;
 	public static final int VISION_HEIGHT = 600;
 
-	public static final double VISION_DEADZONE = 25;
-	public static final double VISION_GAIN_ADJUST_X = .005;//.25;
+	public static final double VISION_DEADZONE = 5;//25;
+	public static final double VISION_GAIN_ADJUST_X = .01;//.25;
 	public static final double VISION_GAIN_ADJUST_Y = .25;
 	public static final double VISION_DELAY_TIME = .65;//.75;
 	public static final double VISION_CORRECTION_DELAY_TIME= .8;

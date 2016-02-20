@@ -37,11 +37,11 @@ public class IO
 	
 	public static boolean visionUpdate()
 	{
-		boolean vision = false;
+		//boolean vision = false;
 		if(joystickSecondary.getRawButton(Map.VISION_BUTTON))
 		{
-			vision = true;
 			System.out.println("io vision update");
+			return true;
 		}
 		
 		/*if(vision || ds.isAutonomous())
@@ -50,7 +50,17 @@ public class IO
 		}*/
 		//else
 			//vision = false;
-		return vision;
+		return false;
+	}
+	
+	public static boolean visionRisingUpdate()
+	{
+		if(joystickSecondary.getRawButtonOnRisingEdge(Map.VISION_BUTTON))
+		{
+			System.out.println("io rising vision update");
+			return true;
+		}
+		return false;
 	}
 	
 	/**

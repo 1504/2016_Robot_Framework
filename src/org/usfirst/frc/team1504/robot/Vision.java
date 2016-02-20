@@ -2,14 +2,21 @@ package org.usfirst.frc.team1504.robot;
 
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import java.util.Timer;
+import java.util.TimerTask;
+
 
 public class Vision
 {
 	private NetworkTable table;
 	ADXRS450_Gyro gyro = new ADXRS450_Gyro();
 	private static final Vision _instance = new Vision();
+	private Timer _imageWait;
 	double[] _cinputs = new double[2];
 	double[] _ginputs = new double[2];
+	
+	public enum CAMERA_STATES {WAIT_FOR_IMAGE, AIMED, NOT_AIMED, GET_IMAGE, NO_IMAGE};
+	CAMERA_STATES _cstate;
 	
 	double _cangle = 0;
 	double _gangle = 0;
@@ -31,45 +38,61 @@ public class Vision
 	{		
 		System.out.println("Vision is watching");
 		gyro.calibrate();
+		_cstate = CAMERA_STATES.GET_IMAGE;
 		table = NetworkTable.getTable("GRIP/contours");
 	}
 	
-	public boolean getAimed(double center)
+	public void settleCamera()
 	{
-		if(Math.abs(center) > Map.VISION_DEADZONE)
-			return false;
-		return true; //true means robot is aimed
+		_cstate = CAMERA_STATES.WAIT_FOR_IMAGE;
+		_imageWait = new Timer();	
+		
+		_imageWait.schedule(new TimerTask() {
+			public void run () { 
+				useCameraData(); 
+			}
+		}, 750);
+	//useCameraData(); 
+
 	}
 	
-	public boolean checkCamera()
+	public CAMERA_STATES checkCamera()
 	{
-		//double [] camera = useCameraData();
-		//double [] gyro = aim();
-		//if(Math.abs(gyro[1]-camera[1]) > Map.VISION_DEADZONE)
+		CAMERA_STATES state;
 		
-		if(Math.abs(_gangle - _cangle) > Map.VISION_DEADZONE) //checking angles.
+		/*if(Math.abs(Math.abs(_cangle) - _gangle) > Map.VISION_DEADZONE) //checking angles. //_gangle
 		{
 			//_updateState = true; //recheck camera
+			System.out.println("in checkCamera");
+			System.out.println("dif in angles is  " + Math.abs(Math.abs(_cangle) - _gangle));
 			return false; //doesnt match camera
 		}
 		else
-			return true;
+			return true;*/
+		
+		System.out.println("angles are " + (_cangle - gyro.getAngle()));
+		if(_cangle - gyro.getAngle() > Map.VISION_DEADZONE)
+		{
+			state = CAMERA_STATES.NOT_AIMED;
+			//return false;
+		}
+		else
+		{
+			state = CAMERA_STATES.AIMED;
+			//return true; //true means robot is aimed
+		}
+		return state;
 	}
 	
 	public void useCameraData()
-	{	
-		_updateState = true;
-		_aimed = false;
+	{
 		double[] height;
 		double[] width;	
 		double[] xCenter;
-		
-		double scaledPosition_x = 0; 
-		int index = 0;
-		double center = 0;					
+		int widest = 0;		
 		
 		double[] defaultValue = {0.0};
-		
+				
 		height = table.getNumberArray("height", defaultValue);
 		width = table.getNumberArray("width", defaultValue);	
 		xCenter = table.getNumberArray("centerX", defaultValue);
@@ -78,70 +101,54 @@ public class Vision
 		
 		if(height[0] > 0) //if there is something found
 		{	
-			_detected = true;
+			System.out.println("detected in camera is true");
+
 			System.out.println("loop");
-			int widest = 0;
 			for(int i = 0; i < height.length - 1; i++)
 			{
 				if(width[i] > width[i+1])
 					widest = i; //make sure we are centered to the correct ie widest contour
 			}
-			index = widest;
 		}
 		else
-			_cinputs[1] = Map.VISION_TURN_SPEED; //turn until see something
+		{
+			//_cinputs[1] = 0;//Map.VISION_TURN_SPEED; //turn until see something
+			_cstate = CAMERA_STATES.NO_IMAGE;
+		}
 		
-		center = xCenter[index];
+	//	center = xCenter[widest];
+	//	_cangle = scaledPosition_x;
+
 
 		//scaledPosition_x = (2*(center/Map.VISION_WIDTH) - 1);
-		scaledPosition_x = (67*(center/Map.VISION_WIDTH) - 33.5); //angle of target
+		_cangle = (67*(xCenter[widest]/Map.VISION_WIDTH) - 33.5); //angle of target
 		
 		//if(getAimed(center))
-		if(checkCamera())
+		if(checkCamera() == CAMERA_STATES.AIMED)
 		{
-			_aimed = true;
-			System.out.println("aimed inside camera method");
+			//_aimed = true;
+			_cstate = CAMERA_STATES.AIMED;
+			System.out.println("aimed with camera");
 		}
 		
 		else //not aimed correctly
 		{
-			_updateState = false;
+			//_updateState = false;
 			gyro.reset();
-			System.out.println("adjust with gyro");
+			_cstate = CAMERA_STATES.NOT_AIMED;
+			System.out.println("not aimed - use gyro");
 		}
-		
-		_cangle = scaledPosition_x;
-		//return _cinputs;
 	}
-	
-	public double predictPosition(double speed)
-	{
-		pos = speed * Map.VISION_DELAY_TIME * Map.VISION_CORRECTION_DELAY_TIME;	
-		return pos;
-	}
-	
+
 	public double[] aim() //using gyro
 	{	
-		if(_detected)
+		if(_cstate == CAMERA_STATES.NOT_AIMED)
 		{
-			_updateState = false;
-			//double [] inputs = new double[2];		
-			//double[] target = table.getNumberArray("centerX", defaultValue);
-			double angle = 0;
-			double scaledAngle = 0;
+		//	double angle = 0;
+			//double scaledAngle = 0;
 			
-			/*double scaledTarget = (67*(target[index]/Map.VISION_WIDTH) - 33.5); //angle of target
-			System.out.println("target angle is   " + scaledTarget);
-			
-			angle = gyro.getAngle();
-			scaledAngle = 67*(gyro.getAngle()/360) - 33.5; //scale angle
-			System.out.println("gyro angle is   " + scaledAngle);
-			
-			double scaledPosition_x = (2*(target[index]/Map.VISION_WIDTH) - 1);*/
-			//angle = gyro.getAngle();
+			//double scaledPosition_x = (2*(target[index]/Map.VISION_WIDTH) - 1);
 			_gangle = gyro.getAngle();
-
-			//scaledAngle = 67*(angle/360) - 33.5; //scale angle
 			
 			/*if(Math.abs(scaledAngle) - Math.abs(scaledTarget) > Map.VISION_DEADZONE) //turn to where the gyro angle is where the target was
 			{
@@ -153,55 +160,73 @@ public class Vision
 				_aimed = true;
 				time = System.currentTimeMillis();		
 			}*/
-			if(checkCamera())
-			{
-				_aimed = true;
-				time = System.currentTimeMillis();	
-			}
+			if(checkCamera() == CAMERA_STATES.AIMED)
+				_cstate = CAMERA_STATES.AIMED;
 			else
 			{
 				//_gangle = scaledAngle;// * Map.VISION_GAIN_ADJUST_X;
-				_ginputs[1] = -(_cangle - _gangle) * Map.VISION_GAIN_ADJUST_X;
-			//_ginputs[0] = scaledAngle;
+			    //_ginputs[1] = (Math.abs(_cangle) - Math.abs(_gangle)) * Map.VISION_GAIN_ADJUST_X;
+				_ginputs[1] = -(_cangle - gyro.getAngle()) * Map.VISION_GAIN_ADJUST_X;
+				if(checkCamera() == CAMERA_STATES.AIMED)
+				{
+					_cstate = CAMERA_STATES.GET_IMAGE;//NOT_AIMED;
+					_ginputs[1] = 0;
+				}
 			}
 		}
-		else
-			_ginputs[1] = Map.VISION_TURN_SPEED;
+		//else
+			//return new double[] {0.0,0.0};
 		
 		System.out.println("aimed inside gyro method");
 		System.out.println("gyro inputs are " + _ginputs[1]);
 		System.out.println("gangle is " + _gangle);
-
-
+		
 		return _ginputs;
 	}
 	
-	public double[] update()
+	public double[] update(boolean first)
 	{
 		double [] inputs = new double[2];
-		//double scaledPosition_x = 0; 
-		//double scaledPosition_y = 0; 
-
-		//if(height[0] > 0) //if there is something found and its viable
-		//{
 		
-		if(_updateState)
-			useCameraData();
-		inputs = aim();
+		if(first || _cstate == CAMERA_STATES.GET_IMAGE)
+		{
+			settleCamera();
+			System.out.println("first or camera_state");
+		}
+		//inputs = aim();
+		
+		if(_cstate == CAMERA_STATES.NOT_AIMED)
+			inputs[1] = -(_cangle - gyro.getAngle()) * Map.VISION_GAIN_ADJUST_X;
+		
+		if(checkCamera() == CAMERA_STATES.AIMED)
+		{
+			_cstate = CAMERA_STATES.AIMED;
+			inputs[1] = 0;
+		}
+		else
+		{
+			//_gangle = scaledAngle;// * Map.VISION_GAIN_ADJUST_X;
+		    //_ginputs[1] = (Math.abs(_cangle) - Math.abs(_gangle)) * Map.VISION_GAIN_ADJUST_X;
+			/*inputs[1] = -(_cangle - gyro.getAngle()) * Map.VISION_GAIN_ADJUST_X;
+			if(checkCamera() == CAMERA_STATES.AIMED)
+			{
+				_cstate = CAMERA_STATES.GET_IMAGE;//NOT_AIMED;
+				inputs[1] = 0;
+			}*/
+			
+			_cstate = CAMERA_STATES.GET_IMAGE;
+		}
 		
 		System.out.println("inputs are " + inputs[1]);
-
 		
-		if(_aimed) 
+	/*	if(_cstate == CAMERA_STATES.AIMED) 
 		{
-			if(checkCamera() && (System.currentTimeMillis() - time) >= 1000) //1 sec has passed 
+			if(checkCamera() == CAMERA_STATES.AIMED)
 			{
-				//_aimed = true;
 				inputs[1] = 0;
 				System.out.println("robot has successfully aimed!");
-				_detected = false; //as in don't keep moving to find it, start new vision loop 
 			}
-		}
+		}*/
 		return inputs;
 	}
 }
