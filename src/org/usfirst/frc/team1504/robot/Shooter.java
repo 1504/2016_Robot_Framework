@@ -75,8 +75,7 @@ public class Shooter implements Updatable
 	private DriverStation _ds = DriverStation.getInstance();
 	private Logger _logger = Logger.getInstance();
 	private CANTalon[] _motors;
-	private boolean[] _shooter_input;// 0: Intake On, 1: Intake Off, 2: Prep, 3:
-										// Launch
+	private boolean[] _shooter_input;// 0: Intake On, 1: Intake Off, 2: Prep, 3: Launch, 4: Disable Launch
 
 	private double[] _motor_values;
 	private boolean _prep_on;
@@ -115,6 +114,7 @@ public class Shooter implements Updatable
 		_shooter_input[1] = IO.intake_off();
 		_shooter_input[2] = IO.prep();
 		_shooter_input[3] = IO.launch();
+		_shooter_input[4] = IO.disable_launch();
 	}
 
 	// TODO: TEST AND FIND OUT REAL VALUES FOR MOTORS
@@ -128,7 +128,7 @@ public class Shooter implements Updatable
 		if (_shooter_input[0] || intake_on)
 		{
 			intake_on = true;
-			_motor_values[0] = 0.7;
+			_motor_values[0] = -0.7;
 		}
 		if (_shooter_input[1] || !intake_on)
 		{
@@ -147,10 +147,15 @@ public class Shooter implements Updatable
 	{
 		if (_shooter_input[2] || _prep_on)
 		{
-			_motor_values[0] = -0.3;
+			_prep_on = true;
 			if (_prep_counter < 3)
-			{
-				_motor_values[1] = _motor_values[2] = 0.1;
+			{ 
+				if (_prep_counter == 0)
+				{
+					_motor_values[0] = 0.2;
+				}
+				_motor_values[1] = 0.1;
+				_motor_values[2] = -0.1;
 				try
 				{
 					Thread.sleep(20);
@@ -169,12 +174,16 @@ public class Shooter implements Updatable
 				}
 				if (_motors[1].getEncVelocity() > 0 || _motors[2].getEncVelocity() > 0)
 				{
+					_motor_values[0] = 0.0;
 					_prep_counter++;
 				}
 			}
-			_prep_on = true;
+			else
+			{
 			_motor_values[0] = 0.0;
-			_motor_values[1] = _motor_values[2] = Map.SHOOTER_MOTOR_SPEED;
+			_motor_values[1] = Map.SHOOTER_MOTOR_SPEED;
+			_motor_values[2] = -1 * Map.SHOOTER_MOTOR_SPEED;
+			}
 		}
 	}
 
@@ -196,11 +205,19 @@ public class Shooter implements Updatable
 				e.printStackTrace();
 			}
 			_prep_on = false;
+			_prep_counter = 0;
 			_motor_values[0] = 0.0;
-			_motor_values[1] = _motor_values[2] = 0.0;
 		}
 	}
 
+	private void disable_launch()
+	{
+		if (_shooter_input[4])
+		{
+			_motor_values[1] = _motor_values[2] = 0.0;
+		}
+	}
+	
 	private void setMotors()
 	{
 		_motors[0].set(_motor_values[0]); // No encoder for the intake motor,
@@ -208,14 +225,14 @@ public class Shooter implements Updatable
 											// much.
 		if (_motor_values[1] == Map.SHOOTER_MOTOR_SPEED)
 		{
-			_motors[1].set((_motor_values[1] - _motors[1].getSpeed()) * 0.005);
+			_motors[1].set((_motor_values[1] - _motors[1].getSpeed()) * Map.SHOOTER_GAIN);
 		}else
 		{
 			_motors[1].set(_motor_values[1]);
 		}
 		if (_motor_values[2] == Map.SHOOTER_MOTOR_SPEED)
 		{
-			_motors[2].set((_motor_values[2] - _motors[2].getSpeed()) * 0.005);
+			_motors[2].set((_motor_values[2] - _motors[2].getSpeed()) * Map.SHOOTER_GAIN);
 		}else
 		{
 			_motors[2].set(_motor_values[1]);
@@ -286,6 +303,7 @@ public class Shooter implements Updatable
 				intake();
 				prep();
 				launch();
+				disable_launch();
 				logtiem = true;
 			}
 			if (logtiem)

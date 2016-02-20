@@ -43,28 +43,6 @@ public class IO
 		return inputs;
 	}
 
-	// public static double[] mecanum_input() {
-	// double[] inputs = new double[3];
-	//
-	// inputs[0] = Map.DRIVE_INPUT_MAGIC_NUMBERS[0] *
-	// Math.pow(Utils.deadzone(_drive_forwardright.getRawAxis(Map.JOYSTICK_Y_AXIS)),
-	// 2) * Math.signum(_drive_forwardright.getRawAxis(Map.JOYSTICK_Y_AXIS));//
-	// y
-	// inputs[1] = Map.DRIVE_INPUT_MAGIC_NUMBERS[1] *
-	// Math.pow(Utils.deadzone(_drive_forwardright.getRawAxis(Map.JOYSTICK_X_AXIS)),
-	// 2) * Math.signum(_drive_forwardright.getRawAxis(Map.JOYSTICK_X_AXIS));//
-	// x
-	// inputs[2] = Map.DRIVE_INPUT_MAGIC_NUMBERS[2] *
-	// Math.pow(Utils.deadzone(_drive_rotation.getRawAxis(Map.JOYSTICK_X_AXIS)),
-	// 2) * Math.signum(_drive_rotation.getRawAxis(Map.JOYSTICK_X_AXIS));// w
-	//
-	// //inputs[0] = _drive_forwardright.getRawAxis(Map.JOYSTICK_Y_AXIS);
-	// //inputs[1] = _drive_forwardright.getRawAxis(Map.JOYSTICK_X_AXIS);
-	// //inputs[2] = _drive_rotation.getRawAxis(Map.JOYSTICK_X_AXIS);
-	//
-	// return inputs;
-	// }
-
 	public static double front_side()
 	{
 		if (_drive_w.getRawButtonLatch(Map.DRIVE_FRONTSIDE_BACK))
@@ -98,8 +76,13 @@ public class IO
 		return _secondary.getRawButtonLatch(Map.SHOOTER_PREP);
 	}
 	
-	public static boolean launch() //gonna do the thing
+	public static boolean launch()
 	{
 		return _secondary.getRawButtonLatch(Map.SHOOTER_LAUNCH);
+	}
+	
+	public static boolean disable_launch()
+	{
+		return _secondary.getRawButtonLatch(Map.SHOOTER_DISABLE_LAUNCH);
 	}
 }

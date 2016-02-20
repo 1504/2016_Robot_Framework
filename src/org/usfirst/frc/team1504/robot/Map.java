@@ -31,12 +31,13 @@ public class Map
     //Secondary Motor Ports
     //The direction right means on the right if you're looking from the backside of the robot. Ditto with left.
     public static final int INTAKE_TALON_PORT = 20;
-    public static final int SHOOTER_LEFT_TALON_PORT = 21;
-    public static final int SHOOTER_RIGHT_TALON_PORT = 22;
+    public static final int SHOOTER_LEFT_TALON_PORT = 31;
+    public static final int SHOOTER_RIGHT_TALON_PORT = 30;
     public static final int[] SHOOTER_MOTOR_PORTS =
     {INTAKE_TALON_PORT, SHOOTER_LEFT_TALON_PORT, SHOOTER_RIGHT_TALON_PORT};
     
     public static final double SHOOTER_MOTOR_SPEED = 7800.0;
+    public static final double SHOOTER_GAIN = 0.005;
     // Glide gain
     public static final double[][] DRIVE_GLIDE_GAIN =
     {
@@ -94,12 +95,13 @@ public class Map
     
     	//Seconday
     //Buttons for shooting
-    public static final int SHOOTER_INTAKE_ON = 3;
-    public static final int SHOOTER_INTAKE_OFF = 2;
-    public static final int SHOOTER_PREP = 4;
+    public static final int SHOOTER_INTAKE_ON = 6;
+    public static final int SHOOTER_INTAKE_OFF = 7;
+    public static final int SHOOTER_PREP = 3;
     public static final int SHOOTER_LAUNCH = 1;
+    public static final int SHOOTER_DISABLE_LAUNCH = 2;
     public static final int[] SHOOTER_INPUTS =
-    {SHOOTER_INTAKE_ON, SHOOTER_INTAKE_OFF, SHOOTER_PREP, SHOOTER_LAUNCH};
+    {SHOOTER_INTAKE_ON, SHOOTER_INTAKE_OFF, SHOOTER_PREP, SHOOTER_LAUNCH, SHOOTER_DISABLE_LAUNCH};
 
 
 }
