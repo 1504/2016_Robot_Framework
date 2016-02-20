@@ -27,6 +27,13 @@ public class Shooter implements Updatable
 		}
 	}
 
+	private class Motor_Setter implements Runnable
+	{
+		public void run()
+		{
+			setMotors();
+		}
+	}
 	private static Shooter instance = new Shooter();
 
 	private Thread _task_thread;
@@ -49,6 +56,10 @@ public class Shooter implements Updatable
 		_task_thread.setPriority((Thread.NORM_PRIORITY + Thread.MAX_PRIORITY) / 2);
 		_task_thread.start();
 
+		_pid_thread = new Thread(new Motor_Setter());
+		_pid_thread.setPriority((Thread.NORM_PRIORITY + Thread.MAX_PRIORITY) / 2);
+		_pid_thread.start();
+		
 		Update_Semaphore.getInstance().register(this);
 
 		ShootInit();
@@ -69,6 +80,7 @@ public class Shooter implements Updatable
 
 	private double[] _motor_values;
 	private boolean _prep_on;
+	private int _prep_counter = 0;
 
 	private volatile int _loops_since_last_dump = 0;
 
@@ -133,24 +145,36 @@ public class Shooter implements Updatable
 	 */
 	private void prep()
 	{
-
 		if (_shooter_input[2] || _prep_on)
 		{
-			if (!_prep_on) // only does this on the first run through the loop
+			_motor_values[0] = -0.3;
+			if (_prep_counter < 3)
 			{
-				_motor_values[0] = -0.3;
+				_motor_values[1] = _motor_values[2] = 0.1;
 				try
 				{
-					Thread.sleep(250); // A quarter of a second.
-				} catch (InterruptedException ex)
+					Thread.sleep(20);
+				} catch (InterruptedException e)
 				{
-					Thread.currentThread().interrupt();
+					e.printStackTrace();
+				}
+				
+				_motor_values[1] = _motor_values[2] = 0.0;
+				try
+				{
+					Thread.sleep(200);
+				} catch (InterruptedException e)
+				{
+					e.printStackTrace();
+				}
+				if (_motors[1].getEncVelocity() > 0 || _motors[2].getEncVelocity() > 0)
+				{
+					_prep_counter++;
 				}
 			}
 			_prep_on = true;
 			_motor_values[0] = 0.0;
-			_motor_values[1] = Map.SHOOTER_MOTOR_SPEED;
-			_motor_values[2] = Map.SHOOTER_MOTOR_SPEED;
+			_motor_values[1] = _motor_values[2] = Map.SHOOTER_MOTOR_SPEED;
 		}
 	}
 
@@ -166,15 +190,14 @@ public class Shooter implements Updatable
 
 			try
 			{
-				Thread.sleep(333); // Almost a third of a second
-			} catch (InterruptedException ex)
+				Thread.sleep(500);
+			} catch (InterruptedException e)
 			{
-				Thread.currentThread().interrupt();
+				e.printStackTrace();
 			}
 			_prep_on = false;
 			_motor_values[0] = 0.0;
-			_motor_values[1] = 0.0;
-			_motor_values[2] = 0.0;
+			_motor_values[1] = _motor_values[2] = 0.0;
 		}
 	}
 
@@ -183,9 +206,20 @@ public class Shooter implements Updatable
 		_motors[0].set(_motor_values[0]); // No encoder for the intake motor,
 											// because it doesn't matter as
 											// much.
-
-		_motors[1].set((_motor_values[1] - _motors[1].getSpeed()) * 0.005);
-		_motors[2].set((_motor_values[2] - _motors[2].getSpeed()) * 0.005);
+		if (_motor_values[1] == Map.SHOOTER_MOTOR_SPEED)
+		{
+			_motors[1].set((_motor_values[1] - _motors[1].getSpeed()) * 0.005);
+		}else
+		{
+			_motors[1].set(_motor_values[1]);
+		}
+		if (_motor_values[2] == Map.SHOOTER_MOTOR_SPEED)
+		{
+			_motors[2].set((_motor_values[2] - _motors[2].getSpeed()) * 0.005);
+		}else
+		{
+			_motors[2].set(_motor_values[1]);
+		}
 	}
 
 	// All motors should have: Bus Voltage, Output Current, and Set Point
@@ -270,17 +304,6 @@ public class Shooter implements Updatable
 				}
 				logtiem = false;
 			}
-			if (_pid_thread == null || !_pid_thread.isAlive())
-			{
-				_pid_thread = new Thread(new Runnable()
-				{
-					public void run()
-					{
-						setMotors();
-					}
-				});
-			}
-			_pid_thread.start();
 		}
 	}
 }

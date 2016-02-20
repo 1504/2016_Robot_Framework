@@ -95,8 +95,8 @@ public class Map
     	//Seconday
     //Buttons for shooting
     public static final int SHOOTER_INTAKE_ON = 3;
-    public static final int SHOOTER_INTAKE_OFF = 5;
-    public static final int SHOOTER_PREP = 2;
+    public static final int SHOOTER_INTAKE_OFF = 2;
+    public static final int SHOOTER_PREP = 4;
     public static final int SHOOTER_LAUNCH = 1;
     public static final int[] SHOOTER_INPUTS =
     {SHOOTER_INTAKE_ON, SHOOTER_INTAKE_OFF, SHOOTER_PREP, SHOOTER_LAUNCH};
