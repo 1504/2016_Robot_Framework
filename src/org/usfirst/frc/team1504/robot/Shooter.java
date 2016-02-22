@@ -75,9 +75,11 @@ public class Shooter implements Updatable
 	private boolean[] _shooter_input;// 0: Intake On, 1: Intake Off, 2: Prep, 3: Launch, 4: Disable Launch
 
 	private double[] _motor_values;
-	private boolean _prep_on;
 	private int _prep_counter = 0;
 
+	private static enum STATE {Default, IntakeOn, IntakeReverse, Prep, Launch, DisableLaunch};
+	private STATE _mode = STATE.Default;
+	
 	private volatile int _loops_since_last_dump = 0;
 	
 	/**
@@ -113,24 +115,58 @@ public class Shooter implements Updatable
 		_shooter_input[4] = IO.disable_launch();
 	}
 	// TODO: TEST AND FIND OUT REAL VALUES 
+	private void change_state()
+	{
+		boolean intake_on = false;
+		boolean prep_on = false;
+		if (_shooter_input[0] || intake_on)
+		{
+			intake_on = true;
+			_mode = STATE.IntakeOn;
+		}
+		else if (_shooter_input[1] || !intake_on)
+		{
+			intake_on = false;
+			_mode = STATE.Default;
+		}
+		else if (_shooter_input[0] && _shooter_input[1])
+		{
+			intake_on = false;
+			_mode = STATE.IntakeReverse;
+		}
+		else if (_shooter_input[2] || prep_on)
+		{
+			prep_on = true;
+			_mode = STATE.Prep;
+		}
+		else if (_shooter_input[3])
+		{
+			prep_on = false;
+			_mode = STATE.Launch;
+		}
+		else if (_shooter_input[4])
+		{
+			_mode = STATE.DisableLaunch;
+		}
+		else
+		{
+			_mode = STATE.Default;
+		}
+	}
 	/**
 	 * Turns on the motor so that the robot can capture a BOULDER.
 	 */
 	private void intake()
 	{
-		boolean intake_on = false;
-
-		if (_shooter_input[0] || intake_on)
+		if (_mode == STATE.IntakeOn)
 		{
-			intake_on = true;
 			_motor_values[0] = Map.SHOOTER_INTAKE_FORWARD * Map.SHOOTER_MAGIC_NUMBERS[0];
 		}
-		if (_shooter_input[1] || !intake_on)
+		if (_mode == STATE.Default)
 		{
-			intake_on = false;
 			_motor_values[0] = 0.0;
 		}
-		if (_shooter_input[0] && _shooter_input[1])
+		if (_mode == STATE.IntakeReverse)
 		{
 			_motor_values[0] = Map.SHOOTER_INTAKE_BACKWARDS * Map.SHOOTER_MAGIC_NUMBERS[0];
 		}
@@ -143,9 +179,8 @@ public class Shooter implements Updatable
 	 */
 	private void prep()
 	{
-		if (_shooter_input[2] || _prep_on)
+		if (_mode == STATE.Prep)
 		{
-			_prep_on = true;
 			if (_prep_counter < 3)
 			{ 
 				try
@@ -187,7 +222,7 @@ public class Shooter implements Updatable
 	private void launch()
 	{
 
-		if (_shooter_input[3])
+		if (_mode == STATE.Launch)
 		{
 			_motor_values[0] = Map.SHOOTER_INTAKE_LAUNCH * Map.SHOOTER_MAGIC_NUMBERS[0];
 
@@ -198,7 +233,6 @@ public class Shooter implements Updatable
 			{
 				e.printStackTrace();
 			}
-			_prep_on = false;
 			_prep_counter = 0;
 			_motor_values[0] = 0.0;
 		}
@@ -208,7 +242,7 @@ public class Shooter implements Updatable
 	 */
 	private void disable_launch()
 	{
-		if (_shooter_input[4])
+		if (_mode == STATE.DisableLaunch)
 		{
 			_motor_values[1] = _motor_values[2] = 0.0;
 		}
@@ -293,6 +327,7 @@ public class Shooter implements Updatable
 		{
 			if (_ds.isEnabled() && _ds.isOperatorControl())
 			{
+				change_state();
 				intake();
 				prep();
 				launch();
