@@ -34,7 +34,7 @@ public class Drive implements Updatable
 	private Thread _dump_thread;
 	private volatile boolean _thread_alive = true;
 	
-	private Vision _v = Vision.getInstance();
+	private visionTrack _v = visionTrack.getInstance();
 	
 	/**
 	 * Gets an instance of the Drive
@@ -110,7 +110,7 @@ public class Drive implements Updatable
 		//_v.update(true);
 		
 		if(IO.visionUpdate()) { //TODO auton
-			drive_inputs(_v.update(IO.visionRisingUpdate()));
+			drive_inputs(_v.updateInputs(IO.visionRisingUpdate()));
 			System.out.println("drive vision inputs");
 
 		}
