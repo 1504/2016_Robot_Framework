@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import org.usfirst.frc.team1504.robot.Update_Semaphore.Updatable;
 
 import edu.wpi.first.wpilibj.CANTalon;
-import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
+import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice; 
 import edu.wpi.first.wpilibj.DriverStation;
 
 public class Shooter implements Updatable
@@ -123,12 +123,16 @@ public class Shooter implements Updatable
 		if (_shooter_input[0] || intake_on)
 		{
 			intake_on = true;
-			_motor_values[0] = -0.7;
+			_motor_values[0] = Map.SHOOTER_INTAKE_FORWARD * Map.SHOOTER_MAGIC_NUMBERS[0];
 		}
 		if (_shooter_input[1] || !intake_on)
 		{
 			intake_on = false;
 			_motor_values[0] = 0.0;
+		}
+		if (_shooter_input[0] && _shooter_input[1])
+		{
+			_motor_values[0] = Map.SHOOTER_INTAKE_BACKWARDS * Map.SHOOTER_MAGIC_NUMBERS[0];
 		}
 	}
 	/**
@@ -144,39 +148,36 @@ public class Shooter implements Updatable
 			_prep_on = true;
 			if (_prep_counter < 3)
 			{ 
-				if (_prep_counter == 0)
-				{
-					_motor_values[0] = 0.2;
-				}
-				_motor_values[1] = 0.1;
-				_motor_values[2] = -0.1;
 				try
 				{
+					if (_prep_counter == 0)
+					{
+						_motor_values[0] = Map.SHOOTER_INTAKE_PREP * Map.SHOOTER_MAGIC_NUMBERS[0];
+					}
+					_motor_values[1] = 0.1;
+					_motor_values[2] = -0.1;
+					
 					Thread.sleep(20);
-				} catch (InterruptedException e)
-				{
-					e.printStackTrace();
-				}
-				
-				_motor_values[1] = _motor_values[2] = 0.0;
-				try
-				{
+					
+					_motor_values[1] = _motor_values[2] = 0.0;
+					
 					Thread.sleep(200);
+					
+					if (_motors[1].getEncVelocity() > 0 && _motors[2].getEncVelocity() > 0)
+					{
+						_motor_values[0] = 0.0;
+						_prep_counter++;
+					}
 				} catch (InterruptedException e)
 				{
 					e.printStackTrace();
-				}
-				if (_motors[1].getEncVelocity() > 0 || _motors[2].getEncVelocity() > 0)
-				{
-					_motor_values[0] = 0.0;
-					_prep_counter++;
 				}
 			}
 			else
 			{
 			_motor_values[0] = 0.0;
-			_motor_values[1] = Map.SHOOTER_MOTOR_SPEED;
-			_motor_values[2] = -1 * Map.SHOOTER_MOTOR_SPEED;
+			_motor_values[1] = Map.SHOOTER_MOTOR_SPEED * Map.SHOOTER_MAGIC_NUMBERS[1];
+			_motor_values[2] = Map.SHOOTER_MOTOR_SPEED * Map.SHOOTER_MAGIC_NUMBERS[2];
 			}
 		}
 	}
@@ -188,7 +189,7 @@ public class Shooter implements Updatable
 
 		if (_shooter_input[3])
 		{
-			_motor_values[0] = 1.0;
+			_motor_values[0] = Map.SHOOTER_INTAKE_LAUNCH * Map.SHOOTER_MAGIC_NUMBERS[0];
 
 			try
 			{

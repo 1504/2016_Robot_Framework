@@ -36,6 +36,14 @@ public class Map
     public static final int[] SHOOTER_MOTOR_PORTS =
     {INTAKE_TALON_PORT, SHOOTER_LEFT_TALON_PORT, SHOOTER_RIGHT_TALON_PORT};
     
+    /**
+     * Shooter Stuff
+     */
+    public static final double[] SHOOTER_MAGIC_NUMBERS = {-1.0, 1.0, -1.0};
+    public static final double SHOOTER_INTAKE_FORWARD = 0.7;
+    public static final double SHOOTER_INTAKE_BACKWARDS = -0.7;
+    public static final double SHOOTER_INTAKE_PREP = -0.2;
+    public static final double SHOOTER_INTAKE_LAUNCH = 1.0;
     public static final double SHOOTER_MOTOR_SPEED = 7800.0;
     public static final double SHOOTER_GAIN = 0.005;
     // Glide gain
