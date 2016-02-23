@@ -4,31 +4,41 @@ import java.nio.ByteBuffer;
 
 import org.usfirst.frc.team1504.robot.Update_Semaphore.Updatable;
 
-import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.DriverStation;
 
 public class endGame implements Updatable{
-	
-	DoubleSolenoid lift; 
-	DoubleSolenoid mast;
-	DoubleSolenoid hook;
+	private static final endGame _instance = new endGame();
+	//Solenoid lift; 
+	Solenoid mast;
+	Solenoid hook;
 	DriverStation ds;
-	endGame EndGame;
+	//endGame EndGame;
 	boolean override;
+	boolean first;
 	int overrideButtonState, liftButtonState; //values of 0 or 1 to record button states
 	long time;
 	
-	public endGame()
+	public static endGame getInstance()
 	{
-		mast.set(DoubleSolenoid.Value.kOff);
-		lift.set(DoubleSolenoid.Value.kOff);
-		hook.set(DoubleSolenoid.Value.kOff);
+		return _instance;
+	}
+	
+	protected endGame()
+	{
+		first = true;
+		mast = new Solenoid(Map.SOLENOID_MAST_PORT);
+		hook = new Solenoid(Map.SOLENOID_HOOK_PORT);
+		mast.set(false);
+		//lift.set(false);
+		hook.set(false);
 		Update_Semaphore.getInstance().register(this);
+		System.out.println("Endgame initialized");
 	}
 	
 	public void lift()
 	{
-		if(ds.getMatchTime() <= 20 || override)
+		if(override && first) //ds.getMatchTime() <= 20 || 
 		{
 			time = System.currentTimeMillis();
 			try {
@@ -36,10 +46,18 @@ public class endGame implements Updatable{
 			}
 			catch(InterruptedException e){}
 			
-			mast.set(DoubleSolenoid.Value.kForward); //to raise mast
-			lift.set(DoubleSolenoid.Value.kForward); //extend piston
-			hook.set(DoubleSolenoid.Value.kForward);
-			lift.set(DoubleSolenoid.Value.kReverse); //retract = pull robot up
+			mast.set(true); //to raise mast
+			//lift.set(true); //extend piston
+			hook.set(true);
+			first = false;
+			//lift.set(true); //retract = pull robot up
+		}
+		
+		else if(override && !first)
+		{
+			mast.set(false);
+			hook.set(false);
+			first = true;
 		}
 	}
 	
@@ -94,14 +112,14 @@ public class endGame implements Updatable{
 			mastByte += 4;
 		} //TODO finish this using the method in utils*/
 		
-		data[0] = Utils.byteLog(mast);
-		data[1] = Utils.byteLog(lift); 
-		data[2] = Utils.byteLog(hook);
+		//data[0] = Utils.byteLog(mast);
+		//data[1] = Utils.byteLog(lift); 
+		//data[2] = Utils.byteLog(hook);
 		data[3] = (byte)overrideButtonState;
 		data[4] = (byte)liftButtonState;
 
 		//data[0] = System.currentTimeMillis() - time;
-		Logger.getInstance().log(Map.LOGGED_CLASSES.ENDGAME, data);
+		//Logger.getInstance().log(Map.LOGGED_CLASSES.ENDGAME, data);
 	}
 	
 }

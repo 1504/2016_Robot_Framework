@@ -106,6 +106,9 @@ public class Map
 	public static final int MOTION_STATE_CLEAR_BUTTON = 7;
 	public static final int MOTION_STATE_PICKUP_BUTTON = 8;
 	
+	public static final int SOLENOID_MAST_PORT = 0;
+	public static final int SOLENOID_HOOK_PORT = 1;
+
 	public static final int ENDGAME_LIFT_BUTTON = 9;
 	public static final int OVERRIDE_LIFT_BUTTON = 10;
 	public static final int VISION_BUTTON = 11;
