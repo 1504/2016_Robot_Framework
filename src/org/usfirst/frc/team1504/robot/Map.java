@@ -31,16 +31,16 @@ public class Map
     //Secondary Motor Ports
     //The direction right means on the right if you're looking from the backside of the robot. Ditto with left.
     public static final int INTAKE_TALON_PORT = 20;
-    public static final int SHOOTER_LEFT_TALON_PORT = 31;
-    public static final int SHOOTER_RIGHT_TALON_PORT = 30;
+    public static final int SHOOTER_PORT_TALON_PORT = 31;
+    public static final int SHOOTER_STARBOARD_TALON_PORT = 30;
     public static final int[] SHOOTER_MOTOR_PORTS =
-    {INTAKE_TALON_PORT, SHOOTER_LEFT_TALON_PORT, SHOOTER_RIGHT_TALON_PORT};
+    {INTAKE_TALON_PORT, SHOOTER_PORT_TALON_PORT, SHOOTER_STARBOARD_TALON_PORT};
     
     /**
      * Shooter Stuff
      */
     public static final double[] SHOOTER_MAGIC_NUMBERS = {-1.0, 1.0, -1.0};
-    public static final double SHOOTER_INTAKE_FORWARD = 0.7;
+    public static final double SHOOTER_INTAKE_FORWARD = 1.0;
     public static final double SHOOTER_INTAKE_BACKWARDS = -0.7;
     public static final double SHOOTER_INTAKE_PREP = -0.2;
     public static final double SHOOTER_INTAKE_LAUNCH = 1.0;
@@ -69,8 +69,8 @@ public class Map
     /**
      * Pneumatics stuff
      */
-    public static final int HIGHSIDE = 0;
-    public static final int LOWSIDE = 1;
+    public static final int HIGHSIDE = 1;
+    public static final int LOWSIDE = 0;
     
     /**
     * IO stuff

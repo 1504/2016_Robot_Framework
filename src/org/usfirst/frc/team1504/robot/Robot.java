@@ -15,6 +15,7 @@ public class Robot extends RobotBase
     Autonomous _autonomous = Autonomous.getInstance();
     Digit_Board _digit_board = Digit_Board.getInstance();
     Shooter _shooter = Shooter.getInstance();
+    Pneumatics _pneumatics = Pneumatics.getInstance();
     /**
     * Create a new Robot
     */

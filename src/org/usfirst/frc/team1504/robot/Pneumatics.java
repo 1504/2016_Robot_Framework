@@ -9,9 +9,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Pneumatics implements Updatable
 {
 
-	public volatile char _pressure_high;// these are characters for space
+	public volatile double _pressure_high;// these are characters for space
 										// efficiency
-	public volatile char _pressure_low;
+	public volatile double _pressure_low;
 	public volatile float _current;
 	public volatile boolean _pressure_switch;
 	public volatile boolean _is_pressure_low;
@@ -38,9 +38,9 @@ public class Pneumatics implements Updatable
 	{
 		return instance;
 	}
-	private char volt_to_pressure(double v)
+	private double volt_to_pressure(double v)
 	{
-		return (char)((250 * v/5) - 25);
+		return (double)((250 * v/5) - 25);
 	}
 	private void updateVals()
 	{
@@ -52,18 +52,16 @@ public class Pneumatics implements Updatable
 	}
 	private void updateDash()
 	{
-		SmartDashboard.putNumber("highside pressure", _pressure_high);
-		SmartDashboard.putNumber("lowside pressure", _pressure_low);
-		SmartDashboard.putNumber("compressor current", _current);
-
+//		SmartDashboard.putNumber("highside pressure", _pressure_high);
+//		SmartDashboard.putNumber("lowside pressure", _pressure_low);
+//		SmartDashboard.putNumber("compressor current", _current);
 	}
 	private void dump()
 	{
 		byte[] data =
-//		{ (byte) _pressure_high, (byte) _pressure_low, Utils.double_to_byte(_current),
-//				(byte) ((_pressure_switch ? 2 : 0) + (_is_pressure_low ? 1 : 0)) };
+		{ (byte) _pressure_high, (byte) _pressure_low, Utils.double_to_byte(_current),
+				(byte) ((_pressure_switch ? 2 : 0) + (_is_pressure_low ? 1 : 0)) };
 				
-			{ 1, 2, 4, 8};
 
 //		_log.log(Map.LOGGED_CLASSES.PNEUMATICS, data);
 	}

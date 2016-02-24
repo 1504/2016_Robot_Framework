@@ -295,7 +295,6 @@ public class Drive implements Updatable
 			
 			if(_ds.isEnabled())
 			{
-				System.out.println((int)_p._pressure_high + "    " + (int)_p._pressure_low);
 				// Process new joystick data - only when new data happens
 				if(_new_data)
 				{	
