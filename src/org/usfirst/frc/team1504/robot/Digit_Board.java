@@ -181,12 +181,21 @@ public class Digit_Board
 	}
 	private byte[] output_voltage()
 	{
-		String voltage = Double.toString(_ds.getBatteryVoltage());
-		if (voltage.length() != 4)
+		double voltage = _ds.getBatteryVoltage();
+		String voltage_string = Double.toString(voltage);
+		boolean voltage_under_ten = false;
+		
+		if (voltage_string.length() != 4)
 		{
-			voltage = voltage.substring(0, 4);
+			voltage_string = voltage_string.substring(0, 4);
+			if (voltage < 10.0)
+			{
+				voltage_under_ten = true;
+				voltage_string = voltage_string.substring(0, 3);
+			}
 		}
 
+			
 		byte[] output = new byte[10];
 				
 		output[0] = (byte) (0b0000111100001111);
@@ -195,16 +204,24 @@ public class Digit_Board
 		output[3] = CHARS[31][1];// V
 		
 		byte second_digit_two;
-		
-		second_digit_two = CHARS[voltage.charAt(1) - 48][1];		
+			
+		second_digit_two = CHARS[voltage_string.charAt(voltage_string.length() - 3) - 48][1];		
 		second_digit_two |= (byte)0b01000000;
-		output[4] = CHARS[voltage.charAt(3) - 48][0];// third digit
-		output[5] = CHARS[voltage.charAt(3) - 48][1];// third digit
-		output[6] = CHARS[voltage.charAt(1) - 48][0];// second digit of voltage	
+		output[4] = CHARS[voltage_string.charAt(voltage_string.length() - 1) - 48][0];// third digit
+		output[5] = CHARS[voltage_string.charAt(voltage_string.length() - 1) - 48][1];// third digit
+		output[6] = CHARS[voltage_string.charAt(voltage_string.length() - 3) - 48][0];// second digit of voltage	
 		output[7] = second_digit_two;// second digit of voltage, with decimal point.
-		output[8] = CHARS[voltage.charAt(0) - 48][0];// first digit of voltage
-		output[9] = CHARS[voltage.charAt(0) - 48][1];// first digit of voltage
-		
+			
+		if (!voltage_under_ten)
+		{
+			output[8] = CHARS[voltage_string.charAt(0) - 48][0];// first digit of voltage
+			output[9] = CHARS[voltage_string.charAt(0) - 48][1];// first digit of voltage
+		}else
+		{
+			output[8] = CHARS[0][0];
+			output[9] = CHARS[0][1];
+		}
+
 		return output;
 	}
 	private byte[] output_pos(String input)

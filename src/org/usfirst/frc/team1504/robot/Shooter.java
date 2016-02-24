@@ -308,17 +308,21 @@ public class Shooter implements Updatable
 		byte buttons = 0;
 		if (_shooter_input[0])
 		{
-			buttons += 8;
+			buttons += 16;
 		}
 		if (_shooter_input[1])
 		{
-			buttons += 4;
+			buttons += 8;
 		}
 		if (_shooter_input[2])
 		{
-			buttons += 2;
+			buttons += 4;
 		}
 		if (_shooter_input[3])
+		{
+			buttons += 2;
+		}
+		if (_shooter_input[4])
 		{
 			buttons += 1;
 		}
@@ -353,18 +357,18 @@ public class Shooter implements Updatable
 			}
 			if (logtiem)
 			{
-				// Dump is done in its own thread, for speed.
-//				if (_dump_thread == null || !_dump_thread.isAlive())
-//				{
-//					_dump_thread = new Thread(new Runnable()
-//					{
-//						public void run()
-//						{
-//							dump();
-//						}
-//					});
-//					_dump_thread.start();
-//				}
+//				 Dump is done in its own thread, for speed.
+				if (_dump_thread == null || !_dump_thread.isAlive())
+				{
+					_dump_thread = new Thread(new Runnable()
+					{
+						public void run()
+						{
+							dump();
+						}
+					});
+					_dump_thread.start();
+				}
 				logtiem = false;
 			}
 		}
