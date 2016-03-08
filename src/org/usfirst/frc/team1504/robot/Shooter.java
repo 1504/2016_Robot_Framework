@@ -7,6 +7,7 @@ import org.usfirst.frc.team1504.robot.Update_Semaphore.Updatable;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice; 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Shooter implements Updatable
 {
@@ -65,6 +66,8 @@ public class Shooter implements Updatable
 
 		ShootInit();
 
+		SmartDashboard.putNumber("Shooter Speed", Map.SHOOTER_MOTOR_SPEED);
+		
 		System.out.println("Gunner, standing by.");
 	}
 	public void release()
@@ -79,6 +82,17 @@ public class Shooter implements Updatable
 
 	private boolean _intake_on = false;
 	private boolean _prep_on = false;	
+	
+	private double _port_motor_i = 0.0;
+	private double _port_error = 0.0;
+	
+	private double _starboard_motor_i = 0.0;
+	private double _starboard_error = 0.0;
+	
+	private double _starboard_set_value = 0.0;
+	
+	private long _looptime = System.currentTimeMillis();
+	private long _prev_looptime;
 	
 	private double[] _motor_values;
 	private int _prep_counter = 0;
@@ -186,7 +200,7 @@ public class Shooter implements Updatable
 	{
 		if (_mode == STATE.Prep)
 		{
-			if (_prep_counter < 3)
+			/*if (_prep_counter < 3)
 			{ 
 				try
 				{
@@ -194,8 +208,8 @@ public class Shooter implements Updatable
 					{
 						_motor_values[0] = Map.SHOOTER_INTAKE_PREP * Map.SHOOTER_MAGIC_NUMBERS[0];
 					}
-					_motor_values[1] = 0.1;
-					_motor_values[2] = -0.1;
+					_motor_values[1] = 0.2;
+					_motor_values[2] = -0.2;
 					
 					Thread.sleep(20);
 					
@@ -214,11 +228,11 @@ public class Shooter implements Updatable
 				}
 			}
 			else
-			{
+			{*/
 			_motor_values[0] = 0.0;
 			_motor_values[1] = Map.SHOOTER_MOTOR_SPEED * Map.SHOOTER_MAGIC_NUMBERS[1];
 			_motor_values[2] = Map.SHOOTER_MOTOR_SPEED * Map.SHOOTER_MAGIC_NUMBERS[2];
-			}
+			//}
 		}
 	}
 	/**
@@ -255,20 +269,33 @@ public class Shooter implements Updatable
 	}
 	private void setMotors()
 	{
+		
 		_motors[0].set(_motor_values[0]); // No encoder for the intake motor,
 											// because it doesn't matter as
 											// much.
-//		if (_motor_values[1] == Map.SHOOTER_MOTOR_SPEED)
+	
+		
+		_looptime = System.currentTimeMillis() - _prev_looptime;
+		
+		_prev_looptime = System.currentTimeMillis();
+		
+		
+//		if (_motor_values[1] == (Map.SHOOTER_MOTOR_SPEED * Map.SHOOTER_MAGIC_NUMBERS[1]))
 //		{
-//			_motors[1].set((_motor_values[1] - _motors[1].getSpeed()) * Map.SHOOTER_GAIN);
+//			_port_motor_i += (_motor_values[1] - _motors[1].getSpeed()) * _looptime;
+//			_motors[1].set(((_motor_values[1] - _motors[1].getSpeed()) * Map.SHOOTER_GAIN * Map.SHOOTER_MAGIC_NUMBERS[1]) + (_port_motor_i * Map.PORT_I_GAIN));
 //		}else
 //		{
 //			_motors[1].set(_motor_values[1]);
 //		}
 		
-		if (_motor_values[2] == Map.SHOOTER_MOTOR_SPEED)
+		
+		if (_mode == STATE.Prep || _mode == STATE.Launch)
 		{
-			_motors[2].set((_motor_values[2] - _motors[2].getSpeed()) * Map.SHOOTER_GAIN);
+			_starboard_error = (_motor_values[2] - (_motors[2].getSpeed() * Map.SHOOTER_MAGIC_NUMBERS[2]));
+			_starboard_motor_i += _starboard_error * _looptime;
+			_starboard_set_value = (_starboard_error * Map.SHOOTER_GAIN) + (_starboard_motor_i * Map.STARBOARD_I_GAIN);
+			_motors[2].set(_starboard_set_value);
 		}else
 		{
 			_motors[2].set(_motor_values[2]);
@@ -276,12 +303,13 @@ public class Shooter implements Updatable
 		
 		if (_motor_values[1] != 0)
 		{
-			_motors[1].set(-1 * Map.SHOOTER_MAGIC_NUMBERS[1] * _motors[2].get());
+			_motors[1].set(Map.SHOOTER_MAGIC_NUMBERS[2] * _motors[2].get());
 		}
 		else
 		{
 			_motors[1].set(0.0);
 		}
+		
 
 	}
 	// All motors should have: Bus Voltage, Output Current, and Set Point
@@ -348,14 +376,18 @@ public class Shooter implements Updatable
 		{
 			if (_ds.isEnabled() && _ds.isOperatorControl())
 			{
+				Map.SHOOTER_MOTOR_SPEED = SmartDashboard.getNumber("Shooter Speed");
+				SmartDashboard.putNumber("Starboard Get Speed", _motors[2].getSpeed());
+				SmartDashboard.putNumber("Starboard Set Speed", _starboard_set_value);
 				change_state();
 				intake();
 				prep();
 				launch();
 				disable_launch();
+				SmartDashboard.putString("Current Mode", _mode.toString());
 				logtiem = true;
 			}
-			if (logtiem)
+			if (1 == 0)
 			{
 //				 Dump is done in its own thread, for speed.
 				if (_dump_thread == null || !_dump_thread.isAlive())

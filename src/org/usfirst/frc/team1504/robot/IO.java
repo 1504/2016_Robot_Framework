@@ -28,16 +28,10 @@ public class IO
 				* Math.signum(_drive_y.getRawAxis(Map.JOYSTICK_Y_AXIS));// forward/backward
 																		// motion
 
-		if (_drive_w.getRawButton(Map.DRIVE_TURN_TOGGLE))
-		{
-			inputs[1] = Map.DRIVE_INPUT_MAGIC_NUMBERS[1]
-					* Math.pow(Utils.deadzone(_drive_w.getRawAxis(Map.JOYSTICK_X_AXIS)), 2)
-					* Math.signum(_drive_w.getRawAxis(Map.JOYSTICK_X_AXIS)) * .6;// turning
+		inputs[1] = Map.DRIVE_INPUT_MAGIC_NUMBERS[1]
+				* Math.pow(Utils.deadzone(_drive_w.getRawAxis(Map.JOYSTICK_X_AXIS)), 2)
+				* Math.signum(_drive_w.getRawAxis(Map.JOYSTICK_X_AXIS)) * .6;// turning
 																					// left/right;
-		} else
-		{
-			inputs[1] = 0.0;
-		}
 		return inputs;
 	}
 	public static double front_side()

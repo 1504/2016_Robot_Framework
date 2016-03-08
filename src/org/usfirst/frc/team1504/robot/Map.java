@@ -44,8 +44,11 @@ public class Map
     public static final double SHOOTER_INTAKE_BACKWARDS = -0.7;
     public static final double SHOOTER_INTAKE_PREP = -0.2;
     public static final double SHOOTER_INTAKE_LAUNCH = 1.0;
-    public static final double SHOOTER_MOTOR_SPEED = 7800.0;
-    public static final double SHOOTER_GAIN = 0.005;
+    public static double SHOOTER_MOTOR_SPEED = 6400.0;
+    public static final double SHOOTER_GAIN = 0.0001;
+    public static final double PORT_I_GAIN = 0.0001;
+    public static final double STARBOARD_I_GAIN = 0.0000003;
+    
     // Glide gain
     public static final double[][] DRIVE_GLIDE_GAIN =
     {
@@ -94,8 +97,6 @@ public class Map
     //Buttons
     
     	//Primary
-    //Cheesy Drive Button to toggle whether turning is enabled
-    public static final int DRIVE_TURN_TOGGLE = 1;
     
     // Drive Front Side changing
     public static final int DRIVE_FRONTSIDE_BACK = 2;

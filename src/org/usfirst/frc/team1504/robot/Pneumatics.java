@@ -40,7 +40,7 @@ public class Pneumatics implements Updatable
 	}
 	private double volt_to_pressure(double v)
 	{
-		return (double)((250 * v/5) - 25);
+		return (double)((250 * v / 4096) - 25);
 	}
 	private void updateVals()
 	{
@@ -52,9 +52,9 @@ public class Pneumatics implements Updatable
 	}
 	private void updateDash()
 	{
-//		SmartDashboard.putNumber("highside pressure", _pressure_high);
-//		SmartDashboard.putNumber("lowside pressure", _pressure_low);
-//		SmartDashboard.putNumber("compressor current", _current);
+		SmartDashboard.putNumber("highside pressure", _pressure_high);
+		SmartDashboard.putNumber("lowside pressure", _pressure_low);
+		SmartDashboard.putNumber("compressor current", _current);
 	}
 	private void dump()
 	{
