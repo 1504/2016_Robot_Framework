@@ -109,6 +109,7 @@ public class Shooter implements Updatable
 	{
 		_motors = new CANTalon[Map.SHOOTER_MOTOR_PORTS.length];
 		_motors[0] = new CANTalon(Map.INTAKE_TALON_PORT);
+		_motors[0].enableBrakeMode(true);
 
 		_motors[1] = new CANTalon(Map.SHOOTER_PORT_TALON_PORT);
 //		_motors[1].setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative); // Magnetic Encoder
@@ -183,6 +184,8 @@ public class Shooter implements Updatable
 		}
 		if (_mode == STATE.Default)
 		{
+			_starboard_motor_i = 0.0;
+			_port_motor_i = 0.0;
 			_motor_values[0] = 0.0;
 		}
 		if (_mode == STATE.IntakeReverse)
@@ -254,6 +257,8 @@ public class Shooter implements Updatable
 			}
 			_prep_counter = 0;
 			_motor_values[0] = 0.0;
+			
+			_prep_on = true;
 		}
 	}
 	/**

@@ -26,7 +26,7 @@ public class Map
     };
     // Drive Input magic numbers
     public static final double[] DRIVE_INPUT_MAGIC_NUMBERS =
-    { 1.0, -1.0, 0.7 };
+    { 1.0, -1.0 };
 
     //Secondary Motor Ports
     //The direction right means on the right if you're looking from the backside of the robot. Ditto with left.
@@ -45,15 +45,15 @@ public class Map
     public static final double SHOOTER_INTAKE_PREP = -0.2;
     public static final double SHOOTER_INTAKE_LAUNCH = 1.0;
     public static double SHOOTER_MOTOR_SPEED = 6400.0;
-    public static final double SHOOTER_GAIN = 0.0001;
-    public static final double PORT_I_GAIN = 0.0001;
+    public static final double SHOOTER_GAIN = 0.00015;
+    public static final double PORT_I_GAIN = 0.00015;
     public static final double STARBOARD_I_GAIN = 0.0000003;
     
     // Glide gain
     public static final double[][] DRIVE_GLIDE_GAIN =
     {
-        {0.0015, 0.0025, 0.003},
-{0.008, 0.008, 0.008}};
+        {0.0015, 0.003},
+{0.008, 0.008}};
     // Drive Output magic numbers - for getting everything spinning the correct direction
     public static final double[] DRIVE_OUTPUT_MAGIC_NUMBERS =
     { -1.0, -1.0, 1.0, 1.0 };

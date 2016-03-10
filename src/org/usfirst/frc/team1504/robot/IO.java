@@ -21,7 +21,6 @@ public class IO
 	public static double[] tank_input()
 	{
 		double[] inputs = new double[2];
-		// TODO: Make sure the RIGHT SIDE is the one multiplied by -1.
 
 		inputs[0] = Map.DRIVE_INPUT_MAGIC_NUMBERS[0]
 				* Math.pow(Utils.deadzone(_drive_y.getRawAxis(Map.JOYSTICK_Y_AXIS)), 2)

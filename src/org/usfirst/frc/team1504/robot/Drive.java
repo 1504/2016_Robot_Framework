@@ -7,7 +7,6 @@ import org.usfirst.frc.team1504.robot.Update_Semaphore.Updatable;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.DriverStation;
 
-import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
@@ -36,7 +35,6 @@ public class Drive implements Updatable
 	private Thread _dump_thread;
 	private volatile boolean _thread_alive = true;
 
-	private Compressor _c;
 	
 	/**
 	 * Gets an instance of the Drive
@@ -72,7 +70,6 @@ public class Drive implements Updatable
 
 	private DriverStation _ds = DriverStation.getInstance();
 	private Logger _logger = Logger.getInstance();
-	private Pneumatics _p = Pneumatics.getInstance();
 	
 	private volatile boolean _new_data = false;
 	private volatile double[] _input =	{ 0.0, 0.0 };// TWO due to ARCADE DRIVE.
@@ -96,7 +93,7 @@ public class Drive implements Updatable
 			_motors[i] = new CANTalon(Map.DRIVE_MOTOR_PORTS[i]);
 		}
 		
-		_c = new Compressor();
+
 	}
 	/**
 	 * Method called when there is new data from the Driver Station.
@@ -156,7 +153,6 @@ public class Drive implements Updatable
 
 		detented[0] = input[0] + dy; // y
 		detented[1] = input[1] + dx; // x
-//		detented[2] = input[2];// angular
 
 		return detented;
 	}
@@ -187,7 +183,6 @@ public class Drive implements Updatable
 		groundtruth_normalize(normal_input);
 
 		// Apply P(ID) correction factor to the joystick values
-		// TODO: Determine gain constant and add to the Map
 		for (int i = 0; i < 2; i++)
 			output[i] += (normal_input[i] - speeds[i]) * -0.01;
 
@@ -231,7 +226,7 @@ public class Drive implements Updatable
 
 		double theta = Math.atan2(input[0], input[1]);
 		double offset = (theta % (Math.PI/4.0)) - Math.floor((theta/(Math.PI/4)%2)*(Math.PI/4));
-		double scalar = Math.cos(offset)/Math.cos(offset - 45 + 90 * (offset < 0 ? 1.0 : 0.0));
+		double scalar = Math.cos(offset)/Math.cos(offset - 45 + 90 * ((offset < 0) ? 1.0 : 0.0));
 
 		output[0] = output[1] = (scalar/Math.sqrt(2.0)) * (input[0] + input[1]);
 		output[2] = output[3] = (scalar/Math.sqrt(2.0)) * (input[0] - input[1]);
@@ -304,20 +299,17 @@ public class Drive implements Updatable
 						double frontside_scalar = IO.front_side();
 						if (frontside_scalar != 0.0)
 						{
-						frontsideAngle(frontside_scalar);							
+							frontsideAngle(frontside_scalar);
 						}
-						
-						// Detents
-						input = detents(input);
 						
 						// Frontside
 						input = front_side(input);
 						
-						// Orbit point
-						//input = orbit_point(input);
-						// Glide
+//						// Detents
+//						input = detents(input);
+//
+//						// Glide
 						input = _glide.gain_adjust(input);
-						// Osc
 						
 						// Save corrected input for fast loop
 						_input = input;
@@ -328,7 +320,7 @@ public class Drive implements Updatable
 				}
 				
 				// Ground speed offset
-				input = groundtruth_correction(input);
+//				input = groundtruth_correction(input);
 				// Output to motors - as fast as this loop will go
 				motorOutput(outputCompute(input));
 				
