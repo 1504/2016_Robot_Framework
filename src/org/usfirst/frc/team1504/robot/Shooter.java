@@ -82,13 +82,15 @@ public class Shooter implements Updatable
 
 	private boolean _intake_on = false;
 	private boolean _prep_on = false;	
+	private boolean _shoot_good = false;
+	
 	
 	private double _port_motor_i = 0.0;
 	private double _port_error = 0.0;
+	private double _port_set_value = 0.0;
 	
 	private double _starboard_motor_i = 0.0;
 	private double _starboard_error = 0.0;
-	
 	private double _starboard_set_value = 0.0;
 	
 	private long _looptime = System.currentTimeMillis();
@@ -108,12 +110,14 @@ public class Shooter implements Updatable
 	private void ShootInit()
 	{
 		_motors = new CANTalon[Map.SHOOTER_MOTOR_PORTS.length];
+		
 		_motors[0] = new CANTalon(Map.INTAKE_TALON_PORT);
+		_motors[0].setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative);
 		_motors[0].enableBrakeMode(true);
 
 		_motors[1] = new CANTalon(Map.SHOOTER_PORT_TALON_PORT);
-//		_motors[1].setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative); // Magnetic Encoder
-//		_motors[1].reverseSensor(false); // No sign flips
+		_motors[1].setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative); // Magnetic Encoder
+		_motors[1].reverseSensor(false); // No sign flips
 
 		_motors[2] = new CANTalon(Map.SHOOTER_STARBOARD_TALON_PORT);
 		_motors[2].setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative);
@@ -205,7 +209,7 @@ public class Shooter implements Updatable
 			
 			try
 			{
-				Thread.sleep(100);
+				Thread.sleep(150);
 			} catch (InterruptedException e)
 			{
 				e.printStackTrace();
@@ -215,7 +219,7 @@ public class Shooter implements Updatable
 			
 			try
 			{
-				Thread.sleep(100);
+				Thread.sleep(150);
 			} catch (InterruptedException e)
 			{
 				e.printStackTrace();
@@ -273,7 +277,7 @@ public class Shooter implements Updatable
 	private void launch()
 	{
 
-		if (_mode == STATE.Launch)
+		if (_mode == STATE.Launch && _shoot_good)
 		{
 			_motor_values[0] = Map.SHOOTER_INTAKE_LAUNCH * Map.SHOOTER_MAGIC_NUMBERS[0];
 
@@ -288,6 +292,7 @@ public class Shooter implements Updatable
 			_motor_values[0] = 0.0;
 			
 			_prep_on = true;
+			_shoot_good = false;
 		}
 	}
 	/**
@@ -301,27 +306,40 @@ public class Shooter implements Updatable
 			_mode = STATE.Default;
 		}
 	}
+	private void getShootGood()
+	{
+		boolean _port_in_range = (_motors[1].getSpeed() >= Map.SHOOTER_MOTOR_SPEED - 50.0) && (_motors[1].getSpeed() <= Map.SHOOTER_MOTOR_SPEED + 50.0);
+		boolean _starboard_in_range = (_motors[2].getSpeed() >= Map.SHOOTER_MOTOR_SPEED - 50.0) && (_motors[2].getSpeed() <= Map.SHOOTER_MOTOR_SPEED + 50.0);
+		
+		if (_port_in_range && _starboard_in_range)
+		{
+			_shoot_good = true;
+		}
+		else
+		{
+			_shoot_good = false;
+		}
+	}
 	private void setMotors()
 	{
 		
-		_motors[0].set(_motor_values[0]); // No encoder for the intake motor,
-											// because it doesn't matter as
-											// much.
-	
+		_motors[0].set(_motor_values[0]);
 		
 		_looptime = System.currentTimeMillis() - _prev_looptime;
 		
 		_prev_looptime = System.currentTimeMillis();
 		
 		
-//		if (_motor_values[1] == (Map.SHOOTER_MOTOR_SPEED * Map.SHOOTER_MAGIC_NUMBERS[1]))
-//		{
-//			_port_motor_i += (_motor_values[1] - _motors[1].getSpeed()) * _looptime;
-//			_motors[1].set(((_motor_values[1] - _motors[1].getSpeed()) * Map.SHOOTER_GAIN * Map.SHOOTER_MAGIC_NUMBERS[1]) + (_port_motor_i * Map.PORT_I_GAIN));
-//		}else
-//		{
-//			_motors[1].set(_motor_values[1]);
-//		}
+		if (_mode == STATE.Prep || _mode == STATE.Launch)
+		{
+			_port_error = (_motor_values[1] + (_motors[1].getSpeed() * Map.SHOOTER_MAGIC_NUMBERS[1]));
+			_port_motor_i += _port_error * _looptime;
+			_port_set_value = (_port_error * Map.SHOOTER_GAIN) + (_port_motor_i * Map.PORT_I_GAIN);
+			_motors[1].set(_port_set_value);
+		}else
+		{
+			_motors[1].set(_motor_values[1]);
+		}
 		
 		
 		if (_mode == STATE.Prep || _mode == STATE.Launch)
@@ -333,19 +351,18 @@ public class Shooter implements Updatable
 		}else
 		{
 			_motors[2].set(_motor_values[2]);
-		}
-		
-		if (_motor_values[1] != 0)
-		{
-			_motors[1].set(Map.SHOOTER_MAGIC_NUMBERS[2] * _motors[2].get());
-		}
-		else
-		{
-			_motors[1].set(0.0);
-		}
-		
-
+		}	
 	}
+	private void updateDashboard()
+	{
+		Map.SHOOTER_MOTOR_SPEED = SmartDashboard.getNumber("Shooter Speed");
+		SmartDashboard.putNumber("Starboard Get Speed", _motors[2].getSpeed());
+		SmartDashboard.putNumber("Starboard Set Speed", _starboard_set_value);
+		SmartDashboard.putNumber("Port Get Speed", _motors[1].getSpeed());
+		SmartDashboard.putNumber("Port Set Speed", _port_set_value);
+		SmartDashboard.putString("Current Mode", _mode.toString());
+	}
+	
 	// All motors should have: Bus Voltage, Output Current, and Set Point
 	/**
 	 * Creates an array of data to log.
@@ -410,15 +427,13 @@ public class Shooter implements Updatable
 		{
 			if (_ds.isEnabled() && _ds.isOperatorControl())
 			{
-				Map.SHOOTER_MOTOR_SPEED = SmartDashboard.getNumber("Shooter Speed");
-				SmartDashboard.putNumber("Starboard Get Speed", _motors[2].getSpeed());
-				SmartDashboard.putNumber("Starboard Set Speed", _starboard_set_value);
+				updateDashboard();
 				change_state();
 				intake();
 				prep();
+				getShootGood();
 				launch();
 				disable_launch();
-				SmartDashboard.putString("Current Mode", _mode.toString());
 				logtiem = true;
 			}
 			if (1 == 0)
