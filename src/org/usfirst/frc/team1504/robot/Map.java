@@ -44,6 +44,8 @@ public class Map
     public static final double SHOOTER_INTAKE_BACKWARDS = -0.7;
     public static final double SHOOTER_INTAKE_PREP = -0.2;
     public static final double SHOOTER_INTAKE_LAUNCH = 1.0;
+    public static final double SHOOTER_INTAKE_OSC_FORWARD = 0.5;
+    public static final double SHOOTER_INTAKE_OSC_BACKWARDS = -0.5;
     public static double SHOOTER_MOTOR_SPEED = 6400.0;
     public static final double SHOOTER_GAIN = 0.00015;
     public static final double PORT_I_GAIN = 0.00015;
@@ -106,11 +108,12 @@ public class Map
     //Buttons for shooting
     public static final int SHOOTER_INTAKE_ON = 6;
     public static final int SHOOTER_INTAKE_OFF = 7;
+    public static final int SHOOTER_INTAKE_OSC = 8;
     public static final int SHOOTER_PREP = 3;
     public static final int SHOOTER_LAUNCH = 1;
     public static final int SHOOTER_DISABLE_LAUNCH = 2;
     public static final int[] SHOOTER_INPUTS =
-    {SHOOTER_INTAKE_ON, SHOOTER_INTAKE_OFF, SHOOTER_PREP, SHOOTER_LAUNCH, SHOOTER_DISABLE_LAUNCH};
+    {SHOOTER_INTAKE_ON, SHOOTER_INTAKE_OFF, SHOOTER_PREP, SHOOTER_LAUNCH, SHOOTER_DISABLE_LAUNCH, SHOOTER_INTAKE_OSC};
 
 
 }

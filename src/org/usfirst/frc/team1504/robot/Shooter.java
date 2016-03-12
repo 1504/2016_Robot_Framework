@@ -97,7 +97,7 @@ public class Shooter implements Updatable
 	private double[] _motor_values;
 	private int _prep_counter = 0;
 
-	private static enum STATE {Default, IntakeOn, IntakeReverse, Prep, Launch, DisableLaunch};
+	private static enum STATE {Default, IntakeOn, IntakeReverse, IntakeOsc, Prep, Launch, DisableLaunch};
 	private STATE _mode = STATE.Default;
 	
 	private volatile int _loops_since_last_dump = 0;
@@ -133,6 +133,7 @@ public class Shooter implements Updatable
 		_shooter_input[2] = IO.prep();
 		_shooter_input[3] = IO.launch();
 		_shooter_input[4] = IO.disable_launch();
+		_shooter_input[5] = IO.intake_osc();
 	}
 	private void change_state()
 	{
@@ -147,6 +148,12 @@ public class Shooter implements Updatable
 			_intake_on = true;
 			_mode = STATE.IntakeOn;
 //			System.out.println("intake on");
+		}
+		if (_shooter_input[5])
+		{
+			_intake_on = false;
+			_mode = STATE.IntakeOsc;
+//			System.out.println("intake osc");
 		}
 		if (_shooter_input[0] && _shooter_input[1])
 		{
@@ -191,6 +198,28 @@ public class Shooter implements Updatable
 		if (_mode == STATE.IntakeReverse)
 		{
 			_motor_values[0] = Map.SHOOTER_INTAKE_BACKWARDS * Map.SHOOTER_MAGIC_NUMBERS[0];
+		}
+		if (_mode == STATE.IntakeOsc)
+		{
+			_motor_values[0] = Map.SHOOTER_INTAKE_OSC_FORWARD  * Map.SHOOTER_MAGIC_NUMBERS[0];
+			
+			try
+			{
+				Thread.sleep(100);
+			} catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+			
+			_motor_values[0] = Map.SHOOTER_INTAKE_OSC_BACKWARDS * Map.SHOOTER_MAGIC_NUMBERS[0];
+			
+			try
+			{
+				Thread.sleep(100);
+			} catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 	/**

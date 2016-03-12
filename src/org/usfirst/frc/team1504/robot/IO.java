@@ -59,6 +59,10 @@ public class IO
 	{
 		return _secondary.getRawButtonLatch(Map.SHOOTER_INTAKE_OFF);
 	}
+	public static boolean intake_osc()
+	{
+		return _secondary.getRawButtonLatch(Map.SHOOTER_INTAKE_OSC);
+	}
 	public static boolean prep()
 	{
 		return _secondary.getRawButtonLatch(Map.SHOOTER_PREP);
