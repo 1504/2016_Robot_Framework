@@ -305,8 +305,8 @@ public class Shooter implements Updatable
 	}
 	private void getShootGood()
 	{
-		boolean _port_in_range = (_motors[1].getSpeed() >= Map.SHOOTER_MOTOR_SPEED - 50.0) && (_motors[1].getSpeed() <= Map.SHOOTER_MOTOR_SPEED + 50.0);
-		boolean _starboard_in_range = (_motors[2].getSpeed() >= Map.SHOOTER_MOTOR_SPEED - 50.0) && (_motors[2].getSpeed() <= Map.SHOOTER_MOTOR_SPEED + 50.0);
+		boolean _port_in_range = (_motors[1].getSpeed() >= Map.SHOOTER_MOTOR_SPEED - 25.0) && (_motors[1].getSpeed() <= Map.SHOOTER_MOTOR_SPEED + 25.0);
+		boolean _starboard_in_range = (_motors[2].getSpeed() >= Map.SHOOTER_MOTOR_SPEED - 25.0) && (_motors[2].getSpeed() <= Map.SHOOTER_MOTOR_SPEED + 25.0);
 		
 		if (_port_in_range && _starboard_in_range)
 		{
