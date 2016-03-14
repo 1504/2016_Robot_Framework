@@ -226,7 +226,7 @@ public class Drive implements Updatable
 
 		double theta = Math.atan2(input[0], input[1]);
 		double offset = (theta % (Math.PI/4.0)) - Math.floor((theta/(Math.PI/4)%2)*(Math.PI/4));
-		double scalar = Math.cos(offset)/Math.cos(offset - 45 + 90 * ((offset < 0) ? 1.0 : 0.0));
+		double scalar = Math.cos(offset)/Math.cos(offset - (Math.PI/4) + (Math.PI/2) * ((offset < 0) ? 1.0 : 0.0));
 
 		output[0] = output[1] = (scalar/Math.sqrt(2.0)) * (input[0] + input[1]);
 		output[2] = output[3] = (scalar/Math.sqrt(2.0)) * (input[0] - input[1]);
