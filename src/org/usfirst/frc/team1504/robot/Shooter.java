@@ -300,6 +300,7 @@ public class Shooter implements Updatable
 			_motor_values[1] = _motor_values[2] = 0.0;
 			_mode = STATE.Default;
 			_prep_init = true;
+			_prep_done = false;
 		}
 	}
 	private void getShootGood()
