@@ -84,6 +84,8 @@ public class Shooter implements Updatable
 	private boolean _prep_on = false;	
 	private boolean _shoot_good = false;
 	
+	private boolean _prep_init = true;
+	private boolean _prep_done = false;
 	
 	private double _port_motor_i = 0.0;
 	private double _port_error = 0.0;
@@ -164,13 +166,13 @@ public class Shooter implements Updatable
 			_mode = STATE.IntakeReverse;
 //			System.out.println("intake rev");
 		}
-		if (_shooter_input[2] || _prep_on)
+		if ((_shooter_input[2])|| (_shooter_input[3] && !_prep_done) || _prep_on)
 		{
 			_prep_on = true;
 			_mode = STATE.Prep;
 //			System.out.println("prep");
 		}
-		if (_shooter_input[3])
+		if (_shooter_input[3] && _prep_done)
 		{
 			_prep_on = false;
 			_mode = STATE.Launch;
@@ -235,30 +237,35 @@ public class Shooter implements Updatable
 	{
 		if (_mode == STATE.Prep)
 		{
-			try
+			if (_prep_init)
 			{
-				for (int i = 0; i < 3; i++)
+				try
 				{
-					_motor_values[0] = Map.SHOOTER_INTAKE_OSC_FORWARD  * Map.SHOOTER_MAGIC_NUMBERS[0];
+					for (int i = 0; i < 3; i++)
+					{
+						_motor_values[0] = Map.SHOOTER_INTAKE_OSC_FORWARD  * Map.SHOOTER_MAGIC_NUMBERS[0];
+						
+						Thread.sleep(150);
+						
+						_motor_values[0] = Map.SHOOTER_INTAKE_OSC_BACKWARDS  * Map.SHOOTER_MAGIC_NUMBERS[0];
+						
+						Thread.sleep(150);
+					}
 					
-					Thread.sleep(150);
+					_motor_values[0] = Map.SHOOTER_INTAKE_BACKWARDS * Map.SHOOTER_MAGIC_NUMBERS[0];
 					
-					_motor_values[0] = Map.SHOOTER_INTAKE_OSC_BACKWARDS  * Map.SHOOTER_MAGIC_NUMBERS[0];
+					Thread.sleep(25);
 					
-					Thread.sleep(150);
+					_prep_init = false;
+				} catch (InterruptedException e)
+				{
+					e.printStackTrace();
 				}
-				
-				_motor_values[0] = Map.SHOOTER_INTAKE_BACKWARDS * Map.SHOOTER_MAGIC_NUMBERS[0];
-				
-				Thread.sleep(25);
-				
-			} catch (InterruptedException e)
-			{
-				e.printStackTrace();
 			}
 			_motor_values[0] = 0.0;
 			_motor_values[1] = Map.SHOOTER_MOTOR_SPEED * Map.SHOOTER_MAGIC_NUMBERS[1];
 			_motor_values[2] = Map.SHOOTER_MOTOR_SPEED * Map.SHOOTER_MAGIC_NUMBERS[2];
+			_prep_done = true;
 		}
 	}
 	/**
@@ -266,7 +273,6 @@ public class Shooter implements Updatable
 	 */
 	private void launch()
 	{
-
 		if (_mode == STATE.Launch && _shoot_good)
 		{
 			_motor_values[0] = Map.SHOOTER_INTAKE_LAUNCH * Map.SHOOTER_MAGIC_NUMBERS[0];
@@ -293,6 +299,7 @@ public class Shooter implements Updatable
 		{
 			_motor_values[1] = _motor_values[2] = 0.0;
 			_mode = STATE.Default;
+			_prep_init = true;
 		}
 	}
 	private void getShootGood()
