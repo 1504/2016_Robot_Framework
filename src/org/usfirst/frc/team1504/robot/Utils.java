@@ -10,7 +10,7 @@ public class Utils
             return (byte) (input * 127);
         }
 	}
-	
+
 	public static double deadzone(double input)
 	{
 		if(Math.abs(input) < Map.UTIL_JOYSTICK_DEADZONE)

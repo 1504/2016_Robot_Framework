@@ -306,10 +306,10 @@ public class Drive implements Updatable
 						input = front_side(input);
 						
 //						// Detents
-//						input = detents(input);
-//
+						input = detents(input);
+
 //						// Glide
-//						input = _glide.gain_adjust(input);
+						input = _glide.gain_adjust(input);
 						
 						// Save corrected input for fast loop
 						_input = input;

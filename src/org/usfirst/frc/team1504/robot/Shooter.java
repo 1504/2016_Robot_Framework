@@ -210,7 +210,7 @@ public class Shooter implements Updatable
 			
 			try
 			{
-				Thread.sleep(150);
+				Thread.sleep(100);
 			} catch (InterruptedException e)
 			{
 				e.printStackTrace();
@@ -220,7 +220,7 @@ public class Shooter implements Updatable
 			
 			try
 			{
-				Thread.sleep(150);
+				Thread.sleep(50);
 			} catch (InterruptedException e)
 			{
 				e.printStackTrace();
@@ -245,11 +245,11 @@ public class Shooter implements Updatable
 					{
 						_motor_values[0] = Map.SHOOTER_INTAKE_OSC_FORWARD  * Map.SHOOTER_MAGIC_NUMBERS[0];
 						
-						Thread.sleep(150);
+						Thread.sleep(100);
 						
 						_motor_values[0] = Map.SHOOTER_INTAKE_OSC_BACKWARDS  * Map.SHOOTER_MAGIC_NUMBERS[0];
 						
-						Thread.sleep(150);
+						Thread.sleep(50);
 					}
 					
 					_motor_values[0] = Map.SHOOTER_INTAKE_BACKWARDS * Map.SHOOTER_MAGIC_NUMBERS[0];
@@ -269,7 +269,7 @@ public class Shooter implements Updatable
 		}
 	}
 	/**
-	 * Launches the BOULDER, but keeps the shooter motors running.
+	 * Launches the BOULDER, and turns off the shooter motors.
 	 */
 	private void launch()
 	{
@@ -286,8 +286,9 @@ public class Shooter implements Updatable
 			}
 			_motor_values[0] = 0.0;
 			
-			_prep_on = true;
+			_prep_on = false;
 			_shoot_good = false;
+			_mode = STATE.DisableLaunch;
 		}
 	}
 	/**
@@ -303,10 +304,13 @@ public class Shooter implements Updatable
 			_prep_done = false;
 		}
 	}
+	/**
+	 * Checks if both of the shooter motors are within 25 rpm of the desired shooter speed.
+	 */
 	private void getShootGood()
 	{
-		boolean _port_in_range = (_motors[1].getSpeed() >= Map.SHOOTER_MOTOR_SPEED - 25.0) && (_motors[1].getSpeed() <= Map.SHOOTER_MOTOR_SPEED + 25.0);
-		boolean _starboard_in_range = (_motors[2].getSpeed() >= Map.SHOOTER_MOTOR_SPEED - 25.0) && (_motors[2].getSpeed() <= Map.SHOOTER_MOTOR_SPEED + 25.0);
+		boolean _port_in_range = (_motors[1].getSpeed() >= Map.SHOOTER_MOTOR_SPEED - Map.SHOOTER_MOTOR_DEADBAND) && (_motors[1].getSpeed() <= Map.SHOOTER_MOTOR_SPEED + Map.SHOOTER_MOTOR_DEADBAND);
+		boolean _starboard_in_range = (_motors[2].getSpeed() >= Map.SHOOTER_MOTOR_SPEED - Map.SHOOTER_MOTOR_DEADBAND) && (_motors[2].getSpeed() <= Map.SHOOTER_MOTOR_SPEED + Map.SHOOTER_MOTOR_DEADBAND);
 		
 		if (_port_in_range && _starboard_in_range)
 		{
@@ -317,6 +321,9 @@ public class Shooter implements Updatable
 			_shoot_good = false;
 		}
 	}
+	/**
+	 * Setting the motors is done in its own thread - this means that while the thread setting the motor values sleeps, the motors are always 
+	 */
 	private void setMotors()
 	{
 		
@@ -350,6 +357,9 @@ public class Shooter implements Updatable
 			_motors[2].set(_motor_values[2]);
 		}	
 	}
+	/**
+	 * Puts and gets new data from the SmartDashboard.
+	 */
 	private void updateDashboard()
 	{
 		Map.SHOOTER_MOTOR_SPEED = SmartDashboard.getNumber("Shooter Speed");
@@ -359,7 +369,6 @@ public class Shooter implements Updatable
 		SmartDashboard.putNumber("Port Set Speed", _port_set_value);
 		SmartDashboard.putString("Current Mode", _mode.toString());
 	}
-	
 	// All motors should have: Bus Voltage, Output Current, and Set Point
 	/**
 	 * Creates an array of data to log.

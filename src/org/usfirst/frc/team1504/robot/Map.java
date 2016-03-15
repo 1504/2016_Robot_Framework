@@ -50,8 +50,9 @@ public class Map
     public static final double SHOOTER_GAIN = 0.00015;
     public static final double PORT_I_GAIN = 0.0000003;
     public static final double STARBOARD_I_GAIN = 0.0000003;
+    public static final double SHOOTER_MOTOR_DEADBAND = 25.0;
     
-    // Glide gain
+    // Drive glide gain
     public static final double[][] DRIVE_GLIDE_GAIN =
     {
         {0.0015, 0.003},

@@ -97,7 +97,9 @@ public class Digit_Board
 
 		
 	}
-	
+	/**
+	 * Function for updating buttons, and its helper functions.
+	 */
 	public void update()
 	{
 		int current_mask = get_input_mask();
@@ -159,6 +161,10 @@ public class Digit_Board
 	{
 		return getRawButtonOnRisingEdge(B_MASK);
 	}
+	/**
+	 * Checks the current value of the potentiometer, and maps the value to the nearest half between 0.0 and 10.0
+	 * @return the value from 0.0 - 10.0
+	 */
 	public double getPot()
 	{
 		double val = (double) _pot.getAverageValue();//integer between 3 - 400
@@ -179,6 +185,10 @@ public class Digit_Board
 		
 		return _delay;
 	}
+	/**
+	 * Computes the byte array to display the current voltage.
+	 * @return The array of bytes to write.
+	 */
 	private byte[] output_voltage()
 	{
 		double voltage = _ds.getBatteryVoltage();
@@ -224,6 +234,11 @@ public class Digit_Board
 
 		return output;
 	}
+	/**
+	 * Displays a position from 1 - 5, indicating the starting position for autonomous.
+	 * @param input the position, as a string.
+	 * @return the array of bytes to write.
+	 */
 	private byte[] output_pos(String input)
 	{
 		byte[] output = new byte[10];
@@ -240,6 +255,11 @@ public class Digit_Board
 
 		return output;
 	}
+	/**
+	 * Displays one of the nine different obstacles, to indicate the obstacle the robot is starting in front of for autonomous.
+	 * @param input the obstacle, as a string
+	 * @return the array of bytes to write.
+	 */
 	private byte[] output_obs(String input)
 	{
 		byte[] output = new byte[10];
@@ -263,6 +283,11 @@ public class Digit_Board
 
 		return output;
 	}
+	/**
+	 * Outputs the delay computed in getPot(), indicating how long the robot will wait at the beginning of autonomous
+	 * @param d - the delay
+	 * @return the array of bytes to write.
+	 */
 	private byte[] output_delay(double d)
 	{
 		String delay = Double.toString(d);
@@ -288,6 +313,9 @@ public class Digit_Board
 		
 		return output;
 	}
+	/**
+	 * The controller function, doing logic to decide what to display based on the inputs it is getting. This is the function being used by the thread.
+	 */
 	private void board_task()
 	{	
     	byte[] osc = new byte[1];
