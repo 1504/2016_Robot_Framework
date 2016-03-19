@@ -14,7 +14,7 @@ public class Robot extends RobotBase
     Drive _drive = Drive.getInstance();
     Autonomous _autonomous = Autonomous.getInstance();
     Digit_Board _digit_board = Digit_Board.getInstance();
-    Vision _vision = Vision.getInstance();
+    visionTrack _vision = visionTrack.getInstance();
     endGame _endGame = endGame.getInstance();
     /**
     * Create a new Robot

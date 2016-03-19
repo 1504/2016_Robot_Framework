@@ -113,12 +113,12 @@ public class Map
 	public static final int OVERRIDE_LIFT_BUTTON = 10;
 	public static final int VISION_BUTTON = 11;
 
-	public static final int VISION_WIDTH = 800;
-	public static final int VISION_HEIGHT = 600;
+	public static final int VISION_HEIGHT = 800; //switched
+	public static final int VISION_WIDTH = 600;
 
-	public static final double VISION_DEADZONE = 5;//25;
-	public static final double VISION_GAIN_ADJUST_X = .01;//.25;
-	public static final double VISION_GAIN_ADJUST_Y = .25;
+	public static final double VISION_DEADZONE = 1;//25;
+	public static final double VISION_GAIN_ADJUST_X = .02;//.25;
+	//public static final double VISION_GAIN_ADJUST_Y = .25;
 	public static final double VISION_DELAY_TIME = .65;//.75;
 	public static final double VISION_CORRECTION_DELAY_TIME= .8;
 	public static final double VISION_TURN_SPEED= .2;

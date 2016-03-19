@@ -30,12 +30,12 @@ public class visionTrack
 	
 	public void settleCamera()
 	{
-		//_state = VISION_STATES.WAIT_FOR_IMAGE;
+		_state = VISION_STATES.WAIT_FOR_IMAGE;
 		_timer.schedule(new TimerTask() { 
 			public void run() {
 			cameraAim();
 		}
-		}, 750);
+		}, 250);
 	}
 	
 	public boolean checkAim()
@@ -45,29 +45,29 @@ public class visionTrack
 	
 	public void cameraAim()
 	{
-		double[] height;
-		double[] width;	
+		double[] width;
+		double[] height;	
 		double[] xCenter;
-		int widest = 0;		
+		int highest = 0;		
 		
 		double[] defaultValue = {0.0};
 				
-		height = _table.getNumberArray("height", defaultValue);
-		width = _table.getNumberArray("width", defaultValue);	
+		width = _table.getNumberArray("width", defaultValue);
+		height = _table.getNumberArray("height", defaultValue);	
 		xCenter = _table.getNumberArray("centerX", defaultValue);
 		
-		System.out.println("height[0] is  " + height[0]);
+		System.out.println("width[0] is  " + width[0]);
 		
-		if(height != defaultValue)
+		if(width != defaultValue)
 		{	
-			System.out.println("entered height condition");
-			for(int i = 0; i < height.length - 1; i++)
+			System.out.println("entered width condition");
+			for(int i = 0; i < width.length - 1; i++)
 			{
-				if(width[i] > width[i+1])
-					widest = i;
+				if(height[i] > height[i+1])
+					highest = i;
 			}
 			
-			_angle = (67*(xCenter[widest]/Map.VISION_WIDTH) - 33.5);
+			_angle = (67*(xCenter[highest]/Map.VISION_WIDTH) - 33.5);
 		}
 		else
 			_state = VISION_STATES.NO_IMAGE;
@@ -84,7 +84,7 @@ public class visionTrack
 	public double[] updateInputs(boolean first)
 	{
 		//double [] inputs = new double[2];
-		if(first || _state == VISION_STATES.WAIT_FOR_IMAGE)
+		if(first || _state == VISION_STATES.GET_IMAGE)
 		{
 			settleCamera();
 		}
@@ -104,7 +104,7 @@ public class visionTrack
 		}
 		else
 		{
-			_state = VISION_STATES.WAIT_FOR_IMAGE;
+			_state = VISION_STATES.GET_IMAGE;
 			//return new double[] {0.0, 0.0};
 		}
 		

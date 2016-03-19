@@ -35,7 +35,7 @@ public class IO
 		return state;
 	}
 	
-	public static boolean visionUpdate()
+	public static boolean Update()
 	{
 		//boolean vision = false;
 		if(joystickSecondary.getRawButton(Map.VISION_BUTTON))
