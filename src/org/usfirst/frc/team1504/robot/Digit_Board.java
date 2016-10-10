@@ -1,57 +1,10 @@
 package org.usfirst.frc.team1504.robot;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C;
+
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
-
-/**
- * 
- *                              ./+sydmmNNNNNmmdys+/.                              
-                        `/sdNNNNNNNNNNNNNNNNNNNNNNNds/`                         
-                     .+hmhyssyhNNNNNNNNNNNNNNNNNNNNNNNNd+.                      
-                   /hmo-        :sNNNNNNNNmdhyhhmNNNNNNNNNh/                    
-                `+dNh` .s+dh`     .dNmms:`       `-+dNNNNNmmd+`                 
-               /dmmh   -s/dd`      `mo`              :dmmmmmmmd/                
-             `ymmmm/     ``         ::s:+d.           :mmmmmmmmmy.              
-            -hddddd+                :hdoyM+           -ddddddddddd-             
-``         :dddddddh.              -d++ys/           .ydddddddddddd:            
- /so/-    -hhhhhhhhhy:         `...:::-.....`     `:ohhhhhhhhhhhhhhh-           
-  -yddmhs/yyyyyyyyyyyys/.     `-o----------//+++osyhyhyyyyyyyyyyyyhyy`          
-   `sdmmNhyyyyyyyyyyyyyyys+:--.`yd:------.     `.--:+osyyyyyyyyyyyyyy+      `-/-
-     /dmmssssssssssss+:.`       /MN:----.              `-:+sssssssssss..:+sdNd- 
-      .hhoooooooo/-`            .ms `--`                    .:+oooooooshddmm+   
-        +ooooo/-                `/`  ``                        `-+ooooohdds`    
-        +ooo:`                   `                                ./ooohy-      
-        /o:`                                                        .+o:        
-        :.                THIS CODE WAS WRITTEN BY                                            .         
-                    FRC TEAM 1504: THE DESPARATE PENGUINS                                                      
-                          PUT IN A GOOD WORD FOR US.                                                    
-                                                                                
-          .-----..``                                                            
-         `-----------.`                                                         
-          --------------`                                  `.----.`             
-          `---------------.                             `.---------             
-           `----------------.                         `.-----------             
-             .---------------.`                     `.------------.             
-              `.---------------`                   `-------------.              
-                `.--------------                  .--------------               
-                   `.-----------`                .-------------.                
-                      `..------.                .-------------.                 
-                           ```                 `------------.`                  
-                                               `----------.`                    
-                                               `--------.`                      
-                                                `....``                         
- * 
- * 
- *This code is a free-to-use Java library for FRC Teams using the MXP Digit Board with their roboRIO.
- *The code uses a set of enumerations called STATE. The STATE enumeration should contain all different sets of information being written to the board.
- *Once the STATE is determined, you must find the corresponding/desired information, and give it to the writeDigits class as a string.
- *Currently, the code displays the battery voltage by default, and if the potentiometer is rotated, displays a value from 0.0-10.0, snapped to the nearest half.
- *Finally, this code is written to run in its own thread. Use the start and stop
- */
-
-
+import edu.wpi.first.wpilibj.DriverStation;
 
 public class Digit_Board
 {
@@ -121,12 +74,6 @@ public class Digit_Board
 	private double _delay = 0.0;
 	private double _last_delay = 0.0;
 
-	/**	 * 
-	 *Currently, the only information being displayed on the digit board is the voltage of the battery, and 
-	 *if the potentiometer is rotated, a value between 0 and 10, snapped to the nearest half.
-	 *Update this enumeration with the different sets of information you plan on sending to the digit board. 
-	 *View an example at: https://github.com/1504/2016_Robot_Framework.
-	 */
 	private static enum STATE
 	{
 		Voltage, Potentiometer
