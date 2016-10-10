@@ -241,7 +241,7 @@ public class Shooter implements Updatable
 			{
 				try
 				{
-					for (int i = 0; i < 3; i++)
+					for (int i = 0; i < 5; i++)
 					{
 						_motor_values[0] = Map.SHOOTER_INTAKE_OSC_FORWARD  * Map.SHOOTER_MAGIC_NUMBERS[0];
 						
@@ -253,7 +253,7 @@ public class Shooter implements Updatable
 					}
 					
 					_motor_values[0] = Map.SHOOTER_INTAKE_BACKWARDS * Map.SHOOTER_MAGIC_NUMBERS[0];
-					
+						
 					Thread.sleep(25);
 					
 					_prep_init = false;

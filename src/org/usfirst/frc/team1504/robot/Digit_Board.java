@@ -5,6 +5,54 @@ import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
 
+/**
+ * 
+ *                              ./+sydmmNNNNNmmdys+/.                              
+                        `/sdNNNNNNNNNNNNNNNNNNNNNNNds/`                         
+                     .+hmhyssyhNNNNNNNNNNNNNNNNNNNNNNNNd+.                      
+                   /hmo-        :sNNNNNNNNmdhyhhmNNNNNNNNNh/                    
+                `+dNh` .s+dh`     .dNmms:`       `-+dNNNNNmmd+`                 
+               /dmmh   -s/dd`      `mo`              :dmmmmmmmd/                
+             `ymmmm/     ``         ::s:+d.           :mmmmmmmmmy.              
+            -hddddd+                :hdoyM+           -ddddddddddd-             
+``         :dddddddh.              -d++ys/           .ydddddddddddd:            
+ /so/-    -hhhhhhhhhy:         `...:::-.....`     `:ohhhhhhhhhhhhhhh-           
+  -yddmhs/yyyyyyyyyyyys/.     `-o----------//+++osyhyhyyyyyyyyyyyyhyy`          
+   `sdmmNhyyyyyyyyyyyyyyys+:--.`yd:------.     `.--:+osyyyyyyyyyyyyyy+      `-/-
+     /dmmssssssssssss+:.`       /MN:----.              `-:+sssssssssss..:+sdNd- 
+      .hhoooooooo/-`            .ms `--`                    .:+oooooooshddmm+   
+        +ooooo/-                `/`  ``                        `-+ooooohdds`    
+        +ooo:`                   `                                ./ooohy-      
+        /o:`                                                        .+o:        
+        :.                THIS CODE WAS WRITTEN BY                                            .         
+                    FRC TEAM 1504: THE DESPARATE PENGUINS                                                      
+                          PUT IN A GOOD WORD FOR US.                                                    
+                                                                                
+          .-----..``                                                            
+         `-----------.`                                                         
+          --------------`                                  `.----.`             
+          `---------------.                             `.---------             
+           `----------------.                         `.-----------             
+             .---------------.`                     `.------------.             
+              `.---------------`                   `-------------.              
+                `.--------------                  .--------------               
+                   `.-----------`                .-------------.                
+                      `..------.                .-------------.                 
+                           ```                 `------------.`                  
+                                               `----------.`                    
+                                               `--------.`                      
+                                                `....``                         
+ * 
+ * 
+ *This code is a free-to-use Java library for FRC Teams using the MXP Digit Board with their roboRIO.
+ *The code uses a set of enumerations called STATE. The STATE enumeration should contain all different sets of information being written to the board.
+ *Once the STATE is determined, you must find the corresponding/desired information, and give it to the writeDigits class as a string.
+ *Currently, the code displays the battery voltage by default, and if the potentiometer is rotated, displays a value from 0.0-10.0, snapped to the nearest half.
+ *Finally, this code is written to run in its own thread. Use the start and stop
+ */
+
+
+
 public class Digit_Board
 {
 
@@ -26,7 +74,7 @@ public class Digit_Board
 	private static Digit_Board instance = new Digit_Board();
 
 	private Thread _task_thread;
-	private boolean _do_things = false;
+	private boolean _run = false;
 
 	public static Digit_Board getInstance()
 	{
@@ -41,19 +89,19 @@ public class Digit_Board
 		
 		start();
 
-		System.out.println("MXP Leader, standing by.");
+		System.out.println("MXP Board Initialization Successful.");
 	}
 	public void start()
 	{
-		if(_do_things)
+		if(_run)
 			return;
-		_do_things = true;
+		_run = true;
 		_task_thread = new Thread(new Board_Task(this));
 		_task_thread.start();
 	}
 	public void stop()
 	{
-		_do_things = false;
+		_run = false;
 	}
 
 	private DriverStation _ds = DriverStation.getInstance();
@@ -61,7 +109,6 @@ public class Digit_Board
 	private I2C _display_board;
 	private DigitalInput _a;
 	private DigitalInput _b;
-	//taken from mike
 	private static final int A_MASK = 0b0000000000000001;
 	private static final int B_MASK = 0b0000000000000010;
 	private volatile int _input_mask, _input_mask_rising, _input_mask_rising_last;
@@ -69,23 +116,21 @@ public class Digit_Board
 
 	private static long _timeout = 2500;
 
-	private AnalogInput _pot;
-	private boolean _should_disp_pot = false;
+	private AnalogInput _potentiometer;
+	private boolean _should_disp_potentiometer = false;
 	private double _delay = 0.0;
 	private double _last_delay = 0.0;
 
+	/**	 * 
+	 *Currently, the only information being displayed on the digit board is the voltage of the battery, and 
+	 *if the potentiometer is rotated, a value between 0 and 10, snapped to the nearest half.
+	 *Update this enumeration with the different sets of information you plan on sending to the digit board. 
+	 *View an example at: https://github.com/1504/2016_Robot_Framework.
+	 */
 	private static enum STATE
 	{
-		Voltage, Position, Obstacle, Delay
+		Voltage, Potentiometer
 	}
-
-	private static String[] _positions =
-	{ "P  1", "P  2", "P  3", "P  4", "P  5" };
-	private static String[] _obstacles =
-	{ "LBAR", "PORT", "DRAW", "MOAT", "FRIS", "RAMP", "SALP", "ROCK", "TERR"};
-
-	int pos = 0;
-	int obs = 0;
 
 	private void DisplayInit()
 	{
@@ -93,10 +138,11 @@ public class Digit_Board
 
 		_a = new DigitalInput(19);
 		_b = new DigitalInput(20);
-		_pot = new AnalogInput(7);
-
+		_potentiometer = new AnalogInput(7);
 		
 	}
+	
+	
 	/**
 	 * Function for updating buttons, and its helper functions.
 	 */
@@ -161,158 +207,100 @@ public class Digit_Board
 	{
 		return getRawButtonOnRisingEdge(B_MASK);
 	}
+	
+	
 	/**
 	 * Checks the current value of the potentiometer, and maps the value to the nearest half between 0.0 and 10.0
-	 * @return the value from 0.0 - 10.0
 	 */
-	public double getPot()
+	public void getPotentiometer()
 	{
-		double val = (double) _pot.getAverageValue();//integer between 3 - 400
+		double val = (double) _potentiometer.getAverageValue();//integer between 3 - 400
 		_delay = Math.min((val/400), 10.0); //number between 0 and 10
 		_delay = (Math.round(_delay * 2.0)) / 2.0;
 		_delay = 10.0 - _delay;
 		
 		if (_delay != _last_delay)
 		{
-			_should_disp_pot = true;
+			_should_disp_potentiometer = true;
 		}
 		else
 		{
-			_should_disp_pot = false;
+			_should_disp_potentiometer = false;
 		}
 		
 		_last_delay = _delay;
-		
-		return _delay;
 	}
+	
+	
 	/**
 	 * Computes the byte array to display the current voltage.
 	 * @return The array of bytes to write.
 	 */
-	private byte[] output_voltage()
+	private String output_voltage()
 	{
 		double voltage = _ds.getBatteryVoltage();
 		String voltage_string = Double.toString(voltage);
-		boolean voltage_under_ten = false;
 		
-		if (voltage_string.length() != 4)
+		if (voltage_string.length() != 3)
 		{
-			voltage_string = voltage_string.substring(0, 4);
+			voltage_string = voltage_string.substring(0, 3);
 			if (voltage < 10.0)
 			{
-				voltage_under_ten = true;
-				voltage_string = voltage_string.substring(0, 3);
+				voltage_string = voltage_string.substring(0, 2);
+				voltage_string = " " + voltage_string;
 			}
 		}
-
-			
-		byte[] output = new byte[10];
-				
-		output[0] = (byte) (0b0000111100001111);
+		voltage_string += "V";
 		
-		output[2] = CHARS[31][0];// V
-		output[3] = CHARS[31][1];// V
-		
-		byte second_digit_two;
-			
-		second_digit_two = CHARS[voltage_string.charAt(voltage_string.length() - 3) - 48][1];		
-		second_digit_two |= (byte)0b01000000;
-		output[4] = CHARS[voltage_string.charAt(voltage_string.length() - 1) - 48][0];// third digit
-		output[5] = CHARS[voltage_string.charAt(voltage_string.length() - 1) - 48][1];// third digit
-		output[6] = CHARS[voltage_string.charAt(voltage_string.length() - 3) - 48][0];// second digit of voltage	
-		output[7] = second_digit_two;// second digit of voltage, with decimal point.
-			
-		if (!voltage_under_ten)
-		{
-			output[8] = CHARS[voltage_string.charAt(0) - 48][0];// first digit of voltage
-			output[9] = CHARS[voltage_string.charAt(0) - 48][1];// first digit of voltage
-		}else
-		{
-			output[8] = CHARS[0][0];
-			output[9] = CHARS[0][1];
-		}
 
-		return output;
+		return voltage_string;
 	}
+	
+	
 	/**
-	 * Displays a position from 1 - 5, indicating the starting position for autonomous.
-	 * @param input the position, as a string.
-	 * @return the array of bytes to write.
-	 */
-	private byte[] output_pos(String input)
-	{
-		byte[] output = new byte[10];
-
-		output[0] = (byte) (0b0000111100001111);
-
-		output[2] = CHARS[input.charAt(3) - 48][0];
-		output[3] = CHARS[input.charAt(3) - 48][1];
-
-		output[4] = output[5] = output[6] = output[7] = (byte) 0b00000000;
-
-		output[8] = CHARS[input.charAt(0) - 55][0];
-		output[9] = CHARS[input.charAt(0) - 55][1];
-
-		return output;
-	}
-	/**
-	 * Displays one of the nine different obstacles, to indicate the obstacle the robot is starting in front of for autonomous.
-	 * @param input the obstacle, as a string
-	 * @return the array of bytes to write.
-	 */
-	private byte[] output_obs(String input)
-	{
-		byte[] output = new byte[10];
-
-		output[0] = (byte) (0b0000111100001111);
-
-			for (int i = 0; i < input.length(); i++)
-			{
-				output[(2*i)+2] = CHARS[input.charAt(3-i) - 55][0];
-				output[(2*i)+3] = CHARS[input.charAt(3-i) - 55][1];
-			}
-//			output[2] = CHARS[input.charAt(3) - 55][0];
-//			output[3] = CHARS[input.charAt(3) - 55][1];
-//			output[4] = CHARS[input.charAt(2) - 55][0];
-//			output[5] = CHARS[input.charAt(2) - 55][1];
-//			output[6] = CHARS[input.charAt(1) - 55][0];
-//			output[7] = CHARS[input.charAt(1) - 55][1];
-//			output[8] = CHARS[input.charAt(0) - 55][0];
-//			output[9] = CHARS[input.charAt(0) - 55][1];
-
-
-		return output;
-	}
-	/**
-	 * Outputs the delay computed in getPot(), indicating how long the robot will wait at the beginning of autonomous
+	 * Outputs the delay computed in getPotentiometer(), indicating how long the robot will wait at the beginning of autonomous
 	 * @param d - the delay
-	 * @return the array of bytes to write.
+	 * @return the string to write.
 	 */
-	private byte[] output_delay(double d)
+	private String output_potentiometer(double d)
 	{
 		String delay = Double.toString(d);
 		
-		byte[] output = new byte[10];
-
-		byte decimal_digit = CHARS[delay.charAt(delay.length()-3) - 48][1];
-		decimal_digit |= (byte)0b01000000;
-		
-		output[0] = (byte) (0b0000111100001111);
-		
-		output[2] = CHARS[delay.charAt(delay.length() - 1) - 48][0];
-		output[3] = CHARS[delay.charAt(delay.length() - 1) - 48][1];
-		output[4] = CHARS[delay.charAt(delay.length() - 3) - 48][0];
-		output[5] = decimal_digit;
-		
-		if (delay.length() == 4)
-		{
-			output[6] = CHARS[delay.charAt(0) - 48][0];
-			output[7] = CHARS[delay.charAt(0) - 48][1];
-		}
-
-		
-		return output;
+		return delay;
 	}
+	
+	public void writeDigits(String output)
+	{
+		output += "    "; // Cheap and easy way to clear and prevent index out of bounds errors
+		
+		byte[] output_buffer = new byte[10];
+		output_buffer[0] = (byte)(0b0000111100001111);
+		
+		int offset = 0;
+		
+		for(int i = 0; i < 4; i++)
+		{
+			char letter = output.charAt(i + offset);
+
+			while(/*letter < 32 ||*/ letter == '.')
+			{
+				if(letter == '.')
+				{
+					if(i != 0)
+						output_buffer[(4-i)*2+3] |= (byte)0b01000000;
+				}
+				
+				offset++;
+				letter = output.charAt(i + offset);
+			}
+			output_buffer[(3-i)*2+2] = CHARS[letter-32][0];
+			output_buffer[(3-i)*2+3] = CHARS[letter-32][1];
+		}
+		
+		_display_board.writeBulk(output_buffer);
+	}
+	
+	
 	/**
 	 * The controller function, doing logic to decide what to display based on the inputs it is getting. This is the function being used by the thread.
 	 */
@@ -333,10 +321,10 @@ public class Digit_Board
 
 		long refresh = 0;
 
-		while (_do_things)
+		while (_run)
 		{	
 			update();
-			getPot();
+			getPotentiometer();
 
 			if ((System.currentTimeMillis() - refresh) > _timeout)
 			{
@@ -347,66 +335,45 @@ public class Digit_Board
 			
 			if (getAOnRisingEdge())
 			{
-				if (mode == STATE.Position)
-				{
-					pos = (pos + 1)%_positions.length; // just display current position on first press
-				}
-				mode = STATE.Position;
-				
-//				System.out.println("pos");
+				/*
+				 * What happens when button A is pressed.
+				 */
 			}
 			else if (getBOnRisingEdge())
 			{
-				if (mode == STATE.Obstacle)
-				{
-					obs = (obs + 1)%_obstacles.length;
-				}
-				mode = STATE.Obstacle; // display current obstacle on first press	
-			
-//				System.out.println("obs");
+				/*
+				 * What happens when button B is pressed.
+				 */
 			}
-			else if (_should_disp_pot)
+			else if (_should_disp_potentiometer)
 			{
-				mode = STATE.Delay;
+				/*
+				 * What happens if the potentiometer has been turned.
+				 */
 			}
 			else
 			{
 				update_refresh = false;
 			}
 			
-			if (pos == 0)
-			{
-				obs = 0;
-			}
-			if (pos > 0 && obs == 0)
-			{
-				obs++;
-			}
-			
 			if (update_refresh)
 			{
 				refresh = System.currentTimeMillis();
 			}
-
-			if (mode == STATE.Position)
+			
+			//This block of if/else statements is for calling the writeBulk function, determining what information will be written to the board.
+			if (mode == STATE.Voltage)
 			{
-				_display_board.writeBulk(output_pos(_positions[pos]));
+				writeDigits(output_voltage());
 			}
-
-			else if (mode == STATE.Obstacle)
+			else if (mode == STATE.Potentiometer)
 			{
-				_display_board.writeBulk(output_obs(_obstacles[obs]));
-			}
-			else if (mode == STATE.Delay)
-			{
-				_display_board.writeBulk(output_delay(_delay));
+				writeDigits(output_potentiometer(_delay));
 			}
 			else
 			{
-				_display_board.writeBulk(output_voltage());
+				writeDigits(output_voltage());
 			}
-
-
 			
 			try
 			{
@@ -419,44 +386,103 @@ public class Digit_Board
 		}
 	}
 	// Thanks @Team 1493
-	private static final byte[][] CHARS =
-	{
-			{ (byte) 0b00111111, (byte) 0b00000000 }, // 0; 0
-			{ (byte) 0b00000110, (byte) 0b00000000 }, // 1; 1
-			{ (byte) 0b11011011, (byte) 0b00000000 }, // 2; 2
-			{ (byte) 0b11001111, (byte) 0b00000000 }, // 3; 3
-			{ (byte) 0b11100110, (byte) 0b00000000 }, // 4; 4
-			{ (byte) 0b11101101, (byte) 0b00000000 }, // 5; 5
-			{ (byte) 0b11111101, (byte) 0b00000000 }, // 6; 6
-			{ (byte) 0b00000111, (byte) 0b00000000 }, // 7; 7
-			{ (byte) 0b11111111, (byte) 0b00000000 }, // 8; 8
-			{ (byte) 0b11101111, (byte) 0b00000000 }, // 9; 9
-			{ (byte) 0b11110111, (byte) 0b00000000 }, // A; 10
-			{ (byte) 0b10001111, (byte) 0b00010010 }, // B; 11
-			{ (byte) 0b00111001, (byte) 0b00000000 }, // C; 12
-			{ (byte) 0b00001111, (byte) 0b00010010 }, // D; 13
-			{ (byte) 0b11111001, (byte) 0b00000000 }, // E; 14
-			{ (byte) 0b11110001, (byte) 0b00000000 }, // F; 15
-			{ (byte) 0b10111101, (byte) 0b00000000 }, // G; 16
-			{ (byte) 0b11110110, (byte) 0b00000000 }, // H; 17
-			{ (byte) 0b00001001, (byte) 0b00010010 }, // I; 18
-			{ (byte) 0b00011110, (byte) 0b00000000 }, // J; 19
-			{ (byte) 0b01110000, (byte) 0b00001100 }, // K; 20
-			{ (byte) 0b00111000, (byte) 0b00000000 }, // L; 21
-			{ (byte) 0b00110110, (byte) 0b00000101 }, // M; 22
-			{ (byte) 0b00110110, (byte) 0b00001001 }, // N; 23
-			{ (byte) 0b00111111, (byte) 0b00000000 }, // O; 24
-			{ (byte) 0b11110011, (byte) 0b00000000 }, // P; 25
-			{ (byte) 0b00111111, (byte) 0b00001000 }, // Q; 26
-			{ (byte) 0b11110011, (byte) 0b00001000 }, // R; 27
-			{ (byte) 0b10001101, (byte) 0b00000001 }, // S; 28
-			{ (byte) 0b00000001, (byte) 0b00010010 }, // T; 29
-			{ (byte) 0b00111110, (byte) 0b00000000 }, // U; 30
-			{ (byte) 0b00110000, (byte) 0b00100100 }, // V; 31
-			{ (byte) 0b00110110, (byte) 0b00101000 }, // W; 32
-			{ (byte) 0b00000000, (byte) 0b00101101 }, // X; 33
-			{ (byte) 0b00000000, (byte) 0b00010101 }, // Y; 34
-			{ (byte) 0b00001001, (byte) 0b00100100 }, // Z; 35
-
-	};
+	private static final byte[][] CHARS = 
+		{
+			{(byte)0b00000000, (byte)0b00000000}, //   
+			{(byte)0b00000110, (byte)0b00000000}, // ! 
+			{(byte)0b00100000, (byte)0b00000010}, // " 
+			{(byte)0b11001110, (byte)0b00010010}, // # 
+			{(byte)0b11101101, (byte)0b00010010}, // $ 
+			{(byte)0b00100100, (byte)0b00100100}, // % 
+			{(byte)0b01011101, (byte)0b00001011}, // & 
+			{(byte)0b00000000, (byte)0b00000100}, // ' 
+			{(byte)0b00000000, (byte)0b00001100}, // ( 
+			{(byte)0b00000000, (byte)0b00100001}, // ) 
+			{(byte)0b11000000, (byte)0b00111111}, // * 
+			{(byte)0b11000000, (byte)0b00010010}, // + 
+			{(byte)0b00000000, (byte)0b00100000}, // , 
+			{(byte)0b11000000, (byte)0b00000000}, // - 
+			{(byte)0b00000000, (byte)0b00000000}, // . 
+			{(byte)0b00000000, (byte)0b00100100}, // / 
+			{(byte)0b00111111, (byte)0b00100100}, // 0 
+			{(byte)0b00000110, (byte)0b00000000}, // 1 
+			{(byte)0b11011011, (byte)0b00000000}, // 2 
+			{(byte)0b10001111, (byte)0b00000000}, // 3 
+			{(byte)0b11100110, (byte)0b00000000}, // 4 
+			{(byte)0b01101001, (byte)0b00001000}, // 5 
+			{(byte)0b11111101, (byte)0b00000000}, // 6 
+			{(byte)0b00000111, (byte)0b00000000}, // 7 
+			{(byte)0b11111111, (byte)0b00000000}, // 8 
+			{(byte)0b11101111, (byte)0b00000000}, // 9 
+			{(byte)0b00000000, (byte)0b00010010}, // : 
+			{(byte)0b00000000, (byte)0b00100010}, // ; 
+			{(byte)0b00000000, (byte)0b00001100}, // < 
+			{(byte)0b11001000, (byte)0b00000000}, // = 
+			{(byte)0b00000000, (byte)0b00100001}, // > 
+			{(byte)0b10000011, (byte)0b00010000}, // ? 
+			{(byte)0b10111011, (byte)0b00000010}, // @ 
+			{(byte)0b11110111, (byte)0b00000000}, // A 
+			{(byte)0b10001111, (byte)0b00010010}, // B 
+			{(byte)0b00111001, (byte)0b00000000}, // C 
+			{(byte)0b00001111, (byte)0b00010010}, // D 
+			{(byte)0b11111001, (byte)0b00000000}, // E 
+			{(byte)0b01110001, (byte)0b00000000}, // F 
+			{(byte)0b10111101, (byte)0b00000000}, // G 
+			{(byte)0b11110110, (byte)0b00000000}, // H 
+			{(byte)0b00000000, (byte)0b00010010}, // I 
+			{(byte)0b00011110, (byte)0b00000000}, // J 
+			{(byte)0b01110000, (byte)0b00001100}, // K 
+			{(byte)0b00111000, (byte)0b00000000}, // L 
+			{(byte)0b00110110, (byte)0b00000101}, // M 
+			{(byte)0b00110110, (byte)0b00001001}, // N 
+			{(byte)0b00111111, (byte)0b00000000}, // O 
+			{(byte)0b11110011, (byte)0b00000000}, // P 
+			{(byte)0b00111111, (byte)0b00001000}, // Q 
+			{(byte)0b11110011, (byte)0b00001000}, // R 
+			{(byte)0b11101101, (byte)0b00000000}, // S 
+			{(byte)0b00000001, (byte)0b00010010}, // T 
+			{(byte)0b00111110, (byte)0b00000000}, // U 
+			{(byte)0b00110000, (byte)0b00100100}, // V 
+			{(byte)0b00110110, (byte)0b00101000}, // W 
+			{(byte)0b00000000, (byte)0b00101101}, // X 
+			{(byte)0b00000000, (byte)0b00010101}, // Y 
+			{(byte)0b00001001, (byte)0b00100100}, // Z 
+			{(byte)0b00111001, (byte)0b00000000}, // [ 
+			{(byte)0b00000000, (byte)0b00001001}, // \ 
+			{(byte)0b00001111, (byte)0b00000000}, // ] 
+			{(byte)0b00000011, (byte)0b00100100}, // ^ 
+			{(byte)0b00001000, (byte)0b00000000}, // _ 
+			{(byte)0b00000000, (byte)0b00000001}, // ` 
+			{(byte)0b01011000, (byte)0b00010000}, // a 
+			{(byte)0b01111000, (byte)0b00001000}, // b 
+			{(byte)0b11011000, (byte)0b00000000}, // c 
+			{(byte)0b10001110, (byte)0b00100000}, // d 
+			{(byte)0b01011000, (byte)0b00100000}, // e 
+			{(byte)0b01110001, (byte)0b00000000}, // f 
+			{(byte)0b10001110, (byte)0b00000100}, // g 
+			{(byte)0b01110000, (byte)0b00010000}, // h 
+			{(byte)0b00000000, (byte)0b00010000}, // i 
+			{(byte)0b00001110, (byte)0b00000000}, // j 
+			{(byte)0b00000000, (byte)0b00011110}, // k 
+			{(byte)0b00110000, (byte)0b00000000}, // l 
+			{(byte)0b11010100, (byte)0b00010000}, // m 
+			{(byte)0b01010000, (byte)0b00010000}, // n 
+			{(byte)0b11011100, (byte)0b00000000}, // o 
+			{(byte)0b01110000, (byte)0b00000001}, // p 
+			{(byte)0b10000110, (byte)0b00000100}, // q 
+			{(byte)0b01010000, (byte)0b00000000}, // r 
+			{(byte)0b10001000, (byte)0b00001000}, // s 
+			{(byte)0b01111000, (byte)0b00000000}, // t 
+			{(byte)0b00011100, (byte)0b00000000}, // u 
+			{(byte)0b00000100, (byte)0b00001000}, // v 
+			{(byte)0b00010100, (byte)0b00101000}, // w 
+			{(byte)0b11000000, (byte)0b00101000}, // x 
+			{(byte)0b00001100, (byte)0b00001000}, // y 
+			{(byte)0b01001000, (byte)0b00100000}, // z 
+			{(byte)0b01001001, (byte)0b00100001}, // { 
+			{(byte)0b00000000, (byte)0b00010010}, // | 
+			{(byte)0b10001001, (byte)0b00001100}, // } 
+			{(byte)0b00100000, (byte)0b00000101}, // ~ 
+			{(byte)0b11111111, (byte)0b00111111}  // DEL 
+		};
 }

@@ -80,7 +80,7 @@ public class Autonomous
 	
 	public double getDelay()
 	{
-		double delay = (_db.getPot() - 207)/2;
+		double delay = (Math.sqrt(5.0) + 1.0)/2.0;//PHI
 		return delay;
 	}
 
