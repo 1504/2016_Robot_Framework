@@ -2,6 +2,7 @@ package org.usfirst.frc.team1504.robot;
 //import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.communication.FRCNetworkCommunicationsLibrary;
 import edu.wpi.first.wpilibj.communication.UsageReporting;
 import edu.wpi.first.wpilibj.communication.FRCNetworkCommunicationsLibrary.tInstances;
@@ -9,12 +10,14 @@ import edu.wpi.first.wpilibj.communication.FRCNetworkCommunicationsLibrary.tReso
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 public class Robot extends RobotBase
 {
+	DriverStation _ds = DriverStation.getInstance();
     Update_Semaphore _semaphore = Update_Semaphore.getInstance();
     Logger _logger = Logger.getInstance();
     Drive _drive = Drive.getInstance();
     Autonomous _autonomous = Autonomous.getInstance();
     Digit_Board _digit_board = Digit_Board.getInstance();
-    Shooter _shooter = Shooter.getInstance();
+    DigitBoard _db = DigitBoard.getInstance();
+//    Shooter _shooter = Shooter.getInstance();
     Pneumatics _pneumatics = Pneumatics.getInstance();
     /**
     * Create a new Robot
@@ -67,6 +70,10 @@ public class Robot extends RobotBase
     public void operatorControl()
     {
         System.out.println("Operator Control");
+        while (_ds.isOperatorControl())
+        {
+        	_digit_board.write();
+        }
     }
     /**
     * Test code should go here.
